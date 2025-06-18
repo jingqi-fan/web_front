@@ -7,8 +7,8 @@ export const useUserInfoStore=defineStore('useTokenStore',{
         user:null
     }),
     actions:{
-        setUserInfo(payload:{ user:User }){
-            this.user=payload.user;
+        setUserInfo(payload:User){
+            this.user=payload;
         },
         removeUserInfo(){
             this.user=null;

@@ -3,15 +3,18 @@
     <h1>vue3-setup模板</h1>
     <el-button type="primary" @click="handlerLogin">登录</el-button>
     <el-text >{{text}}</el-text>
+<!--    <el-button @click="getText">获取用户信息</el-button>-->
     <el-button v-if="visible" @click="updateInfo">更新用户信息</el-button>
+    <el-button @click="calculate">计算用户信用分</el-button>
 
   </div>
 </template>
 
 <script setup lang="ts">
 
-import {getUserInfo, login, register, updateUserInfo} from "../api/user.ts";
+import {getUserInfo, login, register, updateUserCreditScore, updateUserInfo} from "../api/user.ts";
 import {useTokenStore} from "../stores";
+import {useUserInfoStore} from "../stores/useUserInfoStore.ts";
 import {ref} from "vue";
 import {ElMessage} from "element-plus";
 const deviceId="123456"
@@ -26,8 +29,8 @@ const handlerLogin =async () => {
     device: deviceId
   })
   console.log("登录结果",res)
-  await getText()
   visible.value=true
+  await getText()
 }
 const text=ref('')
 const getText = async () => {
@@ -35,11 +38,13 @@ const getText = async () => {
     const tokenStore = useTokenStore();
     // ✅ 添加await等待异步结果
     text.value = await getUserInfo(tokenStore.token.userId);
+    console.log("id=",tokenStore.token.id)
     console.log('获取用户信息成功', text.value)
   } catch (error) {
     console.error('获取用户信息失败', error);
     ElMessage.error('用户信息加载失败');
   }
+
 }
 const updateInfo=async () => {
   const tokenStore = useTokenStore();
@@ -57,7 +62,19 @@ const updateInfo=async () => {
     township: "西湖"
   })
 }
-
+const calculate=async () => {
+  const userInfoStore=useUserInfoStore()
+  const id=userInfoStore.user.id
+  const res=await updateUserCreditScore(id,{
+    accountType: "330100194911070086",
+    idNumber:"52242220030312081X",
+    annualIncome:83268.0,
+    qualification: "大学及以上",
+    jobType:"退休人员",
+    maritalStatus:"已婚"
+  })
+  console.log("计算结果",res)
+}
 
 </script>
 

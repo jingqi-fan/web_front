@@ -3,7 +3,7 @@ export interface Token {
     accessExpires:number;
     accessToken: string;
     deviceId: string;
-    id:string;
+    id:number;
     refreshExpires: number;
     refreshToken: string;
     status: string;

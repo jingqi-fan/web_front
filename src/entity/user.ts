@@ -1,9 +1,18 @@
 
 export interface User {
+    address: string;
+    city: string;
+    contactUs: string;
+    createTime?: string;
+    email: string;
+    gender: string;
+    id:number;
+    nickname: string;
+    phone: string;
+    profilePicture: string;
+    province: string;
+    township: string;
+    updateTime?: string;
     username: string;
-    province?: string;
-    city?: string;
-    county?: string;
-    email?: string;
-    phone?: string;
+    uuid: string;
 }

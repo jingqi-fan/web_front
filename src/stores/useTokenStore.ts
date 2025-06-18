@@ -12,9 +12,7 @@ export const useTokenStore = defineStore('token', {
             const now = Math.floor(Date.now() / 1000);
             payload.accessExpires = now + payload.accessExpires;
             payload.refreshExpires = now + payload.refreshExpires;
-
             this.token = payload;
-            console.log(this.token.userId)
             localStorage.setItem('token', JSON.stringify(payload));
         },
         removeToken() {
