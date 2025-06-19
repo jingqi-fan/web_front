@@ -11,6 +11,7 @@ import type {UpdateUserInfo} from "../entity/updateUserInfo.ts";
 import {useUserInfoStore} from "../stores/useUserInfoStore.ts";
 import {UpdateCreditScore} from "../entity/updateCreditScore.ts";
 import router from "../router";
+import type {UserCreditScore} from "../entity/user_credit_score.ts";
 
 // 用户注册
 export const register = (data: RegisterCommand):Promise<ApiResponse>=> {
@@ -60,17 +61,15 @@ export const getUserInfo = async (userId: string) => {
 };
 // 刷新Token
 export const refreshToken = async (data: RefreshTokenCommand) => {
-    console.log("data=",data)
-    data.device = "web"
     try {
         const res = await axiosInstance.post<Result<Token>>('/user/refresh', data);
-        // ✅ 添加有效性检查
         if (res?.data?.data) {
             const tokenStore = useTokenStore();
             tokenStore.setToken(res.data.data);
-            return res.data.data; // 返回有效数据
+            return res.data.data;
         }
-        throw new Error('刷新Token失败：响应数据无效');
+        ElMessage.error('刷新Token失败：响应数据无效,请重新登录');
+        await router.push('/login');
     } catch (error) {
         ElMessage.error('刷新Token失败,请重新登录');
         await router.push('/login');
@@ -78,27 +77,55 @@ export const refreshToken = async (data: RefreshTokenCommand) => {
     }
 };
 export  const updateUserInfo =async (uuid:String,data:UpdateUserInfo)=>{
-    await axiosInstance.post<UpdateUserInfo>(`/user/update?uuid=${uuid}`,data).then(res => {
+    return await axiosInstance.post<UpdateUserInfo>(`/user/update?uuid=${uuid}`,data).then(res => {
+        console.log(res)
         if(res.data.status !== 'SUCCESS'){
             ElMessage.error(res.data.message);
             return;
         }
         ElMessage.success('更新成功');
-        return res;
     }).catch(err=>{
-        ElMessage.error("更新信息异常：");
+        ElMessage.error(`更新信息异常：${err}`);
     })
 }
 export const updateUserCreditScore=async (id:number,data:UpdateCreditScore)=>{
 
-    await axiosInstance.post<UpdateCreditScore>(`/user/credit/update?id=${id}`,data).then(res=>{
-        if(res.data.status !== 'SUCCESS'){
+    return await axiosInstance.post<UpdateCreditScore>(`/user/credit/update?id=${id}`, data).then(res => {
+        if (res.data.status !== 'SUCCESS') {
             ElMessage.error(res.data.message);
             return;
         }
-        ElMessage.success('用户信用分更新成功:');
-        return res;
-    }).catch(err=>{
-        ElMessage.error("信用分更新发生异常：");
-    })
+        ElMessage.success('用户信用分更新成功');
+    }).catch(err => {
+        ElMessage.error(`信用分更新发生异常：${err}`);
+    });
 }
+
+export const getUserCreditScoreInfo = async (id: number): Promise<UserCreditScore> => {
+    try {
+        const res = await axiosInstance.get(`/user/credit/get?id=${id}`);
+        if (res.data.status !== 'SUCCESS') {
+            ElMessage.error(res.data.message);
+            return;
+        }
+
+        const uc: UserCreditScore = {
+            accountType: res.data.data.accountType,
+            annualIncome: res.data.data.annualIncome,
+            createTime: res.data.data.createTime,
+            creditScore: res.data.data.creditScore,
+            creditUpdateTime: res.data.data.updateTime,
+            id: res.data.data.id,
+            idNumber: res.data.data.idNumber,
+            jobType: res.data.data.jobType,
+            maritalStatus: res.data.data.maritalStatus,
+            qualification: res.data.data.qualification,
+            updateTime: res.data.data.updateTime,
+        };
+        ElMessage.success(`获取用户信用分成功`);
+        return uc;
+    } catch (err) {
+        ElMessage.error(`获取用户信用分发生异常：${err}`);
+        throw err;
+    }
+};

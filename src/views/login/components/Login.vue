@@ -1,0 +1,180 @@
+<template>
+  <t-form
+      ref="form"
+      :class="['item-container', `login-${type}`]"
+      :data="UserNameForm"
+      :rules="FORM_RULES"
+      label-width="0"
+  >
+    <template v-if="type == 'password'">
+      <t-form-item name="account">
+        <t-input v-model="UserNameForm.name" size="large" placeholder="请输入账号：admin">
+          <template #prefix-icon>
+            <t-icon name="user" />
+          </template>
+        </t-input>
+      </t-form-item>
+      <t-form-item name="password">
+        <t-input
+            v-model="UserNameForm.password"
+            size="large"
+            :type="showPsw ? 'text' : 'password'"
+            clearable
+            placeholder="请输入登录密码：admin"
+        >
+          <template #prefix-icon>
+            <t-icon name="lock-on" />
+          </template>
+          <template #suffix-icon>
+            <t-icon :name="showPsw ? 'browse' : 'browse-off'" @click="showPsw = !showPsw" />
+          </template>
+        </t-input>
+      </t-form-item>
+
+      <div class="check-container remember-pwd">
+        <t-checkbox>记住账号</t-checkbox>
+        <span class="tip">忘记账号？</span>
+      </div>
+    </template>
+
+    <!-- 扫码登陆 -->
+    <template v-else-if="type == 'qrcode'">
+      <div class="tip-container">
+        <span class="tip">请使用微信扫一扫登录</span>
+        <span class="refresh">刷新 <t-icon name="refresh" /> </span>
+      </div>
+      <qrcode-vue value="" :size="192" level="H" />
+    </template>
+
+    <!-- 手机号登陆 -->
+    <template v-else>
+      <t-form-item name="phone">
+        <t-input v-model="PhoneForm.phone" size="large" placeholder="请输入手机号码">
+          <template #prefix-icon>
+            <t-icon name="mobile" />
+          </template>
+        </t-input>
+      </t-form-item>
+
+      <t-form-item class="verification-code" name="verifyCode">
+        <t-input v-model="PhoneForm.code" size="large" placeholder="请输入验证码" />
+        <t-button variant="outline" :disabled="counter.countdown  > 0" @click="sendCode">
+          {{counter.countdown == 0 ? '发送验证码' : `${counter.countdown}秒后可重发` }}
+        </t-button>
+      </t-form-item>
+    </template>
+    <t-form-item v-if="type !== 'qrcode'" class="btn-container">
+      <t-button block size="large" type="submit" @click="onSubmit"> 登录 </t-button>
+    </t-form-item>
+
+    <div class="switch-container">
+      <span v-if="type !== 'password'" class="tip" @click="switchType('password')">使用账号密码登录</span>
+      <span v-if="type !== 'qrcode'" class="tip" @click="switchType('qrcode')">使用微信扫码登录</span>
+      <span v-if="type !== 'phone'" class="tip" @click="switchType('phone')">使用手机号登录</span>
+    </div>
+  </t-form>
+</template>
+
+<script setup lang="ts">
+import {ref} from 'vue';
+import QrcodeVue from 'qrcode.vue';
+import type {FormInstanceFunctions, FormRule} from 'tdesign-vue-next';
+import {MessagePlugin} from 'tdesign-vue-next';
+import {loginByPhone, loginByUserName, sendSms} from "@/api/BackServiceApi/user";
+import {useTokenStore,useTimerStore} from "@/store/user/useUserStore.ts";
+import router from "@/router";
+import useRouterStore from "@/store/system/useSystemStore.ts";
+const routerStore = useRouterStore();
+const tokenStore = useTokenStore();
+const counter=useTimerStore();
+
+const UserNameForm=ref({
+  name:'Admin',
+  password:'123456',
+})
+const PhoneForm=ref({
+  phone:'',
+  code:'',
+})
+
+
+
+const FORM_RULES: Record<string, FormRule[]> = {
+  name: [{ required: true, message: '账号必填', type: 'error' }],
+  password: [{ required: true, message: '密码必填', type: 'error' }],
+};
+
+const type = ref('password');
+
+const form = ref<FormInstanceFunctions>();
+
+const showPsw = ref(false);
+
+
+const switchType = (val: string) => {
+  type.value = val;
+};
+
+
+/**
+ * 发送验证码
+ */
+const isPhone = (phone: string): boolean => {
+  const phoneRegex = /^1[3-9]\d{9}$/;
+  return phoneRegex.test(phone);
+};
+const sendCode =async () => {
+  counter.startTimer()
+  if(isPhone(PhoneForm.value.phone)){
+    try{
+      await sendSms(PhoneForm.value.phone);
+    }catch (e){
+      console.log(e);
+      MessagePlugin.error("验证码发送失败")
+    }
+  }else{
+    MessagePlugin.error("请输入正确的电话号码")
+  }
+};
+
+const token=ref('')
+const onSubmit = async () => {
+
+  LoginTo()
+  return;
+
+  // if(type.value=='password'){
+  //   // 账密登录
+  //   token.value =await loginByUserName(UserNameForm.value.name, UserNameForm.value.password);
+  // }else if(type.value=='phone'){
+  //   // 手机号登录
+  //   if(PhoneForm.value.code.length!=6){
+  //     await MessagePlugin.error("验证码格式不正确")
+  //   }
+  //   token.value=await loginByPhone(PhoneForm.value.phone, PhoneForm.value.code);
+  // }else if(type.value=='qrcode'){
+  //   // 二维码登录
+  //   await MessagePlugin.error("暂不支持此方式")
+  // }
+  // if(token.value != null){
+  //   LoginTo(token.value)
+  // }else{
+  //   MessagePlugin.error("登录失败！");
+  // }
+};
+const LoginTo=(res:string)=>{
+  tokenStore.setToken(res)
+  MessagePlugin.success("登录成功!")
+
+  if(routerStore.selectedRouter==''){
+    router.push('/welcome')
+    return
+  }
+  let page=routerStore.selectedRouter
+  router.push(page)
+}
+</script>
+
+<style lang="less" scoped>
+@import url('../index.less');
+</style>
