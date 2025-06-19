@@ -29,17 +29,28 @@ export const register = (data: RegisterCommand):Promise<ApiResponse>=> {
 
 // 用户登录
 export const login = async (data: LoginCommand):Promise<ApiResponse> => {
-    await axiosInstance.post<Result<Token>>('/user/login', data).then(res => {
-        if(res.data.status !== 'SUCCESS'){
-            ElMessage.error(res.data.message);
-            return;
+    // return await axiosInstance.post<Result<Token>>('/user/login', data).then(res => {
+    //     if(res.data.status !== 'SUCCESS'){
+    //         ElMessage.error(res.data.message);
+    //         return;
+    //     }
+    //     ElMessage.success('登录成功');
+    //     const tokenStore = useTokenStore();
+    //     tokenStore.setToken(res.data.data);
+    // })
+    try{
+        const res = await axiosInstance.post<Result<Token>>('/user/login', data);
+        if (res?.data?.status === 'SUCCESS') {
+            return res.data;
+        } else {
+            ElMessage.error('获取用户信用分失败');
+            throw new Error('无效的响应数据');
         }
-        console.log("login res=",res)
-        ElMessage.success('登录成功');
-        const tokenStore = useTokenStore();
-        tokenStore.setToken(res.data.data);
-        return res;
-    })
+    }catch (error){
+        console.error('登录失败', error);
+        ElMessage.error('登录失败');
+        throw error;
+    }
 };
 
 export const getUserInfo = async (userId: string) => {

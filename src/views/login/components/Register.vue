@@ -74,9 +74,8 @@
 import { ref } from 'vue';
 import { MessagePlugin, FormRule } from 'tdesign-vue-next';
 
-import {useTimerStore} from "@/store/user/useUserStore.ts";
-import {registerByEmail, registerByPhone, sendSms} from "@/api/BackServiceApi/user";
-const counter = useTimerStore();
+
+
 
 
 
@@ -148,7 +147,7 @@ const EmailForm=ref({
 })
 const registerByEmailAsync = async () => {
   try{
-    await registerByEmail(EmailForm.value.email,EmailForm.value.password)
+    // await registerByEmail(EmailForm.value.email,EmailForm.value.password)
   }catch (e){
     MessagePlugin.error("系统出现错误,请反馈给开发人员");
     console.log("registerByPhone错误:"+e);

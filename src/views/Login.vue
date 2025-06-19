@@ -23,7 +23,7 @@ import {
   updateUserCreditScore,
   updateUserInfo
 } from "../api/user.ts";
-import {useTokenStore} from "../stores";
+import {useTokenStore} from "@/stores";
 import {useUserInfoStore} from "../stores/useUserInfoStore.ts";
 import {ref} from "vue";
 import {ElMessage} from "element-plus";

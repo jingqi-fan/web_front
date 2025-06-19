@@ -6,8 +6,8 @@
         <h1 class="title margin-no">登录到 :</h1>
         <h1 class="title">
           &nbsp;&nbsp;&nbsp;&nbsp;
-          <span style="color: deepskyblue">智能</span>
-          <span style="color: dodgerblue">异常监测</span>
+          <span style="color: deepskyblue">西湖分</span>
+          <span style="color: dodgerblue">个人信用</span>
           <span style="color: lightskyblue">平台</span>
         </h1>
 
@@ -23,7 +23,7 @@
       <register v-else @register-success="switchType('login')" />
     </div>
 
-    <footer class="copyright">Copyright @ 2024-2030 示范性软件学院联盟. All Rights Reserved</footer>
+    <footer class="copyright">Copyright @ 2024-2030 西湖市人民政府. All Rights Reserved</footer>
   </div>
 </template>
 <script lang="tsx">
@@ -36,7 +36,7 @@ import { ref } from 'vue';
 import Login from './components/Login.vue';
 import Register from './components/Register.vue';
 import LoginHeader from './components/Header.vue';
-import router from "@/router";
+import router from "../../router";
 
 
 const goToHome=()=>{

@@ -77,19 +77,19 @@
 
 <script setup lang="ts">
 import {ref} from 'vue';
-import QrcodeVue from 'qrcode.vue';
 import type {FormInstanceFunctions, FormRule} from 'tdesign-vue-next';
 import {MessagePlugin} from 'tdesign-vue-next';
-import {loginByPhone, loginByUserName, sendSms} from "@/api/BackServiceApi/user";
-import {useTokenStore,useTimerStore} from "@/store/user/useUserStore.ts";
+import useRouterStore from "../../../stores/useSystemStore.ts";
+import {useTokenStore} from "@/stores";
+import {login} from "@/api/user.ts";
 import router from "@/router";
-import useRouterStore from "@/store/system/useSystemStore.ts";
+
 const routerStore = useRouterStore();
 const tokenStore = useTokenStore();
-const counter=useTimerStore();
+// const counter=useTimerStore();
 
 const UserNameForm=ref({
-  name:'Admin',
+  name:'zachary',
   password:'123456',
 })
 const PhoneForm=ref({
@@ -136,42 +136,32 @@ const sendCode =async () => {
     MessagePlugin.error("请输入正确的电话号码")
   }
 };
-
+const deviceId="21376"
 const token=ref('')
 const onSubmit = async () => {
-
-  LoginTo()
-  return;
-
-  // if(type.value=='password'){
-  //   // 账密登录
-  //   token.value =await loginByUserName(UserNameForm.value.name, UserNameForm.value.password);
-  // }else if(type.value=='phone'){
-  //   // 手机号登录
-  //   if(PhoneForm.value.code.length!=6){
-  //     await MessagePlugin.error("验证码格式不正确")
-  //   }
-  //   token.value=await loginByPhone(PhoneForm.value.phone, PhoneForm.value.code);
-  // }else if(type.value=='qrcode'){
-  //   // 二维码登录
-  //   await MessagePlugin.error("暂不支持此方式")
-  // }
-  // if(token.value != null){
-  //   LoginTo(token.value)
-  // }else{
-  //   MessagePlugin.error("登录失败！");
-  // }
+  await LoginTo()
 };
-const LoginTo=(res:string)=>{
-  tokenStore.setToken(res)
-  MessagePlugin.success("登录成功!")
+const LoginTo=async ()=>{
+  const res=await login({
+    username: UserNameForm.value.name,
+    password: UserNameForm.value.password,
+    device: deviceId
+  })
+  console.log("Login")
+  console.log(res)
 
-  if(routerStore.selectedRouter==''){
-    router.push('/welcome')
-    return
+  if(res.status==="SUCCESS"){
+    await MessagePlugin.success("登录成功!")
+    if(routerStore.selectedRouter===''){
+      await router.push('/welcome')
+      return
+    }
+    let page=routerStore.selectedRouter
+    await router.push(page)
+  }else{
+    await MessagePlugin.error(res.message)
   }
-  let page=routerStore.selectedRouter
-  router.push(page)
+
 }
 </script>
 

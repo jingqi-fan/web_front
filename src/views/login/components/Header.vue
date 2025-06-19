@@ -3,8 +3,8 @@
     <auto-monitor-logo class="logo" />
 
     <div class="operations-container">
-      <t-button theme="default" shape="square" variant="text" @click="navToGitee">
-        <t-icon name="logo-github" class="icon" />
+      <t-button theme="default" shape="square" variant="text" @click="navToGovernment">
+        <t-icon name="double-storey" class="icon" />
       </t-button>
       <t-button theme="default" shape="square" variant="text" @click="navToHelper">
         <t-icon name="help-circle" class="icon" />
@@ -22,14 +22,12 @@ import {ref} from "vue";
 
 const slotChecked = ref(true);
 
-
-
-const navToGitee = () => {
-  window.open('https://gitee.com/sekirosdadfs/AutoMonitor.git');
+const navToGovernment = () => {
+  window.open('https://www.hangzhou.gov.cn/');
 };
 
 const navToHelper = () => {
-  window.open('https://www.swcontest.com.cn/index');
+  window.open('https://www.chinasofti.com/');
 };
 </script>
 

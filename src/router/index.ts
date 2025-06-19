@@ -1,12 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/Home.vue'
-import Login from '../views/Login.vue'
+import Home from '../views/home/index.vue'
+import Login from '../views/login/index.vue'
 import Layout from "../views/Layout.vue";
 import Data from "../views/data/index.vue"
 import CreditBusiness from '../views/CreditBusiness.vue'
 import CreditBusinessHome from '../views/CreditBusinessHome.vue'
 import HotelList from '../views/HotelList.vue'
 import HotelDetail from '../views/HotelDetail.vue'
+import Welcome from '../views/welcome/index.vue'
 
 
 const router = createRouter({
@@ -25,6 +26,11 @@ const router = createRouter({
             path: '/login',
             name: 'login',
             component: Login,
+        },
+        {
+            path: '/welcome',
+            name: 'welcome',
+            component: Welcome,
         },
         {
             path: '/info',
