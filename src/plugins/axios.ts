@@ -16,7 +16,9 @@ let requestQueue: (() => void)[] = [];
 
 // 请求拦截器 - 专门处理 token 刷新
 axiosInstance.interceptors.request.use(
+    
     async (config) => {
+        
         if (config.url?.includes('/user/register')) {
             return config; // 直接返回配置，不进行Token处理
         }
@@ -65,6 +67,8 @@ axiosInstance.interceptors.request.use(
         console.log("Authorization",config.headers.Authorization)
         return config;
     },
+    
+    
     error => Promise.reject(error)
 );
 
@@ -72,6 +76,7 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
     response => response,
     async (error: AxiosError) => {
+        
         const { response, config } = error;
         const tokenStore = useTokenStore();
 
@@ -89,10 +94,13 @@ axiosInstance.interceptors.response.use(
                 case 400:
                 case 403:
                 case 500:
-                    // 其他状态码处理
                     ElMessage.error(response.data?.message || "服务异常");
+                    console.log("ERR");
+                    console.log(response)
                     break;
                 default:
+                    console.log("ERR");
+                    
                     ElMessage.error("服务异常");
             }
         } else if (error.request) {

@@ -1,6 +1,7 @@
 // src/api/hotel.ts
 import axios from '../plugins/axios'
 import type { Hotel } from '../entity/Hotel'
+import axiosInstance from '../plugins/axios'
 
 /**
  * 条件筛选酒店列表
@@ -11,7 +12,7 @@ export async function filterHotels(criteria: {
   minPrice?: number,
   maxPrice?: number
 }): Promise<Hotel[]> {
-  const res = await axios.get<Hotel[]>('/hotels/filter', { params: criteria })
+  const res = await axiosInstance.get<Hotel[]>('/hotels/filter', { params: criteria })
   return res.data
 }
 
@@ -19,7 +20,7 @@ export async function filterHotels(criteria: {
  * 精确名称搜索酒店
  */
 export async function searchHotelsByName(name?: string): Promise<Hotel[]> {
-  const res = await axios.get<Hotel[]>('/hotels/search', { params: { name } })
+  const res = await axiosInstance.get<Hotel[]>('/hotels/search', { params: { name } })
   return res.data
 }
 
@@ -27,6 +28,6 @@ export async function searchHotelsByName(name?: string): Promise<Hotel[]> {
  * 根据 ID 获取酒店详情
  */
 export async function getHotelById(hotelId: number): Promise<Hotel> {
-  const res = await axios.get<Hotel>(`/hotels/${hotelId}`)
+  const res = await axiosInstance.get<Hotel>(`/hotels/${hotelId}`)
   return res.data
 }

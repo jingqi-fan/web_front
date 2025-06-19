@@ -4,7 +4,7 @@ import type {User} from "../entity/user.ts";
 //双Token设计
 export const useUserInfoStore=defineStore('useTokenStore',{
     state:()=>({
-        user:null
+        user:null as User | null
     }),
     actions:{
         setUserInfo(payload:User){

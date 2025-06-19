@@ -3,7 +3,7 @@
     <h1>vue3-setup模板</h1>
     <el-button type="primary" @click="handlerLogin">登录</el-button>
     <el-text >{{text}}</el-text>
-<!--    <el-button @click="getText">获取用户信息</el-button>-->
+   <el-button @click="getText">获取用户信息</el-button>
     <el-button v-if="visible" @click="updateInfo">更新用户信息</el-button>
     <el-button @click="calculate">计算用户信用分</el-button>
 
@@ -22,6 +22,9 @@ const visible=ref(false)
 const username="zachary"
 const password="123456"
 
+
+
+
 const handlerLogin =async () => {
   const res=await login({
     username: username,
@@ -30,7 +33,7 @@ const handlerLogin =async () => {
   })
   console.log("登录结果",res)
   visible.value=true
-  await getText()
+
 }
 const text=ref('')
 const getText = async () => {
@@ -65,6 +68,7 @@ const updateInfo=async () => {
 const calculate=async () => {
   const userInfoStore=useUserInfoStore()
   const id=userInfoStore.user.id
+  console.log("id=",id)
   const res=await updateUserCreditScore(id,{
     accountType: "330100194911070086",
     idNumber:"52242220030312081X",

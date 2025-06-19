@@ -21,6 +21,10 @@
 import { ShoppingCart, House, OfficeBuilding } from '@element-plus/icons-vue'
 import { reactive } from 'vue'
 
+
+
+
+
 const features = reactive([
   {
     title: '信用购物',

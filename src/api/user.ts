@@ -49,6 +49,7 @@ export const getUserInfo = async (userId: string) => {
         if (res?.data?.data) {
             console.log(res.data.data)
             userInfoStore.setUserInfo(res.data.data);
+            
             return res.data.data;
         }
         throw new Error('无效的响应数据');
