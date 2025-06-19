@@ -1,0 +1,18 @@
+// src/assets/styles/creditbusiness.scss
+
+/* 仅在 .credit-business 下生效 */
+.credit-business {
+    --primary-color: #5CACEE;
+    --text-color: #2C3E50;
+    --card-bg: #FFFFFF;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  
+    background-color: #F0F6FA;
+    color: var(--text-color);
+  
+    /* 为 el-card 全局变量覆盖 */
+    .el-card {
+      background-color: var(--card-bg);
+      box-shadow: var(--shadow);
+    }
+  }
