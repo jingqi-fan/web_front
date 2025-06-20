@@ -275,7 +275,7 @@ const fetchCommodityDetails = async () => {
 
 // 返回商品列表页面
 const goBack = () => {
-  router.push('/commodity')
+  router.push('/creditbusiness/credit-shopping')
 }
 
 // 处理图片加载错误

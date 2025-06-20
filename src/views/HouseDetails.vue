@@ -235,7 +235,7 @@ export default {
     const loading = ref(true)
     
     // API基础URL
-    const API_BASE_URL = '/api/house-details'
+    const API_BASE_URL = 'http://localhost:8082/api/house-details'
     
     // 计算属性
     const imageList = computed(() => {

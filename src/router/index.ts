@@ -1,8 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/Home.vue'
-import Login from '../views/Login.vue'
+import Home from '../views/home/index.vue'
+import Login from '../views/login/index.vue'
 import Layout from "../views/Layout.vue";
 import Data from "../views/data/index.vue"
+import CreditBusiness from '../views/CreditBusiness/CreditBusiness.vue'
+import CreditBusinessHome from '../views/CreditBusiness/CreditBusinessHome.vue'
+import HotelList from '../views/CreditBusiness/HotelList.vue'
+import HotelDetail from '../views/CreditBusiness/HotelDetail.vue'
+import Welcome from '../views/welcome/index.vue'
+import Personal from '../views/personal/index.vue'
 
 import House  from "../views/House.vue"
 import HouseDetails  from "../views/HouseDetails.vue"
@@ -24,6 +30,11 @@ const router = createRouter({
             path: '/login',
             name: 'login',
             component: Login,
+        },
+        {
+            path: '/welcome',
+            name: 'welcome',
+            component: Welcome,
         },
         {
             path: '/info',
@@ -55,19 +66,51 @@ const router = createRouter({
             props: true
         },
 
-
-
         {
             path: '/house-details/:id',
             name: 'HouseDetails',
             component: HouseDetails,
             props: true // 允许将路由参数作为 props 传递给组件
-          }
+        },
 
-    
-
-
-
+        {
+            path: '/personal',
+            name: 'personal',
+            component: Personal
+        },
+        {
+            path: '/creditbusiness',
+            name: 'CreditBusiness',
+            component: CreditBusiness,
+            children: [
+              {
+                path: '',                // 默认子路由：信用商业首页
+                name: 'CreditBusinessHome',
+                component: CreditBusinessHome
+              },
+              {
+                path: 'credit-shopping',  // 信用购物
+                name: 'CreditShopping',
+                component: Commodity
+              },
+              {
+                path: 'credit-rent',      // 便捷租房
+                name: 'CreditRental',
+                component: House
+              },
+              {
+                path: 'hotel-list',      // "酒店预订"列表
+                name: 'HotelList',
+                component: HotelList
+              },
+              {
+                path: 'hotel-list/:hotelId',  // 详情页
+                name: 'HotelDetail',
+                component: HotelDetail,
+                props: true
+              }
+            ]
+        }
     ],
 })
 
