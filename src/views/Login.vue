@@ -6,15 +6,16 @@
    <el-button @click="getText">获取用户信息</el-button>
     <el-button v-if="visible" @click="updateInfo">更新用户信息</el-button>
     <el-button @click="calculate">计算用户信用分</el-button>
+    <el-button @click="router.push('/creditbusiness')">信用商业模块</el-button>
 
   </div>
 </template>
 
 <script setup lang="ts">
-
+import router from "../router";
 import {getUserInfo, login, register, updateUserCreditScore, updateUserInfo} from "../api/user.ts";
 import {useTokenStore} from "../stores";
-import {useUserInfoStore} from "../stores/useUserInfoStore.ts";
+import {useUserInfoStore} from "../stores/useUserInfoStore";
 import {ref} from "vue";
 import {ElMessage} from "element-plus";
 const deviceId="123456"
@@ -33,7 +34,7 @@ const handlerLogin =async () => {
   })
   console.log("登录结果",res)
   visible.value=true
-
+  await getText()
 }
 const text=ref('')
 const getText = async () => {

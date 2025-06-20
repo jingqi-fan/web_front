@@ -20,9 +20,12 @@
 // 导入最新图标组件  
 import { ShoppingCart, House, OfficeBuilding } from '@element-plus/icons-vue'
 import { reactive } from 'vue'
+import {useUserInfoStore} from "../stores/useUserInfoStore";
+import {ElMessage} from "element-plus";
 
 
-
+const userInfoStore=useUserInfoStore()
+const user=userInfoStore.user
 
 
 const features = reactive([

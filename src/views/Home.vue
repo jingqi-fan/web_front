@@ -10,7 +10,7 @@
 <script setup lang="ts">
 import router from "../router";
 
-console.log("fdytfdtwyqdwq");
+
 
 const handlerLogin = () => {
   router.push('/login')
