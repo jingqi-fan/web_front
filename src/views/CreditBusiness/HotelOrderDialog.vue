@@ -2,7 +2,7 @@
 <template>
   <el-dialog
     :model-value="modelValue"
-    title="预订确认"
+    title="预订提交"
     width="40%"
     :close-on-click-modal="false"
     @close="handleClose"
@@ -20,8 +20,8 @@
         <span>{{ formatDate(checkInDate) }}</span>
       </el-form-item>
       <el-form-item label="入住时长">
-        <el-input-number v-model="nights" :min="1" label="晚数" />
-        <span> 晚</span>
+        <el-input-number v-model="nights" :min="1" max="120" label="晚数" />
+        <span>&nbsp;&nbsp;&nbsp;&nbsp;天</span>
       </el-form-item>
       <el-form-item label="离店日期">
         <span>{{ formatDate(checkOutDate) }}</span>
@@ -56,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, ref, computed, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getUserCreditScoreInfo } from '../../api/user'
 import {useUserInfoStore} from "../../stores/useUserInfoStore";
@@ -64,7 +64,6 @@ import {useUserInfoStore} from "../../stores/useUserInfoStore";
 // 引入类型
 import type { Hotel } from '../../entity/Hotel'
 import type { RoomType } from '../../entity/RoomType'
-import { log } from 'console';
 
 
 const props = defineProps<{
@@ -97,7 +96,7 @@ const repaymentDeadlineDays = computed(() => {
   const diff = checkOutDate.value.getTime() - now
   return Math.ceil(diff / (1000 * 60 * 60 * 24))
 })
-const repaymentDeadlineText = computed(() => `${repaymentDeadlineDays.value} 天后`)
+const repaymentDeadlineText = computed(() => `${repaymentDeadlineDays.value} 天`)
 
 
 async function fetchCredit() {
