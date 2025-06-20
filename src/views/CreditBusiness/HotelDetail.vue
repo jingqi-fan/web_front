@@ -32,7 +32,7 @@
         </div>
       </div>
 
-      <!-- 预订表单：仅“入住日期” + 右侧占位 -->
+      <!-- 预订表单：入住日期 + 房型选择 + 立即预订按钮 -->
       <div class="booking-panel">
         <div class="left">
           <el-form label-width="80px">
@@ -41,7 +41,9 @@
                 v-model="checkInDate"
                 type="date"
                 placeholder="选择入住日期"
+                :disabled-date="disabledDate"
               />
+              <el-text style="margin-left: 20px ; color:red; font-size: 13px;">时间限制：未来半年</el-text>
             </el-form-item>
             <el-form-item label="房型选择">
               <el-select v-model="selectedTypeId" placeholder="选择房型">
@@ -52,6 +54,16 @@
                   :value="rt.typeId"
                 />
               </el-select>
+            </el-form-item>
+            <!-- 新增：立即预订按钮 -->
+            <el-form-item>
+              <el-button
+                type="primary"
+                :disabled="!checkInDate"
+                @click="openBooking"
+              >
+                立即预订
+              </el-button>
             </el-form-item>
           </el-form>
         </div>
@@ -85,19 +97,28 @@
         </el-card>
       </div>
     </el-card>
+
+    <!-- 预订弹窗 -->
+    <HotelOrderDialog
+      v-model="bookingDialogVisible"
+      :hotel="hotel"
+      :room-type="selectedRoom"
+      :check-in-date="checkInDate"
+      @confirm="confirmBooking"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getHotelById } from '../api/hotel'
-import { getRoomTypesByHotel } from '../api/roomType'
-import type { Hotel } from '../entity/Hotel'
-import type { RoomType } from '../entity/RoomType'
+import { getHotelById } from '../../api/hotel'
+import { getRoomTypesByHotel } from '../../api/roomType'
+import type { Hotel } from '../../entity/Hotel'
+import type { RoomType } from '../../entity/RoomType'
+import HotelOrderDialog from './HotelOrderDialog.vue'
 import { Location, Close } from '@element-plus/icons-vue'
 
-const ElIconClose=Close
 const route = useRoute()
 const router = useRouter()
 const hotelId = Number(route.params.hotelId)
@@ -105,7 +126,10 @@ const hotelId = Number(route.params.hotelId)
 const hotel = ref<Hotel | null>(null)
 const roomTypes = ref<RoomType[]>([])
 const selectedTypeId = ref<number | null>(null)
-const checkInDate = ref<string>('')
+const checkInDate = ref<Date | null>(null)
+
+// 控制预订弹窗显示
+const bookingDialogVisible = ref(false)
 
 const selectedRoom = computed(
   () => roomTypes.value.find(r => r.typeId === selectedTypeId.value) || null
@@ -123,6 +147,31 @@ function goBack() {
   router.back()
 }
 
+// 打开预订弹窗
+function openBooking() {
+  bookingDialogVisible.value = true
+}
+
+// 确认预订（具体逻辑待实现）
+function confirmBooking() {
+  // TODO: 提交预订请求
+  bookingDialogVisible.value = false
+  console.log('收到预订事件')
+  // 可根据需求清空或保留状态
+}
+
+// 入住日期可选范围：今天 ~ 半年后
+ function disabledDate(date: Date) {
+  // 今天 00:00:00
+  const start = new Date()
+  start.setHours(0, 0, 0, 0)
+  // 半年后的 23:59:59.999
+  const end = new Date(start)
+  end.setMonth(end.getMonth() + 6)
+  end.setHours(23, 59, 59, 999)
+  return date < start || date > end
+}
+
 onMounted(loadData)
 </script>
 
@@ -132,7 +181,7 @@ onMounted(loadData)
 }
 .detail-card {
   position: relative;
-  background-color: #eff7f4;
+  background-color: #fbfbf6;
   .close-wrapper {
   position: absolute;
   top: 12px;
