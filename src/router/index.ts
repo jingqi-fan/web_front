@@ -3,10 +3,10 @@ import Home from '../views/home/index.vue'
 import Login from '../views/login/index.vue'
 import Layout from "../views/Layout.vue";
 import Data from "../views/data/index.vue"
-import CreditBusiness from '../views/CreditBusiness.vue'
-import CreditBusinessHome from '../views/CreditBusinessHome.vue'
-import HotelList from '../views/HotelList.vue'
-import HotelDetail from '../views/HotelDetail.vue'
+import CreditBusiness from '../views/CreditBusiness/CreditBusiness.vue'
+import CreditBusinessHome from '../views/CreditBusiness/CreditBusinessHome.vue'
+import HotelList from '../views/CreditBusiness/HotelList.vue'
+import HotelDetail from '../views/CreditBusiness/HotelDetail.vue'
 import Welcome from '../views/welcome/index.vue'
 import Personal from '../views/personal/index.vue'
 

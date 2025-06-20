@@ -97,8 +97,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { filterHotels, searchHotelsByName } from '../api/hotel'
-import type { Hotel } from '../entity/Hotel'
+import { filterHotels, searchHotelsByName } from '../../api/hotel'
+import type { Hotel } from '../../entity/Hotel'
 import { View, Location } from '@element-plus/icons-vue'
 
 
@@ -220,6 +220,7 @@ function goDetail(id: number) {
       .hotel-card {
         border-radius: 8px;
         overflow: hidden;
+        background-color: #fbfbf6;
 
         .hotel-cover {
           width: 100%;

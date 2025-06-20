@@ -5,9 +5,11 @@
       <el-col :span="8" v-for="item in features" :key="item.title">
         <el-card class="feature-card" shadow="hover">
           <!-- 使用新版图标 -->
-          <el-icon class="icon">
-            <component :is="item.icon" />
-          </el-icon>
+          <router-link :to="item.route">
+            <el-icon class="icon">
+              <component :is="item.icon" />
+            </el-icon>
+          </router-link>
           <h3>{{ item.title }}</h3>
           <p>{{ item.desc }}</p >
         </el-card>
@@ -20,26 +22,33 @@
 // 导入最新图标组件  
 import { ShoppingCart, House, OfficeBuilding } from '@element-plus/icons-vue'
 import { reactive } from 'vue'
+import {useUserInfoStore} from "../../stores/useUserInfoStore";
+import {ElMessage} from "element-plus";
 
-
-
+//获取用户id!!!
+const userInfoStore=useUserInfoStore()
+const user=userInfoStore.user
+//这里我们只需要user.name
 
 
 const features = reactive([
   {
     title: '信用购物',
     desc: '在线选购，快速结算；凭信用分可享免押金或分期优惠。',
-    icon: ShoppingCart
+    icon: ShoppingCart ,
+    route:'/creditbusiness/hotel-list'  //这两个子模块还没做好，暂时不用管路由
   },
   {
     title: '信用租房',
     desc: '租房无忧，押金减免；信用分越高，可选房源越丰富。',
-    icon: House
+    icon: House,
+    route:'/creditbusiness/hotel-list'  //这两个子模块还没做好，暂时不用管路由
   },
   {
     title: '酒店预订',
     desc: '实时查看酒店列表，根据信用分享受押金豁免及折扣。',
-    icon: OfficeBuilding
+    icon: OfficeBuilding,
+    route:'/creditbusiness/hotel-list'
   }
 ])
 </script>

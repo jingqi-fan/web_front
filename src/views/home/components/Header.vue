@@ -72,8 +72,6 @@ const slotChecked = ref(true);
 
 const isUserLogged=()=>{
   const userStore = useUserInfoStore();
-  console.log("Login Store: ")
-  console.log(userStore.user)
   return userStore.user !== null;
 }
 const goToHomePage = () => {

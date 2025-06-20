@@ -1,6 +1,11 @@
 <!-- src/components/Sidebar.vue -->
 <template>
   <nav class="sidebar">
+
+    <div class="sidebar-header">
+      <slot name="back"></slot>
+    </div>
+
     <ul>
       <li
         v-for="item in items"
@@ -50,8 +55,8 @@ export default defineComponent({
 <style scoped>
 .sidebar {
   width: 220px;
-  background-color: #fff;
-  border-right: 1px solid #e0e0e0;
+  background-color: #f5faf9;
+  border-right: 1px solid #c1bfbf;
   padding: 24px 16px;
   box-sizing: border-box;
 }
@@ -63,10 +68,10 @@ export default defineComponent({
 }
 
 .sidebar li {
-  font-size: 16px;
+  font-size: 20px;
   color: #333;
   padding: 12px 16px;
-  margin-bottom: 8px;
+  margin-bottom: 17px;
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
@@ -80,5 +85,14 @@ export default defineComponent({
   background-color: #409eff;
   color: #fff;
   font-weight: 500;
+
+}
+
+.sidebar-header {
+  padding: 14px;
+  text-align: left;
+  margin-bottom: 18%;
+  /* 你可以加个分隔线 */
+  border-bottom: 1.5px solid #9cb7e0;
 }
 </style>

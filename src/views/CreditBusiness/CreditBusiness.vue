@@ -1,7 +1,15 @@
 <!-- src/views/CreditBusiness.vue -->
 <template>
   <div class="credit-business">
-    <Sidebar :items="sidebarItems" />
+    <Sidebar :items="sidebarItems">
+      <template #back>
+        <!-- 跳回 /welcome -->
+        <el-button type="text" @click="router.push({ name: 'welcome' }) "  style="font-size: 20px;">
+          <el-icon style="font-size: 28px;"><ArrowLeft /></el-icon>
+          返回
+        </el-button>
+      </template>
+    </Sidebar>
     <div class="content">
       <router-view />
     </div>
@@ -9,9 +17,10 @@
 </template>
 
 <script setup lang="ts">
-import Sidebar from '../components/Sidebar.vue'
+import Sidebar from '../../components/Sidebar.vue'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { ArrowLeft } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const sidebarItems = computed(() => [
@@ -23,7 +32,7 @@ const sidebarItems = computed(() => [
 </script>
 
 <style lang="scss" scoped>
-@use '../assets/styles/creditbusiness.scss';
+@use '../../assets/styles/creditbusiness.scss';
 
 .credit-business {
   display: flex;

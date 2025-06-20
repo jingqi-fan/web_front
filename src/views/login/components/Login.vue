@@ -85,6 +85,7 @@ import {getUserInfo, login} from "@/api/user.ts";
 import router from "@/router";
 import {ElMessage} from "element-plus";
 
+
 const routerStore = useRouterStore();
 const tokenStore = useTokenStore();
 // const counter=useTimerStore();
@@ -149,27 +150,29 @@ const LoginTo=async ()=>{
     device: deviceId
   })
   await getText()
+
   if(res.status==="SUCCESS"){
     await MessagePlugin.success("登录成功!")
     if(routerStore.selectedRouter===''){
       await router.push('/welcome')
-    }else {
-      let page = routerStore.selectedRouter
-      routerStore.removeRouter()
-      await router.push(page)
+      return
     }
+    let page=routerStore.selectedRouter
+    await router.push(page)
   }else{
     await MessagePlugin.error(res.message)
   }
+
 }
 const getText = async () => {
   try {
     const tokenStore = useTokenStore();
-    await getUserInfo(tokenStore.token.userId);
-    console.log("获取用户信息 id=",tokenStore.token.id)
-    ElMessage.success('用户信息加载成功');
+    // ✅ 添加await等待异步结果
+    text.value = await getUserInfo(tokenStore.token.userId);
+    console.log("id=",tokenStore.token.id)
+    console.log('获取用户信息成功', text.value)
   } catch (error) {
-    console.error('用户信息加载失败', error);
+    console.error('获取用户信息失败', error);
     ElMessage.error('用户信息加载失败');
   }
 }

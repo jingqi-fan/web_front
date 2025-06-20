@@ -63,7 +63,6 @@ export const getUserInfo = async (userId: string) => {
         if (res?.data?.data) {
             console.log(res.data.data)
             userInfoStore.setUserInfo(res.data.data);
-            ElMessage.success('获取用户信息成功');
             
             return res.data.data;
         }
