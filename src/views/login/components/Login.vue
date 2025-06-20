@@ -167,10 +167,8 @@ const LoginTo=async ()=>{
 const getText = async () => {
   try {
     const tokenStore = useTokenStore();
-    // ✅ 添加await等待异步结果
-    text.value = await getUserInfo(tokenStore.token.userId);
-    console.log("id=",tokenStore.token.id)
-    console.log('获取用户信息成功', text.value)
+    const res=await getUserInfo(tokenStore.token.userId);
+    await MessagePlugin.success('用户信用分加载成功');
   } catch (error) {
     console.error('获取用户信息失败', error);
     ElMessage.error('用户信息加载失败');

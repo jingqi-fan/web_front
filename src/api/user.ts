@@ -117,6 +117,7 @@ export const updateUserCreditScore=async (id:number,data:UpdateCreditScore)=>{
 export const getUserCreditScoreInfo = async (id: number): Promise<UserCreditScore> => {
     try {
         const res = await axiosInstance.get(`/user/credit/get?id=${id}`);
+        console.log("user.ts-> getScore",res);
         if (res.data.status !== 'SUCCESS') {
             ElMessage.error(res.data.message);
             return;
@@ -135,6 +136,7 @@ export const getUserCreditScoreInfo = async (id: number): Promise<UserCreditScor
             qualification: res.data.data.qualification,
             updateTime: res.data.data.updateTime,
         };
+
         ElMessage.success(`获取用户信用分成功`);
         return uc;
     } catch (err) {

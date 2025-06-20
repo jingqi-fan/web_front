@@ -58,13 +58,12 @@
 <script setup lang="ts">
 import { defineProps, defineEmits, ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getUserCreditScoreInfo } from '../../api/user'
-import {useUserInfoStore} from "../../stores/useUserInfoStore";
+import { getUserCreditScoreInfo } from '@/api/user.ts'
+import {useUserInfoStore} from "@/stores/useUserInfoStore.ts";
 
 // 引入类型
-import type { Hotel } from '../../entity/Hotel'
-import type { RoomType } from '../../entity/RoomType'
-import { log } from 'console';
+import type { Hotel } from '@/entity/Hotel.ts'
+import type { RoomType } from '@/entity/RoomType.ts'
 
 
 const props = defineProps<{
@@ -104,6 +103,7 @@ async function fetchCredit() {
   try {
     const userInfoStore = useUserInfoStore()
     const user=userInfoStore.user
+    console.log('user=',user)
     const uc = await getUserCreditScoreInfo(user.id)
     creditScore.value = uc.creditScore ?? 0
     if (creditScore.value > 700) {
