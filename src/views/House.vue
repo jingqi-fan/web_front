@@ -1,13 +1,10 @@
-# 修复后的Vue3租房组件
-
-```vue
 <template>
   <div class="house-page">
     <!-- 头部 -->
     <div class="header">
       <div class="header-content">
         <div class="logo">便捷租房</div>
-        <div style="color: rgba(255,255,255,0.8);">找到您理想的家</div>
+        <div style="color: rgba(255,255,255,0.8);">帮您找到理想的家</div>
       </div>
     </div>
 
@@ -99,18 +96,9 @@
       <div class="stats-section">
         <div class="stats-row">
           <div class="total-count">
-            共找到 <span class="highlight">{{ totalCount }}</span> 套房源
-          </div>
-          <div class="debug-info" v-if="showDebug">
-            <el-button size="small" @click="toggleDebug">{{ showRawData ? '隐藏' : '显示' }}原始数据</el-button>
+            共找到 <span class="highlight">{{ totalHouses }}</span> 套房源
           </div>
         </div>
-      </div>
-
-      <!-- 调试信息 -->
-      <div v-if="showRawData" class="debug-section">
-        <h4>原始数据:</h4>
-        <pre>{{ JSON.stringify(houseList, null, 2) }}</pre>
       </div>
 
       <!-- 加载状态 -->
@@ -165,6 +153,20 @@
           </div>
         </div>
       </div>
+      
+      <!-- 分页组件 -->
+      <div class="pagination-container" v-if="houseList.length > 0">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :page-sizes="[3, 6, 9, 12]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="totalHouses"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          background
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -174,6 +176,10 @@ import { ref, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search, Location, Loading } from '@element-plus/icons-vue'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
+
+
+
 
 export default {
   name: 'HousePage',
@@ -192,8 +198,12 @@ export default {
     const minPrice = ref(null)
     const maxPrice = ref(null)
     const districtOptions = ref([])
-    const showDebug = ref(true)
-    const showRawData = ref(false)
+    const currentPage = ref(1)
+    const pageSize = ref(3) // 修改默认每页显示3条数据
+    const totalHouses = ref(0)
+
+
+const router = useRouter()
 
     // API基础URL
     const API_BASE_URL = 'http://localhost:8082/api/houses'
@@ -206,12 +216,34 @@ export default {
       loading.value = true
       try {
         console.log('正在请求:', API_BASE_URL)
-        const response = await axios.get(API_BASE_URL)
+        const response = await axios.get(API_BASE_URL, {
+          params: {
+            pageNum: currentPage.value,
+            pageSize: pageSize.value
+          }
+        })
         console.log('API响应:', response)
         console.log('响应数据:', response.data)
         
         // 处理数据格式，确保字段正确映射
-        const processedData = response.data.map(house => {
+        // 检查响应数据结构，适配分页数据
+        let responseData = response.data;
+        
+        // 如果响应是分页对象，则提取记录和总数
+        if (response.data && response.data.records) {
+          responseData = response.data.records;
+          totalHouses.value = response.data.total || 0;
+        } else {
+          // 如果后端没有实现分页，前端进行分页处理
+          const allData = responseData;
+          const startIndex = (currentPage.value - 1) * pageSize.value;
+          const endIndex = startIndex + pageSize.value;
+          responseData = allData.slice(startIndex, endIndex);
+          totalHouses.value = allData.length;
+          console.log(`后端未实现分页，前端分页处理: 第${currentPage.value}页，每页${pageSize.value}条，总共${allData.length}条`);
+        }
+        
+        const processedData = responseData.map(house => {
           // 处理可能的字段名差异
           const processedHouse = {
             id: house.id,
@@ -262,11 +294,26 @@ export default {
       try {
         console.log('搜索标题:', title)
         const response = await axios.get(`${API_BASE_URL}/searchByTitle`, {
-          params: { title: title.trim() }
+          params: { 
+            title: title.trim(),
+            pageNum: currentPage.value,
+            pageSize: pageSize.value
+          }
         })
         console.log('搜索结果:', response.data)
         
-        const processedData = response.data.map(house => ({
+        // 处理分页数据结构
+        let responseData = response.data;
+        
+        // 如果响应是分页对象，则提取记录和总数
+        if (response.data && response.data.records) {
+          responseData = response.data.records;
+          totalHouses.value = response.data.total || 0;
+        } else {
+          totalHouses.value = responseData.length || 0;
+        }
+        
+        const processedData = responseData.map(house => ({
           id: house.id,
           title: house.title,
           img: house.img,
@@ -296,6 +343,7 @@ export default {
         selectedRentalType.value = ''
         minPrice.value = null
         maxPrice.value = null
+        currentPage.value = 1
         searchByTitle(searchTitle.value)
       } else {
         getAllHouses()
@@ -307,9 +355,24 @@ export default {
       loading.value = true
       try {
         const response = await axios.get(`${API_BASE_URL}/filterByDistrict`, {
-          params: { district: district }
+          params: { 
+            district: district,
+            pageNum: currentPage.value,
+            pageSize: pageSize.value
+          }
         })
-        const processedData = response.data.map(house => ({
+        // 处理分页数据结构
+        let responseData = response.data;
+        
+        // 如果响应是分页对象，则提取记录和总数
+        if (response.data && response.data.records) {
+          responseData = response.data.records;
+          totalHouses.value = response.data.total || 0;
+        } else {
+          totalHouses.value = responseData.length || 0;
+        }
+        
+        const processedData = responseData.map(house => ({
           id: house.id,
           title: house.title,
           img: house.img,
@@ -332,9 +395,24 @@ export default {
       loading.value = true
       try {
         const response = await axios.get(`${API_BASE_URL}/filterByRentalType`, {
-          params: { rentalType: type }
+          params: { 
+            rentalType: type,
+            pageNum: currentPage.value,
+            pageSize: pageSize.value
+          }
         })
-        const processedData = response.data.map(house => ({
+        // 处理分页数据结构
+        let responseData = response.data;
+        
+        // 如果响应是分页对象，则提取记录和总数
+        if (response.data && response.data.records) {
+          responseData = response.data.records;
+          totalHouses.value = response.data.total || 0;
+        } else {
+          totalHouses.value = responseData.length || 0;
+        }
+        
+        const processedData = responseData.map(house => ({
           id: house.id,
           title: house.title,
           img: house.img,
@@ -359,10 +437,23 @@ export default {
         const response = await axios.get(`${API_BASE_URL}/filterByPriceRange`, {
           params: {
             minPrice: min,
-            maxPrice: max
+            maxPrice: max,
+            pageNum: currentPage.value,
+            pageSize: pageSize.value
           }
         })
-        const processedData = response.data.map(house => ({
+        // 处理分页数据结构
+        let responseData = response.data;
+        
+        // 如果响应是分页对象，则提取记录和总数
+        if (response.data && response.data.records) {
+          responseData = response.data.records;
+          totalHouses.value = response.data.total || 0;
+        } else {
+          totalHouses.value = responseData.length || 0;
+        }
+        
+        const processedData = responseData.map(house => ({
           id: house.id,
           title: house.title,
           img: house.img,
@@ -381,8 +472,8 @@ export default {
       }
     }
 
-    // 应用筛选 - 简化逻辑，一次只用一个筛选条件
-    const applyFilters = () => {
+    // 应用筛选 - 支持多条件筛选
+    const applyFilters = async () => {
       console.log('应用筛选条件:', {
         district: selectedDistrict.value,
         rentalType: selectedRentalType.value,
@@ -392,16 +483,128 @@ export default {
       
       // 清空搜索框
       searchTitle.value = ''
+      // 重置到第一页
+      currentPage.value = 1
       
-      // 按优先级执行筛选（一次只执行一个）
-      if (selectedDistrict.value) {
-        filterByDistrict(selectedDistrict.value)
-      } else if (selectedRentalType.value) {
-        filterByRentalType(selectedRentalType.value)
-      } else if (minPrice.value !== null || maxPrice.value !== null) {
-        filterByPriceRange(minPrice.value, maxPrice.value)
-      } else {
-        getAllHouses()
+      loading.value = true
+      try {
+        // 构建查询参数，同时应用多个筛选条件
+        const params = {
+          pageNum: currentPage.value,
+          pageSize: pageSize.value
+        }
+        
+        // 添加所有已设置的筛选条件
+        if (selectedDistrict.value) {
+          params.district = selectedDistrict.value
+        }
+        
+        if (selectedRentalType.value) {
+          params.rentalType = selectedRentalType.value
+        }
+        
+        if (minPrice.value !== null) {
+          params.minPrice = minPrice.value
+        }
+        
+        if (maxPrice.value !== null) {
+          params.maxPrice = maxPrice.value
+        }
+        
+        // 如果没有任何筛选条件，则获取所有房源
+        if (Object.keys(params).length <= 2) { // 只有pageNum和pageSize
+          getAllHouses()
+          return
+        }
+        
+        // 检查是否有多条件筛选API
+         let response
+         try {
+           // 尝试调用多条件筛选API
+           response = await axios.get(`${API_BASE_URL}/filter`, {
+             params: params
+           })
+         } catch (error) {
+           // 如果多条件筛选API不存在，则使用优先级策略
+           console.log('多条件筛选API不存在，使用优先级策略')
+           if (selectedDistrict.value) {
+             response = await axios.get(`${API_BASE_URL}/filterByDistrict`, {
+               params: {
+                 district: selectedDistrict.value,
+                 pageNum: currentPage.value,
+                 pageSize: pageSize.value
+               }
+             })
+           } else if (selectedRentalType.value) {
+             response = await axios.get(`${API_BASE_URL}/filterByRentalType`, {
+               params: {
+                 rentalType: selectedRentalType.value,
+                 pageNum: currentPage.value,
+                 pageSize: pageSize.value
+               }
+             })
+           } else if (minPrice.value !== null || maxPrice.value !== null) {
+             response = await axios.get(`${API_BASE_URL}/filterByPriceRange`, {
+               params: {
+                 minPrice: minPrice.value,
+                 maxPrice: maxPrice.value,
+                 pageNum: currentPage.value,
+                 pageSize: pageSize.value
+               }
+             })
+           } else {
+             // 如果没有筛选条件，则获取所有房源
+             response = await axios.get(API_BASE_URL, {
+               params: {
+                 pageNum: currentPage.value,
+                 pageSize: pageSize.value
+               }
+             })
+           }
+         }
+        
+        // 处理分页数据结构
+        let responseData = response.data
+        
+        // 如果响应是分页对象，则提取记录和总数
+        if (response.data && response.data.records) {
+          responseData = response.data.records
+          totalHouses.value = response.data.total || 0
+        } else {
+          totalHouses.value = responseData.length || 0
+        }
+        
+        const processedData = responseData.map(house => ({
+          id: house.id,
+          title: house.title,
+          img: house.img,
+          price: house.price,
+          address: house.address,
+          district: house.district,
+          rentalType: house.rentalType?.toString() || house.rental_type?.toString() || '0'
+        }))
+        
+        houseList.value = processedData
+        ElMessage.success(`筛选到 ${processedData.length} 套房源`)
+      } catch (error) {
+        console.error('筛选失败:', error)
+        ElMessage.error('筛选失败，请稍后重试')
+        
+        // 如果多条件筛选API不存在，则回退到单条件筛选
+        if (error.response && error.response.status === 404) {
+          // 按优先级执行筛选（一次只执行一个）
+          if (selectedDistrict.value) {
+            filterByDistrict(selectedDistrict.value)
+          } else if (selectedRentalType.value) {
+            filterByRentalType(selectedRentalType.value)
+          } else if (minPrice.value !== null || maxPrice.value !== null) {
+            filterByPriceRange(minPrice.value, maxPrice.value)
+          } else {
+            getAllHouses()
+          }
+        }
+      } finally {
+        loading.value = false
       }
     }
 
@@ -412,6 +615,7 @@ export default {
       selectedRentalType.value = ''
       minPrice.value = null
       maxPrice.value = null
+      currentPage.value = 1
       getAllHouses()
     }
 
@@ -428,9 +632,32 @@ export default {
     }
 
     // 查看房源详情
-    const viewHouseDetail = (house) => {
-      ElMessage.info(`点击了房源: ${house.title}`)
+    //const viewHouseDetail = (house) => {
+    //  ElMessage.info(`点击了房源: ${house.title}`)
+  //  }
+
+
+
+
+
+
+
+// 添加查看房源详情的方法
+const viewHouseDetail = (house) => {
+  console.log('点击查看房源详情:', house)
+  // 跳转到房源详情页面，传递房源ID
+  router.push({
+    name: 'HouseDetails', // 或者使用路径 path: '/house-details'
+    params: {
+      id: house.id
+    },
+    query: {
+      title: house.title // 可选：传递标题用于页面展示
     }
+  })
+}
+
+
 
     // 格式化价格
     const formatPrice = (price) => {
@@ -444,9 +671,150 @@ export default {
       event.target.parentNode.innerHTML = '<div style="color: #999; font-size: 14px;">图片加载失败</div>'
     }
 
-    // 切换调试信息显示
-    const toggleDebug = () => {
-      showRawData.value = !showRawData.value
+    // 处理页码变化
+    const handleCurrentChange = async (page) => {
+      currentPage.value = page
+      
+      // 如果是搜索结果，则重新搜索
+      if (searchTitle.value.trim()) {
+        searchByTitle(searchTitle.value)
+        return
+      }
+      
+      // 检查是否有多个筛选条件
+      const hasMultipleFilters = [
+        !!selectedDistrict.value,
+        !!selectedRentalType.value,
+        minPrice.value !== null,
+        maxPrice.value !== null
+      ].filter(Boolean).length > 1
+      
+      // 如果有多个筛选条件，使用多条件筛选
+      if (hasMultipleFilters) {
+        loading.value = true
+        try {
+          // 构建查询参数，包含所有筛选条件
+          const params = {
+            pageNum: currentPage.value,
+            pageSize: pageSize.value
+          }
+          
+          if (selectedDistrict.value) {
+            params.district = selectedDistrict.value
+          }
+          
+          if (selectedRentalType.value) {
+            params.rentalType = selectedRentalType.value
+          }
+          
+          if (minPrice.value !== null) {
+            params.minPrice = minPrice.value
+          }
+          
+          if (maxPrice.value !== null) {
+            params.maxPrice = maxPrice.value
+          }
+          
+          // 检查是否有多条件筛选API
+         let response
+         try {
+           // 尝试调用多条件筛选API
+           response = await axios.get(`${API_BASE_URL}/filter`, {
+             params: params
+           })
+         } catch (error) {
+           // 如果多条件筛选API不存在，则使用优先级策略
+           console.log('多条件筛选API不存在，使用优先级策略')
+           if (selectedDistrict.value) {
+             response = await axios.get(`${API_BASE_URL}/filterByDistrict`, {
+               params: {
+                 district: selectedDistrict.value,
+                 pageNum: currentPage.value,
+                 pageSize: pageSize.value
+               }
+             })
+           } else if (selectedRentalType.value) {
+             response = await axios.get(`${API_BASE_URL}/filterByRentalType`, {
+               params: {
+                 rentalType: selectedRentalType.value,
+                 pageNum: currentPage.value,
+                 pageSize: pageSize.value
+               }
+             })
+           } else if (minPrice.value !== null || maxPrice.value !== null) {
+             response = await axios.get(`${API_BASE_URL}/filterByPriceRange`, {
+               params: {
+                 minPrice: minPrice.value,
+                 maxPrice: maxPrice.value,
+                 pageNum: currentPage.value,
+                 pageSize: pageSize.value
+               }
+             })
+           } else {
+             // 如果没有筛选条件，则获取所有房源
+             response = await axios.get(API_BASE_URL, {
+               params: {
+                 pageNum: currentPage.value,
+                 pageSize: pageSize.value
+               }
+             })
+           }
+         }
+          
+          // 处理分页数据结构
+          let responseData = response.data
+          
+          // 如果响应是分页对象，则提取记录和总数
+          if (response.data && response.data.records) {
+            responseData = response.data.records
+            totalHouses.value = response.data.total || 0
+          } else {
+            totalHouses.value = responseData.length || 0
+          }
+          
+          const processedData = responseData.map(house => ({
+            id: house.id,
+            title: house.title,
+            img: house.img,
+            price: house.price,
+            address: house.address,
+            district: house.district,
+            rentalType: house.rentalType?.toString() || house.rental_type?.toString() || '0'
+          }))
+          
+          houseList.value = processedData
+        } catch (error) {
+          console.error('分页筛选失败:', error)
+          // 如果多条件筛选API不存在，则回退到单条件筛选
+          handleSingleFilterPagination()
+        } finally {
+          loading.value = false
+        }
+      } else {
+        // 单一筛选条件或无筛选条件
+        handleSingleFilterPagination()
+      }
+    }
+    
+    // 处理单一筛选条件的分页
+    const handleSingleFilterPagination = () => {
+      if (selectedDistrict.value) {
+        filterByDistrict(selectedDistrict.value)
+      } else if (selectedRentalType.value) {
+        filterByRentalType(selectedRentalType.value)
+      } else if (minPrice.value !== null || maxPrice.value !== null) {
+        filterByPriceRange(minPrice.value, maxPrice.value)
+      } else {
+        getAllHouses()
+      }
+    }
+    
+    // 处理每页显示数量变化
+    const handleSizeChange = (size) => {
+      pageSize.value = size
+      currentPage.value = 1 // 重置到第一页
+      // 调用页码变化处理函数，复用逻辑
+      handleCurrentChange(1)
     }
 
     // 组件挂载时获取数据
@@ -465,18 +833,27 @@ export default {
       maxPrice,
       districtOptions,
       totalCount,
-      showDebug,
-      showRawData,
+      totalHouses,
+      currentPage,
+      pageSize,
       handleSearch,
       applyFilters,
       clearFilters,
       viewHouseDetail,
       formatPrice,
       handleImageError,
-      toggleDebug,
       getAllHouses,
       getRentalTypeClass,
-      getRentalTypeText
+      getRentalTypeText,
+      handleCurrentChange,
+      handleSizeChange,
+
+
+ viewHouseDetail
+
+
+
+
     }
   }
 }
@@ -782,10 +1159,16 @@ export default {
   color: #ccc;
 }
 
+.pagination-container {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+}
+
 .price-range-inputs {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .price-input {
