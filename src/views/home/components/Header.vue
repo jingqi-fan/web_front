@@ -65,13 +65,16 @@ import router from "../../../router";
 
 import {useUserInfoStore} from "@/stores/useUserInfoStore.ts";
 
-const userStore = useUserInfoStore();
+
 const routerStore = useRouterStore();
 // 用于语言切换
 const slotChecked = ref(true);
 
 const isUserLogged=()=>{
-  return userStore.user == null;
+  const userStore = useUserInfoStore();
+  console.log("Login Store: ")
+  console.log(userStore.user)
+  return userStore.user !== null;
 }
 const goToHomePage = () => {
   router.push('/');

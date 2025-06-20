@@ -59,7 +59,6 @@ const getText = async () => {
     console.error('获取用户信息失败', error);
     ElMessage.error('用户信息加载失败');
   }
-
 }
 const updateInfo=async () => {
   const tokenStore = useTokenStore();

@@ -81,8 +81,9 @@ import type {FormInstanceFunctions, FormRule} from 'tdesign-vue-next';
 import {MessagePlugin} from 'tdesign-vue-next';
 import useRouterStore from "../../../stores/useSystemStore.ts";
 import {useTokenStore} from "@/stores";
-import {login} from "@/api/user.ts";
+import {getUserInfo, login} from "@/api/user.ts";
 import router from "@/router";
+import {ElMessage} from "element-plus";
 
 const routerStore = useRouterStore();
 const tokenStore = useTokenStore();
@@ -147,21 +148,30 @@ const LoginTo=async ()=>{
     password: UserNameForm.value.password,
     device: deviceId
   })
-  console.log("Login")
-  console.log(res)
-
+  await getText()
   if(res.status==="SUCCESS"){
     await MessagePlugin.success("登录成功!")
     if(routerStore.selectedRouter===''){
       await router.push('/welcome')
-      return
+    }else {
+      let page = routerStore.selectedRouter
+      routerStore.removeRouter()
+      await router.push(page)
     }
-    let page=routerStore.selectedRouter
-    await router.push(page)
   }else{
     await MessagePlugin.error(res.message)
   }
-
+}
+const getText = async () => {
+  try {
+    const tokenStore = useTokenStore();
+    await getUserInfo(tokenStore.token.userId);
+    console.log("获取用户信息 id=",tokenStore.token.id)
+    ElMessage.success('用户信息加载成功');
+  } catch (error) {
+    console.error('用户信息加载失败', error);
+    ElMessage.error('用户信息加载失败');
+  }
 }
 </script>
 

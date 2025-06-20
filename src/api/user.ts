@@ -41,9 +41,11 @@ export const login = async (data: LoginCommand):Promise<ApiResponse> => {
     try{
         const res = await axiosInstance.post<Result<Token>>('/user/login', data);
         if (res?.data?.status === 'SUCCESS') {
+            const tokenStore = useTokenStore();
+            tokenStore.setToken(res.data.data);
             return res.data;
         } else {
-            ElMessage.error('获取用户信用分失败');
+            ElMessage.error(`登录失败${res.data.message}`);
             throw new Error('无效的响应数据');
         }
     }catch (error){
@@ -61,6 +63,7 @@ export const getUserInfo = async (userId: string) => {
         if (res?.data?.data) {
             console.log(res.data.data)
             userInfoStore.setUserInfo(res.data.data);
+            ElMessage.success('获取用户信息成功');
             
             return res.data.data;
         }

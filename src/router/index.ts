@@ -8,7 +8,7 @@ import CreditBusinessHome from '../views/CreditBusinessHome.vue'
 import HotelList from '../views/HotelList.vue'
 import HotelDetail from '../views/HotelDetail.vue'
 import Welcome from '../views/welcome/index.vue'
-
+import Personal from '../views/personal/index.vue'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -41,6 +41,11 @@ const router = createRouter({
             path: '/map',
             name: 'map',
             component: Data
+        },
+        {
+            path: '/personal',
+            name: 'personal',
+            component: Personal
         },
         {
             path: '/creditbusiness',
