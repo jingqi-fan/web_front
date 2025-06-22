@@ -7,7 +7,7 @@ export interface User {
     email: string;
     gender: string;
     id:number;
-    nickname: string;
+    nickName: string;
     phone: string;
     profilePicture: string;
     province: string;

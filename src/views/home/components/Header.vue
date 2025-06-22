@@ -56,7 +56,8 @@
 </template>
 
 <script setup lang="tsx">
-import AutoMonitorLogo from "@/assets/logo.svg"
+import AutoMonitorLogo from "@/assets/logo.svg";
+import Logo from "@/assets/logo-image.png"
 
 import { ref } from "vue";
 import {ElMessage} from "element-plus";
@@ -104,23 +105,25 @@ const goToCreditBusiness = () => {
 };
 
 const goToCreditLife = () => {
-  if(!isUserLogged()){
-    routerStore.setRouter('/app')
-    ElMessage.warning('请先登录')
-    router.push('/login')
-    return
-  }
-  // 跳转到应用中心页面
-  router.push('/life');
+  ElMessage.success('信用生活即将上线，敬请期待!')
+  // if(!isUserLogged()){
+  //   routerStore.setRouter('/life')
+  //   ElMessage.warning('请先登录')
+  //   router.push('/login')
+  //   return
+  // }
+  // // 跳转到应用中心页面
+  // router.push('/life');
 };
 const goToCreditManage = () => {
-  if(!isUserLogged()){
-    routerStore.setRouter('/manage')
-    ElMessage.warning('请先登录')
-    router.push('/login')
-    return
-  }
-  router.push('/manage');
+  ElMessage.success('信用管理即将上线，敬请期待!')
+  // if(!isUserLogged()){
+  //   routerStore.setRouter('/manage')
+  //   ElMessage.warning('请先登录')
+  //   router.push('/login')
+  //   return
+  // }
+  // router.push('/manage');
 }
 
 const navToGovernment = () => {

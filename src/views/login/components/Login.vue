@@ -81,9 +81,10 @@ import type {FormInstanceFunctions, FormRule} from 'tdesign-vue-next';
 import {MessagePlugin} from 'tdesign-vue-next';
 import useRouterStore from "../../../stores/useSystemStore.ts";
 import {useTokenStore} from "@/stores";
-import {getUserInfo, login} from "@/api/user.ts";
+import {getUserCreditScoreInfo, getUserInfo, login} from "@/api/user.ts";
 import router from "@/router";
 import {ElMessage} from "element-plus";
+import {useUserInfoStore} from "@/stores/useUserInfoStore.ts";
 
 
 const routerStore = useRouterStore();
@@ -132,10 +133,10 @@ const sendCode =async () => {
       await sendSms(PhoneForm.value.phone);
     }catch (e){
       console.log(e);
-      MessagePlugin.error("验证码发送失败")
+      await MessagePlugin.error("验证码发送失败")
     }
   }else{
-    MessagePlugin.error("请输入正确的电话号码")
+    await MessagePlugin.error("请输入正确的电话号码")
   }
 };
 const deviceId="21376"
@@ -150,6 +151,7 @@ const LoginTo=async ()=>{
     device: deviceId
   })
   await getText()
+  await getUserScore()
 
   if(res.status==="SUCCESS"){
     await MessagePlugin.success("登录成功!")
@@ -172,6 +174,20 @@ const getText = async () => {
   } catch (error) {
     console.error('获取用户信息失败', error);
     ElMessage.error('用户信息加载失败');
+  }
+}
+const getUserScore=()=>{
+  try{
+    const userInfoStore=useUserInfoStore()
+    const id=userInfoStore.user.id
+    const res=getUserCreditScoreInfo(id)
+    if(res.accountType===null){
+      MessagePlugin.error(`用户信用分加载失败`);
+    }
+    MessagePlugin.success(`用户信用分加载成功`);
+  }catch (e) {
+    console.error('用户信用分加载失败', error);
+    ElMessage.error('用户信用分加载失败');
   }
 }
 </script>
