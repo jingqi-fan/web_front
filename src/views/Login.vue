@@ -6,13 +6,9 @@
    <el-button @click="getText">获取用户信息</el-button>
     <el-button v-if="visible" @click="updateInfo">更新用户信息</el-button>
     <el-button @click="calculate">计算用户信用分</el-button>
-<<<<<<< HEAD
-    <el-button @click="router.push('/creditbusiness')">信用商业模块</el-button>
-=======
     <el-button @click="getUCInfo">获取用户信用份信息</el-button>
     <el-text>{{uc}}</el-text>
     <el-button @click="router.push('/home')">导航->Home</el-button>
->>>>>>> 48a4a5e4c8cf504aa707beb2da03a8131c8570ef
 
   </div>
 </template>

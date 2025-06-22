@@ -12,6 +12,7 @@ import {useUserInfoStore} from "../stores/useUserInfoStore.ts";
 import {UpdateCreditScore} from "../entity/updateCreditScore.ts";
 import router from "../router";
 import type {UserCreditScore} from "../entity/user_credit_score.ts";
+import {useUserCreditScoreStore} from "../stores/useUserCreditScore.ts";
 
 // 用户注册
 export const register = (data: RegisterCommand):Promise<ApiResponse>=> {
@@ -114,10 +115,9 @@ export const updateUserCreditScore=async (id:number,data:UpdateCreditScore)=>{
     });
 }
 
-export const getUserCreditScoreInfo = async (id: number): Promise<UserCreditScore> => {
+export const getUserCreditScoreInfo = async (id: number) => {
     try {
         const res = await axiosInstance.get(`/user/credit/get?id=${id}`);
-        console.log("user.ts-> getScore",res);
         if (res.data.status !== 'SUCCESS') {
             ElMessage.error(res.data.message);
             return;
@@ -137,10 +137,25 @@ export const getUserCreditScoreInfo = async (id: number): Promise<UserCreditScor
             updateTime: res.data.data.updateTime,
         };
 
-        ElMessage.success(`获取用户信用分成功`);
+        const userCreditScoreStore = useUserCreditScoreStore();
+        userCreditScoreStore.setUserCredit(uc)
+
+
         return uc;
     } catch (err) {
         ElMessage.error(`获取用户信用分发生异常：${err}`);
         throw err;
     }
 };
+
+export const validator=async ()=>{
+    return await axiosInstance.get(`/user/validator`).then(res => {
+        if (res.data.status !== 'SUCCESS') {
+            ElMessage.error(res.data.message);
+            return;
+        }
+        ElMessage.success('用户信用分更新成功');
+    }).catch(err => {
+        ElMessage.error(`信用分更新发生异常：${err}`);
+    });
+}

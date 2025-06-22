@@ -1,7 +1,7 @@
 <template>
   <div class="video-background">
     <video id="bg-video" autoplay muted loop>
-      <source src="@/assets/vLog.mp4" type="video/mp4" />
+      <source src="@/assets/vlog.mp4" type="video/mp4" />
       Your browser does not support HTML5 video.
     </video>
     <div class="video-content">

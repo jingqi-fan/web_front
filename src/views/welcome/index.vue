@@ -205,7 +205,8 @@ const goToModelSquareDocument = () => {
 };
 // 数据中心
 const goToDataCenter=()=>{
-  router.push('/data')
+  //router.push('/data')
+  ElMessage.info("正在开发中...")
 };
 // 应用中心
 const goToAppCenter=()=>{
