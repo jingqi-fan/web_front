@@ -81,10 +81,10 @@ import type {FormInstanceFunctions, FormRule} from 'tdesign-vue-next';
 import {MessagePlugin} from 'tdesign-vue-next';
 import useRouterStore from "../../../stores/useSystemStore.ts";
 import {useTokenStore} from "@/stores";
-import {login} from "@/api/user.ts";
+import {getUserInfo, login} from "@/api/user.ts";
 import router from "@/router";
-import {getUserInfo} from "@/api/user.ts";
-import { ElMessage } from 'element-plus';
+import {ElMessage} from "element-plus";
+
 
 const routerStore = useRouterStore();
 const tokenStore = useTokenStore();
@@ -149,8 +149,6 @@ const LoginTo=async ()=>{
     password: UserNameForm.value.password,
     device: deviceId
   })
-  console.log("Login")
-  console.log(res)
   await getText()
 
   if(res.status==="SUCCESS"){
@@ -164,12 +162,13 @@ const LoginTo=async ()=>{
   }else{
     await MessagePlugin.error(res.message)
   }
+
 }
 const getText = async () => {
   try {
     const tokenStore = useTokenStore();
-    // ✅ 添加await等待异步结果
     const res=await getUserInfo(tokenStore.token.userId);
+    await MessagePlugin.success('用户信用分加载成功');
   } catch (error) {
     console.error('获取用户信息失败', error);
     ElMessage.error('用户信息加载失败');

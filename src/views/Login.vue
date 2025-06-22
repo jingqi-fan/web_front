@@ -18,12 +18,7 @@
 </template>
 
 <script setup lang="ts">
-<<<<<<< HEAD
 import router from "../router";
-import {getUserInfo, login, register, updateUserCreditScore, updateUserInfo} from "../api/user.ts";
-import {useTokenStore} from "../stores";
-import {useUserInfoStore} from "../stores/useUserInfoStore";
-=======
 
 import {
   getUserCreditScoreInfo,
@@ -35,7 +30,6 @@ import {
 } from "../api/user.ts";
 import {useTokenStore} from "@/stores";
 import {useUserInfoStore} from "../stores/useUserInfoStore.ts";
->>>>>>> 48a4a5e4c8cf504aa707beb2da03a8131c8570ef
 import {ref} from "vue";
 import {ElMessage} from "element-plus";
 import type {UserCreditScore} from "../entity/user_credit_score.ts";

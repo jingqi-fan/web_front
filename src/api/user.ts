@@ -45,7 +45,7 @@ export const login = async (data: LoginCommand):Promise<ApiResponse> => {
             tokenStore.setToken(res.data.data);
             return res.data;
         } else {
-            ElMessage.error('获取用户信用分失败');
+            ElMessage.error(`登录失败${res.data.message}`);
             throw new Error('无效的响应数据');
         }
     }catch (error){
@@ -63,7 +63,7 @@ export const getUserInfo = async (userId: string) => {
         if (res?.data?.data) {
             console.log(res.data.data)
             userInfoStore.setUserInfo(res.data.data);
-            console.log("userInfo=",res.data.data)
+            
             return res.data.data;
         }
         throw new Error('无效的响应数据');
@@ -117,11 +117,11 @@ export const updateUserCreditScore=async (id:number,data:UpdateCreditScore)=>{
 export const getUserCreditScoreInfo = async (id: number): Promise<UserCreditScore> => {
     try {
         const res = await axiosInstance.get(`/user/credit/get?id=${id}`);
+        console.log("user.ts-> getScore",res);
         if (res.data.status !== 'SUCCESS') {
             ElMessage.error(res.data.message);
             return;
         }
-        console.log("score=",res)
 
         const uc: UserCreditScore = {
             accountType: res.data.data.accountType,
@@ -136,6 +136,8 @@ export const getUserCreditScoreInfo = async (id: number): Promise<UserCreditScor
             qualification: res.data.data.qualification,
             updateTime: res.data.data.updateTime,
         };
+
+        ElMessage.success(`获取用户信用分成功`);
         return uc;
     } catch (err) {
         ElMessage.error(`获取用户信用分发生异常：${err}`);

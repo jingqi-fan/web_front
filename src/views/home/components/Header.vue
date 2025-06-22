@@ -65,12 +65,13 @@ import router from "../../../router";
 
 import {useUserInfoStore} from "@/stores/useUserInfoStore.ts";
 
-const userStore = useUserInfoStore();
+
 const routerStore = useRouterStore();
 // 用于语言切换
 const slotChecked = ref(true);
 
 const isUserLogged=()=>{
+  const userStore = useUserInfoStore();
   return userStore.user !== null;
 }
 const goToHomePage = () => {

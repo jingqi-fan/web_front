@@ -66,9 +66,9 @@
                 <div class="card-icon">
                   <div ref="modelTrainContainer" class="lottie-container"></div>
                 </div>
-                <h3 class="card-title">信用生活</h3>
+                <h3 class="card-title">信用商业</h3>
                 <p class="card-description">
-                  停车、借书、就医一码通
+                  酒店、租房、购物，舒心乐享    
                 </p>
                 <div class="card-actions">
                   <el-button :icon="Right"  type="text" @click="goToTraining">立即前往</el-button>
@@ -82,9 +82,9 @@
                 <div class="card-icon">
                   <div ref="modelSquareContainer" class="lottie-container"></div>
                 </div>
-                <h3 class="card-title">信用商业</h3>
+                <h3 class="card-title">信用生活</h3>
                 <p class="card-description">
-                  酒店、租房、购物，舒心乐享
+                  停车、借书、就医一码通
                 </p>
                 <div class="card-actions">
                   <el-button :icon="Right" type="text" @click="goToModelSquare">立即前往</el-button>

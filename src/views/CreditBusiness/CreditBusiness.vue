@@ -24,7 +24,7 @@ import { ArrowLeft } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const sidebarItems = computed(() => [
-  { label: '概览',     route: 'CreditBusinessHome' },
+  { label: '首页',     route: 'CreditBusinessHome' },
   { label: '信用购物', route: 'CreditShopping' },
   { label: '信用租房', route: 'CreditRental' },
   { label: '酒店预订', route: 'HotelList' }

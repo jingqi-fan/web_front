@@ -1,5 +1,5 @@
 // src/api/hotel.ts
-import axios from '../plugins/axios'
+
 import type { Hotel } from '../entity/Hotel'
 import axiosInstance from '../plugins/axios'
 

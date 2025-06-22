@@ -8,6 +8,8 @@ import CreditBusinessHome from '../views/CreditBusiness/CreditBusinessHome.vue'
 import HotelList from '../views/CreditBusiness/HotelList.vue'
 import HotelDetail from '../views/CreditBusiness/HotelDetail.vue'
 import Welcome from '../views/welcome/index.vue'
+import Personal from '../views/personal/index.vue'
+import Records from '../views/CreditBusiness/Records.vue';
 
 
 const router = createRouter({
@@ -43,6 +45,11 @@ const router = createRouter({
             component: Data
         },
         {
+            path: '/personal',
+            name: 'personal',
+            component: Personal
+        },
+        {
             path: '/creditbusiness',
             name: 'CreditBusiness',
             component: CreditBusiness,
@@ -51,6 +58,11 @@ const router = createRouter({
                 path: '',                // 默认子路由：信用商业首页
                 name: 'CreditBusinessHome',
                 component: CreditBusinessHome
+              },
+              {
+                path: 'records',                // 预订记录汇总
+                name: 'Records',
+                component: Records
               },
               {
                 path: 'hotel-list',      // “酒店预订”列表

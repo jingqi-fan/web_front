@@ -4,6 +4,7 @@ import {ElMessage} from "element-plus";
 import {useTokenStore} from "../stores";
 import {useDeviceStore} from "../stores/useDeviceStore.ts";
 import {refreshToken} from "../api/user.ts";
+import router from "../router";
 
 
 const baseURL = "/api";
@@ -64,12 +65,14 @@ axiosInstance.interceptors.request.use(
                 config.headers.Authorization = `Bearer ${tokenStore.token.accessToken}`;
             }
         }
-        console.log("Authorization",config.headers.Authorization)
         return config;
     },
+
     
-    
-    error => Promise.reject(error)
+    error => {
+        router.push('/login')
+        Promise.reject(error)
+    }
 );
 
 // 响应拦截器 - 只处理错误响应
@@ -95,7 +98,7 @@ axiosInstance.interceptors.response.use(
                 case 403:
                 case 500:
                     ElMessage.error(response.data?.message || "服务异常");
-                    console.log("ERR");
+                    console.log("plugin esponse ERR");
                     console.log(response)
                     break;
                 default:
@@ -108,7 +111,6 @@ axiosInstance.interceptors.response.use(
         } else {
             ElMessage.error("请求错误: " + error.message);
         }
-
         return Promise.reject(error);
     }
 );
