@@ -16,8 +16,8 @@
 
           <el-col :span="18" class="header-buttons">
             <!-- 按钮部分 -->
-            <el-button type="text" icon="el-icon-bell" @click="goToAppCenter">信用商业</el-button>
-            <el-button type="text" icon="el-icon-grid" @click="goToDataCenter">信用生活</el-button>
+            <el-button link icon="el-icon-bell" @click="goToAppCenter">信用商业</el-button>
+        <el-button link icon="el-icon-grid" @click="goToDataCenter">信用生活</el-button>
             <el-button style="margin-left: 10px;background-color: #f5f5f5" :icon="ChatDotRound" @click="goToMessageCenter" plain round></el-button>
             <el-button style="background-color: #f5f5f5" :icon="User" @click="goToUserCenter"  plain round></el-button>
           </el-col>
@@ -66,13 +66,13 @@
                 <div class="card-icon">
                   <div ref="modelTrainContainer" class="lottie-container"></div>
                 </div>
-                <h3 class="card-title">信用生活</h3>
+                <h3 class="card-title">信用商业</h3>
                 <p class="card-description">
-                  停车、借书、就医一码通
+                  酒店、租房、购物，舒心乐享    
                 </p>
                 <div class="card-actions">
-                  <el-button :icon="Right"  type="text" @click="goToTraining">立即前往</el-button>
-                  <el-button :icon="Link" type="text" @click="goToModelDoc">帮助文档</el-button>
+                  <el-button :icon="Right" link @click="goToTraining">立即前往</el-button>
+          <el-button :icon="Link" link @click="goToModelDoc">帮助文档</el-button>
                 </div>
               </el-card>
             </el-col>
@@ -82,13 +82,13 @@
                 <div class="card-icon">
                   <div ref="modelSquareContainer" class="lottie-container"></div>
                 </div>
-                <h3 class="card-title">信用商业</h3>
+                <h3 class="card-title">信用生活</h3>
                 <p class="card-description">
-                  酒店、租房、购物，舒心乐享
+                  停车、借书、就医一码通
                 </p>
                 <div class="card-actions">
-                  <el-button :icon="Right" type="text" @click="goToModelSquare">立即前往</el-button>
-                  <el-button :icon="Link"  type="text" @click="goToModelSquareDocument">帮助文档</el-button>
+                  <el-button :icon="Right" link @click="goToModelSquare">立即前往</el-button>
+          <el-button :icon="Link" link @click="goToModelSquareDocument">帮助文档</el-button>
                 </div>
               </el-card>
             </el-col>
@@ -205,7 +205,8 @@ const goToModelSquareDocument = () => {
 };
 // 数据中心
 const goToDataCenter=()=>{
-  router.push('/data')
+  //router.push('/data')
+  ElMessage.info("正在开发中...")
 };
 // 应用中心
 const goToAppCenter=()=>{

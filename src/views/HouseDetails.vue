@@ -195,8 +195,8 @@
   </div>
 </template>
 
-<script>
-import { ref, onMounted, computed } from 'vue'
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { 
@@ -210,22 +210,11 @@ import {
   Picture,
   ShoppingCart
 } from '@element-plus/icons-vue'
-import axios from 'axios'
+import { getHouseDetails } from '@/api/house'
+import type { HouseDetails } from '@/entity/HouseDetails'
 
-export default {
-  name: 'HouseDetails',
-  components: {
-    ArrowLeft,
-    Location,
-    House,
-    Grid,
-    Clock,
-    Phone,
-    ChatLineRound,
-    Picture,
-    ShoppingCart
-  },
-  setup() {
+// 组件名称
+const name = 'HouseDetails'
     const route = useRoute()
     const router = useRouter()
     
@@ -233,9 +222,6 @@ export default {
     const houseDetails = ref(null)
     const house = ref(null)
     const loading = ref(true)
-    
-    // API基础URL
-    const API_BASE_URL = 'http://localhost:8082/api/house-details'
     
     // 计算属性
     const imageList = computed(() => {
@@ -287,16 +273,12 @@ export default {
       loading.value = true
       
       try {
-        const response = await axios.get(`${API_BASE_URL}/${houseId}`)
+        const response = await getHouseDetails(Number(houseId))
         
-        if (response.data) {
-          // 分别存储house和houseDetails数据
-          houseDetails.value = response.data.houseDetails
-          house.value = response.data.house
-          console.log('房源详情:', response.data)
-        } else {
-          throw new Error('未获取到房源详情数据')
-        }
+        // 分别存储house和houseDetails数据
+        houseDetails.value = response.houseDetails
+        house.value = response.house
+        console.log('房源详情:', response)
       } catch (error) {
         console.error('获取房源详情失败:', error)
         ElMessage.error('获取房源详情失败，请稍后重试')
@@ -376,22 +358,8 @@ export default {
       fetchHouseDetails()
     })
     
-    return {
-      houseDetails,
-      house,
-      loading,
-      imageList,
-      facilitiesList,
-      fetchHouseDetails,
-      goBack,
-      handleImageError,
-      getRentalTypeClass,
-      getRentalTypeText,
-      formatDate,
-      showContactInfo
-    }
-  }
-}
+// 在script setup中，所有的响应式变量和函数都会自动暴露给模板
+// 不需要return语句
 </script>
 
 <style scoped>

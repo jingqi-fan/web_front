@@ -198,12 +198,13 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Search, View, Shop,ShoppingCart,  RefreshLeft, Loading, Box } from '@element-plus/icons-vue'
-import axios from 'axios'
+import { getCommodityList, getCommodityCategories } from '../api/commodity.ts'
+import type { Commodity, CommoditySearchParams } from '../entity/Commodity.ts'
 
 // 路由
 const router = useRouter()
@@ -228,22 +229,10 @@ const pagination = reactive({
   total: 0
 })
 
-// API基础URL
-const API_BASE_URL = 'http://localhost:8082/api/commodities'
-
 // 获取分类列表
 const fetchCategories = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}`)
-    if (response.data && response.data.records) {
-      // 从商品数据中提取唯一的分类
-      const uniqueCategories = [...new Set(response.data.records.map(item => item.category))]
-      categories.value = uniqueCategories.filter(category => category && category.trim())
-    } else if (Array.isArray(response.data)) {
-      // 如果返回的是数组格式
-      const uniqueCategories = [...new Set(response.data.map(item => item.category))]
-      categories.value = uniqueCategories.filter(category => category && category.trim())
-    }
+    categories.value = await getCommodityCategories()
   } catch (error) {
     console.error('获取分类列表失败:', error)
     // 如果获取失败，使用默认分类
@@ -255,26 +244,23 @@ const fetchCategories = async () => {
 const fetchProducts = async () => {
   loading.value = true
   try {
-    const params = {
-      page: pagination.currentPage,
-      size: pagination.pageSize
+    const params: CommoditySearchParams = {
+      pageNum: pagination.currentPage,
+      pageSize: pagination.pageSize,
+      ...(searchForm.name && { keyword: searchForm.name }),
+      ...(searchForm.category && { category: searchForm.category }),
+      ...(searchForm.minPrice && { minPrice: searchForm.minPrice }),
+      ...(searchForm.maxPrice && { maxPrice: searchForm.maxPrice })
     }
-
-    // 添加搜索条件
-    if (searchForm.name) params.name = searchForm.name
-    if (searchForm.category) params.category = searchForm.category
-    if (searchForm.minPrice !== null) params.minPrice = searchForm.minPrice
-    if (searchForm.maxPrice !== null) params.maxPrice = searchForm.maxPrice
-
-    const response = await axios.get(`${API_BASE_URL}/filter`, { params })
     
-    if (response.data) {
-      productList.value = response.data.records || []
-      pagination.total = response.data.total || 0
-    }
+    const response = await getCommodityList(params)
+    
+    productList.value = response.records
+    pagination.total = response.total
+    pagination.currentPage = response.current
   } catch (error) {
     console.error('获取商品列表失败:', error)
-    ElMessage.error('获取商品列表失败，请稍后重试')
+    ElMessage.error('获取商品列表失败')
     productList.value = []
     pagination.total = 0
   } finally {

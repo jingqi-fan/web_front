@@ -169,19 +169,22 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { 
-  ArrowLeft, 
-  Shop, 
-  Box, 
-  Picture,
+import {
+  ArrowLeft,
   ShoppingCart,
-  CreditCard
+  Star,
+  View,
+  Share,
+  Heart,
+  Plus,
+  Minus
 } from '@element-plus/icons-vue'
-import axios from 'axios'
+import { getCommodityDetails } from '../api/commodity.ts'
+import type { Commodity } from '../entity/Commodity.ts'
 
 // 路由相关
 const route = useRoute()
@@ -192,8 +195,7 @@ const commodity = ref(null)
 const loading = ref(true)
 const quantity = ref(1)
 
-// API基础URL
-const API_BASE_URL = 'http://localhost:8082/api/commodities'
+// 删除API_BASE_URL，使用新的API架构
 
 // 计算属性
 const imageList = computed(() => {
@@ -256,14 +258,8 @@ const fetchCommodityDetails = async () => {
     const commodityId = route.params.id
     console.log('获取商品详情，ID:', commodityId)
     
-    const response = await axios.get(`${API_BASE_URL}/${commodityId}`)
-    
-    if (response.data) {
-      commodity.value = response.data
-      console.log('商品详情:', commodity.value)
-    } else {
-      throw new Error('商品数据为空')
-    }
+    commodity.value = await getCommodityDetails(Number(commodityId))
+    console.log('商品详情:', commodity.value)
   } catch (error) {
     console.error('获取商品详情失败:', error)
     ElMessage.error('获取商品详情失败，请稍后重试')

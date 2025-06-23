@@ -71,7 +71,7 @@
               <p class="price">¥<strong>{{ h.price }}</strong> 起</p >
             </div>
             <template #footer>
-              <el-button type="text" @click="goDetail(h.id)">
+              <el-button link @click="goDetail(h.id)">
                 <el-icon><View /></el-icon>
                 查看
               </el-button>

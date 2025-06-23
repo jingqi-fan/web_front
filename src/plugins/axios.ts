@@ -18,7 +18,9 @@ let requestQueue: (() => void)[] = [];
 // 请求拦截器 - 专门处理 token 刷新
 axiosInstance.interceptors.request.use(
     
+    
     async (config) => {
+        
         
         if (config.url?.includes('/user/register')) {
             return config; // 直接返回配置，不进行Token处理
@@ -62,9 +64,11 @@ axiosInstance.interceptors.request.use(
                     });
                 }
             } else {
+                
                 config.headers.Authorization = `Bearer ${tokenStore.token.accessToken}`;
             }
         }
+        
         return config;
     },
 
@@ -98,7 +102,7 @@ axiosInstance.interceptors.response.use(
                 case 403:
                 case 500:
                     ElMessage.error(response.data?.message || "服务异常");
-                    console.log("ERR");
+                    console.log("plugin esponse ERR");
                     console.log(response)
                     break;
                 default:
@@ -111,7 +115,6 @@ axiosInstance.interceptors.response.use(
         } else {
             ElMessage.error("请求错误: " + error.message);
         }
-        router.push('/login')
         return Promise.reject(error);
     }
 );

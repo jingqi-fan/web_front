@@ -9,6 +9,13 @@ import HotelList from '../views/CreditBusiness/HotelList.vue'
 import HotelDetail from '../views/CreditBusiness/HotelDetail.vue'
 import Welcome from '../views/welcome/index.vue'
 import Personal from '../views/personal/index.vue'
+import {ElMessage} from "element-plus";
+import {getUserCreditScoreInfo, getUserInfo} from "../api/user.ts";
+import {useUserCreditScoreStore} from "../stores/useUserCreditScore.ts";
+import {useUserInfoStore} from "../stores/useUserInfoStore.ts";
+import {useTokenStore} from "../stores";
+import Records from '../views/CreditBusiness/Records.vue';
+
 
 import House  from "../views/House.vue"
 import HouseDetails  from "../views/HouseDetails.vue"
@@ -76,7 +83,25 @@ const router = createRouter({
         {
             path: '/personal',
             name: 'personal',
-            component: Personal
+            component: Personal,
+            beforeEnter: async (to, from, next) => {
+                const tokenStore = useTokenStore();
+                const userInfoStore = useUserInfoStore();
+                const userCreditScoreStore = useUserCreditScoreStore();
+
+                try {
+                    if (!userInfoStore.user) {
+                        const userInfo = await getUserInfo(tokenStore.token.userId);
+                    }
+                    if (!userCreditScoreStore.score) {
+                        const score = await getUserCreditScoreInfo(userInfoStore.user.id);
+                    }
+                    next();
+                } catch (e) {
+                    ElMessage.error("加载用户信息失败，请重新登录");
+                    next('/login');
+                }
+            }
         },
         {
             path: '/creditbusiness',
@@ -99,7 +124,14 @@ const router = createRouter({
                 component: House
               },
               {
-                path: 'hotel-list',      // "酒店预订"列表
+               
+
+                path: 'records',                // 预订记录汇总
+                name: 'Records',
+                component: Records
+              },
+              {
+                path: 'hotel-list',      // “酒店预订”列表
                 name: 'HotelList',
                 component: HotelList
               },

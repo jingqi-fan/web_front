@@ -1,14 +1,12 @@
-<!-- src/views/CreditBusiness/HotelOrderDialog.vue -->
 <template>
   <el-dialog
     :model-value="modelValue"
-    title="预订确认"
+    title="预订提交"
     width="40%"
     :close-on-click-modal="false"
     @close="handleClose"
   >
     <el-form label-width="100px">
-      <!-- 改为使用 hotel 对象 -->
       <el-form-item label="酒店名称">
         <span>{{ hotel.hotelName }}</span>
       </el-form-item>
@@ -20,8 +18,13 @@
         <span>{{ formatDate(checkInDate) }}</span>
       </el-form-item>
       <el-form-item label="入住时长">
-        <el-input-number v-model="nights" :min="1" label="晚数" />
-        <span> 晚</span>
+        <el-input-number
+          v-model="nights"
+          :min="1"
+          :max="180"
+          label="晚数"
+        />
+        <span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;天</span>
       </el-form-item>
       <el-form-item label="离店日期">
         <span>{{ formatDate(checkOutDate) }}</span>
@@ -56,90 +59,147 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, ref, computed, watch } from 'vue'
-import { ElMessage } from 'element-plus'
-import { getUserCreditScoreInfo } from '@/api/user.ts'
-import {useUserInfoStore} from "@/stores/useUserInfoStore.ts";
+import { ref, computed, watch } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { getUserCreditScoreInfo } from '../../api/user'
+import { useUserInfoStore } from '../../stores/useUserInfoStore'
+import { createReservation } from '../../api/hotelReservation'
 
-// 引入类型
-import type { Hotel } from '@/entity/Hotel.ts'
-import type { RoomType } from '@/entity/RoomType.ts'
+import type { Hotel } from '../../entity/Hotel'
+import type { RoomType } from '../../entity/RoomType'
+import type { HotelReservation } from '../../entity/HotelReservation'
 
-
+// Props & Emits
 const props = defineProps<{
   modelValue: boolean
-  hotel: Hotel            // 整个 hotel 对象
+  hotel: Hotel
   roomType: RoomType
   checkInDate: Date
 }>()
-
 const emit = defineEmits<{
   (e: 'update:modelValue', v: boolean): void
   (e: 'confirm'): void
 }>()
 
+// 本地状态
 const nights = ref(1)
 const creditScore = ref(0)
 const discountRate = ref(0)
 const depositRequired = ref(true)
 
-const checkOutDate = computed(() => {
+// 计算属性
+const checkOutDate = computed<Date>(() => {
   const d = new Date(props.checkInDate)
   d.setDate(d.getDate() + nights.value)
   return d
 })
-const originalPrice = computed(() => nights.value * props.roomType.price)
-const discountedPrice = computed(() => originalPrice.value * (1 - discountRate.value))
-
-const repaymentDeadlineDays = computed(() => {
+const originalPrice = computed<number>(
+  () => nights.value * props.roomType.price
+)
+const discountedPrice = computed<number>(
+  () => originalPrice.value * (1 - discountRate.value)
+)
+const repaymentDeadlineDays = computed<number>(() => {
   const now = Date.now()
   const diff = checkOutDate.value.getTime() - now
   return Math.ceil(diff / (1000 * 60 * 60 * 24))
 })
-const repaymentDeadlineText = computed(() => `${repaymentDeadlineDays.value} 天后`)
+const repaymentDeadlineText = computed<string>(
+  () => `${repaymentDeadlineDays.value} 天`
+)
 
-
+// 拉取信用分并计算折扣/押金策略
 async function fetchCredit() {
   try {
-    const userInfoStore = useUserInfoStore()
-    const user=userInfoStore.user
-    console.log('user=',user)
-    const uc = await getUserCreditScoreInfo(user.id)
+    const userInfo = useUserInfoStore().user
+    const uc = await getUserCreditScoreInfo(userInfo.id)
     creditScore.value = uc.creditScore ?? 0
     if (creditScore.value > 700) {
-      discountRate.value = 0.036; depositRequired.value = false
+      discountRate.value = 0.036
+      depositRequired.value = false
     } else if (creditScore.value >= 651) {
-      discountRate.value = 0.023; depositRequired.value = false
+      discountRate.value = 0.023
+      depositRequired.value = false
     } else if (creditScore.value >= 601) {
-      discountRate.value = 0.012; depositRequired.value = true
+      discountRate.value = 0.012
+      depositRequired.value = true
     } else if (creditScore.value >= 551) {
-      discountRate.value = 0.005; depositRequired.value = true
+      discountRate.value = 0.005
+      depositRequired.value = true
     } else {
-      discountRate.value = 0; depositRequired.value = true
+      discountRate.value = 0
+      depositRequired.value = true
     }
-  } catch (err) {
-    ElMessage.error(`获取信用分失败：${err}`)
+  } catch (err: any) {
+    ElMessage.error(`获取信用分失败：${err.message || err}`)
   }
 }
 
+// 监听弹窗显示，打开时刷新信用分
 watch(() => props.modelValue, visible => {
   if (visible) fetchCredit()
 })
 
+// 关闭弹窗
 function handleClose() {
   emit('update:modelValue', false)
 }
 
+// 确认提交：二次确认 → 调用 API → 提示 & 关闭
 function handleConfirm() {
-  ElMessage.success('预订已完成')
-  emit('confirm')
-  emit('update:modelValue', false)
-}
+  ElMessageBox.confirm(
+    '确认提交订单？',
+    '二次确认',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }
+  )
+    .then(async () => {
+      const uid = useUserInfoStore().user.id
+      const payload: Omit<HotelReservation, 'orderId' | 'bookDate'> = {
+        userId: uid,
+        hotelId: props.hotel.id,
+        typeId: props.roomType.typeId,
+        price: discountedPrice.value,
+        // 传递格式化后的 timestamp 字符串
+        checkinDate: formatDateTime(props.checkInDate),
+        checkoutDate: formatDateTime(checkOutDate.value),
+        isCheckin: 0,
+        isPay: 0,
+        promise: 0
+      }
+      try {
+        const res = await createReservation(payload)
+        ElMessage.success(`预订成功！订单号：${res.orderId}`)
+        emit('confirm')
+        emit('update:modelValue', false)
+      } catch (err: any) {
+        ElMessage.error(`预订失败：${err.message || err}`)
+      }
+    })
+    .catch(() => {
+      // 用户取消
+    })
+    }
 
+// 格式化到“YYYY-MM-DD”
 function formatDate(d: Date) {
   const y = d.getFullYear()
   const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${dd}`
+}
+
+
+function formatDateTime(d: Date) {
+  const Y = d.getFullYear()
+  const M = String(d.getMonth() + 1).padStart(2, '0')
+  const D = String(d.getDate()).padStart(2, '0')
+  const h = String(d.getHours()).padStart(2, '0')
+  const m = String(d.getMinutes()).padStart(2, '0')
+  const s = String(d.getSeconds()).padStart(2, '0')
+  return `${Y}-${M}-${D} ${h}:${m}:${s}`
 }
 </script>
