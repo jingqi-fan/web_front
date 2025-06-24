@@ -1,17 +1,16 @@
 export interface HouseDetails {
     id: number;
     houseId: number;
-    detailDescription?: string;
+    houseType: string;
+    area: number;
+    orientation: string;
+    floor: number;
+    decorates: string;
+    neighborhood: string;
+    facilities: string;
     imgsPath?: string;
     imgsPathAsJson?: string | any;
-    facilities?: string;
-    transportation?: string;
-    surrounding?: string;
-    rentRules?: string;
-    contactInfo?: string;
-    viewCount?: number;
-    createTime?: string;
-    updateTime?: string;
+    updateTime: string;
 }
 
 export interface HouseDetailsResponse {
@@ -22,14 +21,12 @@ export interface HouseDetailsResponse {
         district: string;
         rentalType: string;
         price: number;
-        area?: number;
-        bedrooms?: number;
-        bathrooms?: number;
-        floor?: string;
-        orientation?: string;
-        decoration?: string;
-        contactPhone?: string;
-        contactPerson?: string;
-        img?: string;
+        address: string;
+        img: string;
+        createTime?: string;
+        updateTime?: string;
     };
 }
+
+// 类型别名，与后端HouseDetailsWithHouseDTO保持一致
+export type HouseDetailsWithHouseDTO = HouseDetailsResponse;

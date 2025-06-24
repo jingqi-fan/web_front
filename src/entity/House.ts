@@ -1,22 +1,11 @@
 export interface House {
     id: number;
     title: string;
-    district: string;
-    rentalType: string;
+    img: string;
     price: number;
-    area?: number;
-    bedrooms?: number;
-    bathrooms?: number;
-    floor?: string;
-    orientation?: string;
-    decoration?: string;
-    facilities?: string;
-    description?: string;
-    contactPhone?: string;
-    contactPerson?: string;
-    img?: string;
-    createTime?: string;
-    updateTime?: string;
+    address: string;
+    rentalType: string;
+    district: string;
 }
 
 export interface HouseSearchParams {

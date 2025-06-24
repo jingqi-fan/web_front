@@ -175,7 +175,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search, Location, Loading } from '@element-plus/icons-vue'
-import { getHouseList, searchHouseByTitle, filterHouses, getDistrictOptions } from '../api/house.ts'
+import { getHouseList, searchHouseByTitle, filterHouses, getDistrictOptions, filterHouseByDistrict, filterHouseByRentalType, filterHouseByPriceRange } from '../api/house.ts'
 import type { House, HouseSearchParams } from '../entity/House.ts'
 import { useRouter } from 'vue-router'
 
@@ -270,9 +270,42 @@ const router = useRouter()
         minPrice.value = null
         maxPrice.value = null
         currentPage.value = 1
-        searchByTitle(searchTitle.value)
+        // 使用统一的getHouseList接口进行搜索
+        searchHouses()
       } else {
         getAllHouses()
+      }
+    }
+
+    // 统一的搜索函数
+    const searchHouses = async () => {
+      loading.value = true
+      try {
+        const params: HouseSearchParams = {
+          pageNum: currentPage.value,
+          pageSize: pageSize.value,
+          ...(searchTitle.value && { title: searchTitle.value }),
+          ...(selectedDistrict.value && { district: selectedDistrict.value }),
+          ...(selectedRentalType.value && { rentalType: selectedRentalType.value }),
+          ...(minPrice.value !== null && { minPrice: minPrice.value }),
+          ...(maxPrice.value !== null && { maxPrice: maxPrice.value })
+        }
+        
+        console.log('搜索参数:', params)
+        const response = await getHouseList(params)
+        
+        houseList.value = response.records
+        totalHouses.value = response.total
+        
+        if (searchTitle.value) {
+          ElMessage.success(`搜索到 ${response.records.length} 套相关房源`)
+        }
+      } catch (error) {
+        console.error('搜索失败:', error)
+        ElMessage.error('搜索失败，请稍后重试')
+        houseList.value = []
+      } finally {
+        loading.value = false
       }
     }
 
@@ -280,12 +313,11 @@ const router = useRouter()
 const filterByDistrict = async (district) => {
   loading.value = true
   try {
-    const params: HouseSearchParams = {
-      district: district,
-      pageNum: currentPage.value,
-      pageSize: pageSize.value
-    }
-    const response = await filterHouses(params)
+    const response = await filterHouseByDistrict(
+      district,
+      currentPage.value,
+      pageSize.value
+    )
     
     houseList.value = response.records
     totalHouses.value = response.total
@@ -302,12 +334,11 @@ const filterByDistrict = async (district) => {
     const filterByRentalType = async (type) => {
   loading.value = true
   try {
-    const params: HouseSearchParams = {
-      rentalType: type,
-      pageNum: currentPage.value,
-      pageSize: pageSize.value
-    }
-    const response = await filterHouses(params)
+    const response = await filterHouseByRentalType(
+      type,
+      currentPage.value,
+      pageSize.value
+    )
     
     houseList.value = response.records
     totalHouses.value = response.total
@@ -324,13 +355,12 @@ const filterByDistrict = async (district) => {
     const filterByPriceRange = async (min, max) => {
   loading.value = true
   try {
-    const params: HouseSearchParams = {
-      minPrice: min,
-      maxPrice: max,
-      pageNum: currentPage.value,
-      pageSize: pageSize.value
-    }
-    const response = await filterHouses(params)
+    const response = await filterHouseByPriceRange(
+      min,
+      max,
+      currentPage.value,
+      pageSize.value
+    )
     
     houseList.value = response.records
     totalHouses.value = response.total
@@ -358,65 +388,16 @@ const applyFilters = async () => {
   // 重置到第一页
   currentPage.value = 1
   
-  loading.value = true
-  try {
-    // 构建查询参数，同时应用多个筛选条件
-    const params: HouseSearchParams = {
-      pageNum: currentPage.value,
-      pageSize: pageSize.value
-    }
-    
-    // 添加所有已设置的筛选条件
-    if (selectedDistrict.value) {
-      params.district = selectedDistrict.value
-    }
-    
-    if (selectedRentalType.value) {
-      params.rentalType = selectedRentalType.value
-    }
-    
-    if (minPrice.value !== null) {
-      params.minPrice = minPrice.value
-    }
-    
-    if (maxPrice.value !== null) {
-      params.maxPrice = maxPrice.value
-    }
-    
-    // 如果没有任何筛选条件，则获取所有房源
-    if (Object.keys(params).length <= 2) { // 只有pageNum和pageSize
-      getAllHouses()
-      return
-    }
-    
-    // 使用新的API进行筛选
-    const response = await filterHouses(params)
-        
-        houseList.value = response.records
-    totalHouses.value = response.total
-    
-    ElMessage.success(`筛选到 ${response.records.length} 套房源`)
-      } catch (error) {
-        console.error('筛选失败:', error)
-        ElMessage.error('筛选失败，请稍后重试')
-        
-        // 如果多条件筛选API不存在，则回退到单条件筛选
-        if (error.response && error.response.status === 404) {
-          // 按优先级执行筛选（一次只执行一个）
-          if (selectedDistrict.value) {
-            filterByDistrict(selectedDistrict.value)
-          } else if (selectedRentalType.value) {
-            filterByRentalType(selectedRentalType.value)
-          } else if (minPrice.value !== null || maxPrice.value !== null) {
-            filterByPriceRange(minPrice.value, maxPrice.value)
-          } else {
-            getAllHouses()
-          }
-        }
-      } finally {
-        loading.value = false
-      }
-    }
+  // 如果没有任何筛选条件，则获取所有房源
+  if (!selectedDistrict.value && !selectedRentalType.value && 
+      minPrice.value === null && maxPrice.value === null) {
+    getAllHouses()
+    return
+  }
+  
+  // 使用统一的搜索函数进行筛选
+  searchHouses()
+}
 
     // 清空筛选
     const clearFilters = () => {
@@ -457,7 +438,7 @@ const viewHouseDetail = (house) => {
   console.log('点击查看房源详情:', house)
   // 跳转到房源详情页面，传递房源ID
   router.push({
-    name: 'HouseDetails', // 或者使用路径 path: '/house-details'
+    name: 'HouseDetailsInCredit',
     params: {
       id: house.id
     },
@@ -525,74 +506,12 @@ const viewHouseDetail = (house) => {
             params.maxPrice = maxPrice.value
           }
           
-          // 检查是否有多条件筛选API
-         let response
-         try {
-           // 尝试调用多条件筛选API
-           response = await axios.get(`${API_BASE_URL}/filter`, {
-             params: params
-           })
-         } catch (error) {
-           // 如果多条件筛选API不存在，则使用优先级策略
-           console.log('多条件筛选API不存在，使用优先级策略')
-           if (selectedDistrict.value) {
-             response = await axios.get(`${API_BASE_URL}/filterByDistrict`, {
-               params: {
-                 district: selectedDistrict.value,
-                 pageNum: currentPage.value,
-                 pageSize: pageSize.value
-               }
-             })
-           } else if (selectedRentalType.value) {
-             response = await axios.get(`${API_BASE_URL}/filterByRentalType`, {
-               params: {
-                 rentalType: selectedRentalType.value,
-                 pageNum: currentPage.value,
-                 pageSize: pageSize.value
-               }
-             })
-           } else if (minPrice.value !== null || maxPrice.value !== null) {
-             response = await axios.get(`${API_BASE_URL}/filterByPriceRange`, {
-               params: {
-                 minPrice: minPrice.value,
-                 maxPrice: maxPrice.value,
-                 pageNum: currentPage.value,
-                 pageSize: pageSize.value
-               }
-             })
-           } else {
-             // 如果没有筛选条件，则获取所有房源
-             response = await axios.get(API_BASE_URL, {
-               params: {
-                 pageNum: currentPage.value,
-                 pageSize: pageSize.value
-               }
-             })
-           }
-         }
+          // 使用 house.ts API 进行筛选
+          const response = await filterHouses(params)
           
           // 处理分页数据结构
-          let responseData = response.data
-          
-          // 如果响应是分页对象，则提取记录和总数
-          if (response.data && response.data.records) {
-            responseData = response.data.records
-            totalHouses.value = response.data.total || 0
-          } else {
-            totalHouses.value = responseData.length || 0
-          }
-          
-          const processedData = responseData.map(house => ({
-            id: house.id,
-            title: house.title,
-            img: house.img,
-            price: house.price,
-            address: house.address,
-            district: house.district,
-            rentalType: house.rentalType?.toString() || house.rental_type?.toString() || '0'
-          }))
-          
-          houseList.value = processedData
+          houseList.value = response.records || []
+          totalHouses.value = response.total || 0
         } catch (error) {
           console.error('分页筛选失败:', error)
           // 如果多条件筛选API不存在，则回退到单条件筛选

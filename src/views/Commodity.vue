@@ -203,7 +203,14 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Search, View, Shop,ShoppingCart,  RefreshLeft, Loading, Box } from '@element-plus/icons-vue'
-import { getCommodityList, getCommodityCategories } from '../api/commodity.ts'
+import { 
+    getCommodityList, 
+    getCommodityCategories, 
+    searchCommodityByName,
+    filterCommodityByCategory,
+    filterCommodityByPriceRange,
+    filterCommodities
+} from '../api/commodity.ts'
 import type { Commodity, CommoditySearchParams } from '../entity/Commodity.ts'
 
 // 路由
@@ -247,7 +254,7 @@ const fetchProducts = async () => {
     const params: CommoditySearchParams = {
       pageNum: pagination.currentPage,
       pageSize: pagination.pageSize,
-      ...(searchForm.name && { keyword: searchForm.name }),
+      ...(searchForm.name && { name: searchForm.name }),
       ...(searchForm.category && { category: searchForm.category }),
       ...(searchForm.minPrice && { minPrice: searchForm.minPrice }),
       ...(searchForm.maxPrice && { maxPrice: searchForm.maxPrice })
@@ -309,7 +316,10 @@ const handleImageError = (event) => {
 
 // 查看商品详情
 const viewProduct = (product) => {
-  router.push(`/commodity-details/${product.id}`)
+  router.push({
+    name: 'CommodityDetailsInCredit',
+    params: { id: product.id }
+  })
 }
 
 // 组件挂载时获取数据

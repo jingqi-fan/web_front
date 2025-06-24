@@ -13,7 +13,7 @@
         </el-button>
         <div class="header-title">房源详情</div>
         <div class="header-actions">
-          <el-button size="large" type="primary" round>
+          <el-button size="large" type="primary" round @click="goToOrder">
             <el-icon><ShoppingCart /></el-icon>
             <span style="margin-left: 8px">下单</span>
           </el-button>
@@ -289,7 +289,17 @@ const name = 'HouseDetails'
     
     // 返回上一页
     const goBack = () => {
-      router.back()
+      router.push({ name: 'CreditRental' })
+    }
+    
+    // 跳转到下单页面
+    const goToOrder = () => {
+      const houseId = route.params.id
+      if (!houseId) {
+        ElMessage.error('房源ID不存在')
+        return
+      }
+      router.push({ name: 'HouseOrderInCredit', params: { id: houseId } })
     }
     
     // 处理图片加载错误

@@ -271,7 +271,7 @@ const fetchCommodityDetails = async () => {
 
 // 返回商品列表页面
 const goBack = () => {
-  router.push('/creditbusiness/credit-shopping')
+  router.push({ name: 'CreditShopping' })
 }
 
 // 处理图片加载错误
@@ -292,15 +292,14 @@ const goToCheckout = () => {
     return
   }
   
-  ElMessage.success(`准备购买 ${quantity.value} 件商品，总价 ¥${formatPrice(commodity.value.price * quantity.value)}`)
-  // TODO: 跳转到结算页面
-  // router.push({
-  //   name: 'checkout',
-  //   query: {
-  //     commodityId: commodity.value.id,
-  //     quantity: quantity.value
-  //   }
-  // })
+  // 跳转到订单确认页面
+  router.push({
+    name: 'OrderConfirm',
+    query: {
+      commodityId: commodity.value.id,
+      quantity: quantity.value
+    }
+  })
 }
 
 

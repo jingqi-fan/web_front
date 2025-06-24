@@ -15,12 +15,15 @@ import {useUserCreditScoreStore} from "../stores/useUserCreditScore.ts";
 import {useUserInfoStore} from "../stores/useUserInfoStore.ts";
 import {useTokenStore} from "../stores";
 import Records from '../views/CreditBusiness/Records.vue';
+import HouseOrder from '../views/HouseOrder.vue';
 
 
 import House  from "../views/House.vue"
 import HouseDetails  from "../views/HouseDetails.vue"
 import Commodity  from "../views/Commodity.vue"
 import CommodityDetails  from "../views/CommodityDetails.vue"
+import OrderConfirm from "../views/OrderConfirm.vue"
+import OrderList from "../views/OrderList.vue"
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
@@ -74,6 +77,18 @@ const router = createRouter({
         },
 
         {
+            path: '/order-confirm',
+            name: 'OrderConfirm',
+            component: OrderConfirm
+        },
+
+        {
+            path: '/order-list',
+            name: 'OrderList',
+            component: OrderList
+        },
+
+        {
             path: '/house-details/:id',
             name: 'HouseDetails',
             component: HouseDetails,
@@ -119,13 +134,39 @@ const router = createRouter({
                 component: Commodity
               },
               {
+                path: 'credit-shopping/details/:id',  // 商品详情页
+                name: 'CommodityDetailsInCredit',
+                component: CommodityDetails,
+                props: true
+              },
+              {
+                path: 'order-confirm',  // 订单确认页
+                name: 'OrderConfirmInCredit',
+                component: OrderConfirm
+              },
+              {
+                path: 'order-list',  // 订单列表页
+                name: 'OrderListInCredit',
+                component: OrderList
+              },
+              {
                 path: 'credit-rent',      // 便捷租房
                 name: 'CreditRental',
                 component: House
               },
               {
-               
-
+                path: 'credit-rent/details/:id',  // 房源详情页
+                name: 'HouseDetailsInCredit',
+                component: HouseDetails,
+                props: true
+              },
+              {
+                path: 'credit-rent/order/:id',  // 房屋下单页
+                name: 'HouseOrderInCredit',
+                component: HouseOrder,
+                props: true
+              },
+              {
                 path: 'records',                // 预订记录汇总
                 name: 'Records',
                 component: Records
