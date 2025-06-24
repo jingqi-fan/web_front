@@ -11,4 +11,5 @@ export interface HotelReservation {
     isCheckin: number;       // 0 未入住
     isPay: number;           // 0 未支付
     promise: number;         // 0 尚未还款但未到期限
+    payDate?:string;          //支付日期，可为空
   }
