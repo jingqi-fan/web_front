@@ -41,3 +41,18 @@ export async function repayReservation(
   )
   return res.data
 }
+
+
+
+/**
+ * 取消指定订单
+ * DELETE /hotels/reservation/{orderId}
+ */
+export async function cancelReservation(
+  orderId: number
+): Promise<void> {
+  const res = await axiosInstance.delete<void>(
+    `/hotels/reservation/${orderId}`
+  )
+  return res.data
+}

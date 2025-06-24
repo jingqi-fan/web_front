@@ -158,7 +158,7 @@ function handleConfirm() {
   )
     .then(async () => {
       const uid = useUserInfoStore().user.id
-      const payload: Omit<HotelReservation, 'orderId' | 'bookDate'> = {
+      const payload: Omit<HotelReservation, 'orderId' | 'bookDate'|'payDate'> = {
         userId: uid,
         hotelId: props.hotel.id,
         typeId: props.roomType.typeId,
