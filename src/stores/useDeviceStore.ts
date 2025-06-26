@@ -5,6 +5,7 @@ export const useDeviceStore=defineStore('device',{
     state:()=>({
         device:''
     }),
+    persist: true,
     actions:{
         setDevice(payload:{ device:string;}){
             this.device=payload.device;

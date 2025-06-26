@@ -97,6 +97,7 @@ export  const updateUserInfo =async (uuid:String,data:UpdateUserInfo)=>{
             ElMessage.error(res.data.message);
             return;
         }
+        getUserInfo(uuid);
         ElMessage.success('更新成功');
     }).catch(err=>{
         ElMessage.error(`更新信息异常：${err}`);

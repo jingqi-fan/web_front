@@ -6,6 +6,7 @@ export const useUserInfoStore=defineStore('useTokenStore',{
     state:()=>({
         user:null as User | null
     }),
+    persist: true,
     actions:{
         setUserInfo(payload:User){
             this.user=payload;

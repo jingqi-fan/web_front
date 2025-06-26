@@ -6,10 +6,10 @@ export const useUserCreditScoreStore=defineStore('UserCreditScore',{
     state:()=>({
         score:null as UserCreditScore | null
     }),
+    persist: true,
     actions:{
         setUserCredit(payload:UserCreditScore){
             this.score=payload;
-            console.log('setUserCredit',this.score)
         },
         removeUserCredit(){
             this.score=null;
