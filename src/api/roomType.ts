@@ -1,5 +1,5 @@
 // src/api/roomType.ts
-import axios from '../plugins/axios'
+
 import type { RoomType } from '../entity/RoomType'
 import axiosInstance from '../plugins/axios'
 

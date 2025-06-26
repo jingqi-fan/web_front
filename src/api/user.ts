@@ -13,6 +13,7 @@ import {UpdateCreditScore} from "../entity/updateCreditScore.ts";
 import router from "../router";
 import type {UserCreditScore} from "../entity/user_credit_score.ts";
 import {useUserCreditScoreStore} from "../stores/useUserCreditScore.ts";
+import axios from "axios";
 
 // 用户注册
 export const register = (data: RegisterCommand):Promise<ApiResponse>=> {
@@ -41,6 +42,7 @@ export const login = async (data: LoginCommand):Promise<ApiResponse> => {
     // })
     try{
         const res = await axiosInstance.post<Result<Token>>('/user/login', data);
+        // const res = await (await axios.post('/user/login',data)).data
         if (res?.data?.status === 'SUCCESS') {
             const tokenStore = useTokenStore();
             tokenStore.setToken(res.data.data);
