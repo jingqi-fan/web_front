@@ -96,7 +96,7 @@ onBeforeUnmount(() => chartInstance?.dispose())
 
 <style scoped>
 .gauge-container {
-  width: 100%;
+  width: 90%;
   height: 210px;
 }
 </style>

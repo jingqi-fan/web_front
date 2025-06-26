@@ -14,6 +14,7 @@ import router from "../router";
 import type {UserCreditScore} from "../entity/user_credit_score.ts";
 import {useUserCreditScoreStore} from "../stores/useUserCreditScore.ts";
 import axios from "axios";
+import {useDeviceStore} from "../stores/useDeviceStore.ts";
 
 // 用户注册
 export const register = (data: RegisterCommand):Promise<ApiResponse>=> {
@@ -161,4 +162,59 @@ export const validator=async ()=>{
     }).catch(err => {
         ElMessage.error(`信用分更新发生异常：${err}`);
     });
+}
+export const userLogout = async (id:string,deviceId:string) => {
+    return await axiosInstance.get(`/user/logout?userId=${id}&device=${deviceId}`).then(res => {
+        console.log("api调用成功",res)
+        if (res.data.status !== 'SUCCESS') {
+            ElMessage.error(res.data.message);
+            return;
+        }
+        const userInfoStore=useUserInfoStore();
+        const userCreditScoreStore=useUserCreditScoreStore();
+        const userTokenStore=useTokenStore();
+        const deviceStore=useDeviceStore();
+        userInfoStore.removeUserInfo()
+        userCreditScoreStore.removeUserCredit()
+        userTokenStore.removeToken()
+        deviceStore.removeDevice()
+        return res
+    }).catch(err => {
+        ElMessage.error(`退出登录发生异常：${err}`);
+    })
+}
+//排行榜
+//排行榜
+export const getTopCreditUsers = async () => {
+    return new Promise<{ avatar: string; score: number; area: string }[]>(resolve => {
+        setTimeout(() => {
+            resolve([
+                {
+                    avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+                    score: 780,
+                    area: '上城区'
+                },
+                {
+                    avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+                    score: 765,
+                    area: '西湖区'
+                },
+                {
+                    avatar: 'https://randomuser.me/api/portraits/men/50.jpg',
+                    score: 745,
+                    area: '滨江区'
+                },
+                {
+                    avatar: 'https://randomuser.me/api/portraits/women/12.jpg',
+                    score: 730,
+                    area: '拱墅区'
+                },
+                {
+                    avatar: 'https://randomuser.me/api/portraits/men/27.jpg',
+                    score: 715,
+                    area: '萧山区'
+                }
+            ])
+        }, 500)
+    })
 }
