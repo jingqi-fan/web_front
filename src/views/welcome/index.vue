@@ -223,8 +223,7 @@ const goToMessageDetail=(id:number)=>{
 };
 //个人中心
 const goToUserCenter=()=>{
-  // router.push('/user')
-  ElMessage.info("正在开发中...")
+  router.push('/personal')
 }
 // 回到首页
 const GoHome = () => {

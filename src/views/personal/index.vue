@@ -40,13 +40,46 @@
           </div>
         </template>
       </el-popover>
-      <el-avatar style="margin-right: 40px;cursor:pointer;"></el-avatar>
+      <el-popover
+          placement="bottom-end"
+          :width="160"
+          trigger="hover"
+          popper-class="custom-avatar-popover"
+      >
+        <template #reference>
+          <el-avatar
+              :src="avatarUrl"
+              style="margin-right: 40px; cursor: pointer;"
+          />
+        </template>
+
+        <div class="avatar-options">
+          <div class="option-item" @click="handleEditRealInfo">
+            <el-icon class="icon info"><UserFilled /></el-icon>
+            信用信息
+          </div>
+          <div class="option-item" @click="handleChangeAvatar">
+            <el-icon class="icon primary"><PictureFilled /></el-icon>
+            更换头像
+          </div>
+          <div class="option-item logout" @click="logout">
+            <el-icon class="icon danger"><SwitchButton /></el-icon>
+            退出登录
+          </div>
+        </div>
+      </el-popover>
+
+
     </div>
 
     <div class="content-container">
       <div class="left">
         <div class="left-info">
-          <h2 style="margin-left: 20px">个人信息</h2>
+          <div style="display: flex;justify-content: space-between;align-items: center">
+            <h2 style="margin-left: 20px">个人信息</h2>
+            <el-button type="primary" @click="editInfo" style="margin-right: 20px;margin-top: 14px">编辑基本信息</el-button>
+          </div>
+
           <div class="info-row">
             <div class="info-item">
               <p class="label">姓名</p>
@@ -104,42 +137,169 @@
           <div class="info-row">
             <div class="info-item">
               <p class="label">信用等级</p>
-              <p class="value">优秀</p>
+              <p class="value">{{getCreditScoreLevel()}}</p>
+            </div>
+
+            <div>
+              <img :src="creditScore.idNumber?RegisterIdNumberPng:UnregisterIdNumberPng" alt="" style="width: 200px;height: 90px">
             </div>
           </div>
 
 
         </div>
         <div class="left-charts">
-
+          <el-tabs v-model="activeChart" stretch style="width: 400px">
+            <el-tab-pane label="信用分变化折线图" name="credit" />
+            <el-tab-pane label="消费折线图" name="consume" />
+          </el-tabs>
+          <div ref="chartRef" style="height: 400px; width: 100%; padding: 10px;" />
         </div>
+
       </div>
       <div class="right">
+        <div class="right-top">
+          <div class="top-content">
+            <el-avatar
+                class="avatar"
+                :src="avatarUrl"
+            />
+            <EChartsGauge :creditScore="creditScoreValue" style="height: 160px;width: 160px" />
+          </div>
 
+          <div class="greeting-section">
+            <p class="greeting-text">{{ getGood() }} 👋</p>
+            <p class="greeting-subtext">
+              这是你加入 <strong>西湖分</strong> 的第 <strong>{{ daysSince(joinedDays) }}</strong> 天！
+            </p>
+          </div>
+        </div>
+        <div class="right-middle">
+          <div class="ranking-container">
+            <h3 style="margin-bottom: 10px; text-align: center;">信用排行榜</h3>
+            <ul class="ranking-list">
+              <li v-for="(user, index) in creditRankList" :key="index" class="ranking-item">
+                <span class="rank-num">{{ index + 1 }}</span>
+                <el-avatar :src="user.avatar" />
+                <span class="user-area">{{ user.area }}</span>
+                <span class="user-score">{{ user.score }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="right-bottom">
+          <div class="recent-services">
+            <h3 style="text-align: center; margin: 16px 0;">最近使用服务</h3>
+            <div class="service-list">
+              <div
+                  v-for="(service, index) in recentServices"
+                  :key="index"
+                  class="service-card"
+              >
+                <div class="service-icon">{{ service.icon }}</div>
+                <div class="service-name">{{ service.name }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-
     </div>
-
-
   </div>
+  <el-dialog v-model="dialogFormVisible" title="修改个人信息" width="600">
+    <el-form :model="form" :rules="rules" ref="formRef" label-width="120px">
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="用户名" prop="username">
+            <el-input v-model="form.username" disabled />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="昵称" prop="nickname">
+            <el-input v-model="form.nickname" />
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="邮箱" prop="email">
+            <el-input v-model="form.email" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="电话" prop="phone">
+            <el-input v-model="form.phone" />
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="性别" prop="gender">
+            <el-radio-group v-model="form.gender">
+              <el-radio label="男">男</el-radio>
+              <el-radio label="女">女</el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="省份" prop="province">
+            <el-input v-model="form.province" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="城市" prop="city">
+            <el-input v-model="form.city" />
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="县/市区" prop="country">
+            <el-input v-model="form.country" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="乡/镇/街道" prop="township">
+            <el-input v-model="form.township" />
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </el-form>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitForm">确认</el-button>
+      </div>
+    </template>
+  </el-dialog>
+
 </template>
 
 <script setup lang="ts">
 import Logo from "./component/Logo.vue"
 import router from "@/router";
-import {ref, onMounted, onBeforeUnmount} from 'vue';
+import {computed,ref, onMounted, onBeforeUnmount,reactive} from 'vue';
 import lottie from 'lottie-web';
 import {ElMessage} from "element-plus";
 import {useUserInfoStore} from "@/stores/useUserInfoStore.ts";
 import {useUserCreditScoreStore} from "@/stores/useUserCreditScore.ts";
-
-
+import RegisterIdNumberPng from "@/assets/register_id_number.png";
+import UnregisterIdNumberPng from "@/assets/unregister_id_number.png";
+import {useTokenStore} from "@/stores";
+import {updateUserInfo, getTopCreditUsers, userLogout} from "@/api/user.ts";
+const userInfo=ref(null)
+const creditScore=ref(null)
 //lottie动画部分
 const shoppingContainer = ref(null)
 const lifeContainer=ref(null)
 const creditManagerContainer=ref(null)
 let intervalId: ReturnType<typeof setInterval> | null = null;
 // 动画加载
+const avatarUrl=ref('https://q8.itc.cn/q_70/images03/20250521/eac16c7d96884de3bd0cb499554c205a.jpeg')
 onMounted(() => {
   lottie.loadAnimation({
     container: shoppingContainer.value!,
@@ -163,19 +323,136 @@ onMounted(() => {
     path: new URL('@/assets/personal.json', import.meta.url).href,
   });
 });
-onMounted(async () => {
-  const userInfoStore = useUserInfoStore();
-  const userCreditScore = useUserCreditScoreStore();
+//
+const creditRankList = ref<{ avatar: string; score: number; area: string }[]>([])
 
-  if (!userInfoStore.user || !userCreditScore.score) {
+onMounted(async () => {
+  creditRankList.value = await getTopCreditUsers()
+})
+
+
+
+
+
+
+function getGood(): string {
+  const hour = new Date().getHours()
+
+  if (hour >= 5 && hour < 11) {
+    return '早上好'
+  } else if (hour >= 11 && hour < 13) {
+    return '中午好'
+  } else if (hour >= 13 && hour < 18) {
+    return '下午好'
+  } else {
+    return '晚上好'
+  }
+}
+const userInfoStore = useUserInfoStore();
+const userCreditScoreStore = useUserCreditScoreStore();
+onMounted(async () => {
+
+
+  if (!userInfoStore.user || !userCreditScoreStore.score) {
     ElMessage.error('用户信息或信用评分加载失败，请重新登录');
-    router.push('/login');
+    await router.push('/login');
     return;
   }
 
   userInfo.value = userInfoStore.user;
-  creditScore.value = userCreditScore.score;
+  creditScore.value = userCreditScoreStore.score;
+  form.username=userInfoStore.user.username
+  form.nickname=userInfoStore.user.nickName
+  form.email=userInfoStore.user.email
+  form.phone=userInfoStore.user.phone
+  form.gender=userInfoStore.user.gender
+  form.province=userInfoStore.user.province
+  form.city=userInfoStore.user.city
+  form.country=userInfoStore.user.county
+  form.township=userInfoStore.user.township
+  creditScoreValue.value=creditScore.value.creditScore
+  joinedDays.value=userInfoStore.user.createTime
 });
+
+const joinedDays=ref('')
+
+function daysSince(dateStr: string): number {
+  const inputDate = new Date(dateStr)  // 解析 ISO 字符串
+  const now = new Date()
+
+  const utc1 = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())
+  const utc2 = Date.UTC(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate())
+
+  const msPerDay = 1000 * 60 * 60 * 24
+  return Math.floor((utc1 - utc2) / msPerDay)
+}
+
+const dialogFormVisible = ref(false)
+const editInfo=()=>{
+  dialogFormVisible.value=true
+}
+const form = reactive({
+  username: '',
+  nickname: '',
+  profilePicture: '',
+  email: '',
+  phone: '',
+  gender: '',
+  province: '',
+  city: '',
+  country: '',
+  township: ''
+})
+const formRef = ref()
+
+const rules = {
+  email: [
+    { required: true, message: '请输入邮箱', trigger: 'blur' },
+    { type: 'email', message: '邮箱格式不正确', trigger: ['blur', 'change'] }
+  ],
+  phone: [
+    { required: true, message: '请输入手机号', trigger: 'blur' },
+    { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }
+  ],
+  gender: [
+    { required: true, message: '请选择性别', trigger: 'change' }
+  ]
+}
+const submitForm = () => {
+  formRef.value?.validate(async (valid: boolean) => {
+    if (!valid) return;
+
+    try {
+      const tokenStore = useTokenStore();
+      const uuid = tokenStore.token.userId;
+
+      const res = await updateUserInfo(uuid, {
+        ...form
+      });
+
+      ElMessage.success('更新成功');
+      dialogFormVisible.value = false;
+    } catch (e) {
+      ElMessage.error('更新失败，请重试');
+    }
+  });
+};
+
+//用户信用分
+import EChartsGauge from './component/EChartsGauge.vue'
+const creditScoreValue = ref(0) // 示例信用分
+
+const getCreditScoreLevel=()=>{
+  if(creditScore.value.creditScore>=750){
+    return '优秀'
+  }else if(creditScore.value.creditScore>=650){
+    return '良好'
+  }else if(creditScore.value.creditScore>=550){
+    return '一般'
+  }else{
+    return `较差${creditScore.value.creditScore}`
+  }
+}
 
 // 在组件卸载前清除定时器
 onBeforeUnmount(() => {
@@ -183,29 +460,26 @@ onBeforeUnmount(() => {
 });
 
 
-const userInfo=ref()
-const creditScore=ref()
+
 
 const loadUserInfoAndCreditScore=async ()=>{
-  const userInfoStore=useUserInfoStore()
   if(userInfoStore.user===null){
     ElMessage.error('用户信息加载失败,请重新登录!');
-    router.push('/login')
+    await router.push('/login')
     return
   }
   userInfo.value=userInfoStore.user
   console.log("userInfo.value",userInfo.value)
 
 
-  const userCreditScore=useUserCreditScoreStore()
-  if(userCreditScore.score===null){
+  if(userCreditScoreStore.score===null){
     ElMessage.error('信用评分加载失败,请重新登录尝试!');
-    console.log("creditScore.value",userCreditScore.score)
-    router.push('/login')
+    console.log("creditScore.value",userCreditScoreStore.score)
+    await router.push('/login')
     return
   }
-  creditScore.value=userCreditScore.score
-  console.log("creditScore.value",userCreditScore.score)
+  creditScore.value=userCreditScoreStore.score
+  console.log("creditScore.value",userCreditScoreStore.score)
 }
 loadUserInfoAndCreditScore()
 
@@ -222,6 +496,144 @@ const goToCreditLife = () => {
 const goToCreditBusiness = () => {
   router.push('/creditbusiness')
 }
+//图表
+import * as echarts from 'echarts';
+import { nextTick, watch } from 'vue';
+import {PictureFilled, SwitchButton, UserFilled} from "@element-plus/icons-vue";
+import useRouterStore from "@/stores/useSystemStore.ts";
+import {useDeviceStore} from "@/stores/useDeviceStore.ts";
+
+const activeChart = ref('credit'); // 默认选中信用分折线图
+const chartRef = ref<HTMLElement | null>(null);
+let chartInstance: echarts.ECharts | null = null;
+
+
+
+const renderChart = async () => {
+  if (!chartRef.value) return;
+
+  if (!chartInstance) {
+    chartInstance = echarts.init(chartRef.value);
+  } else {
+    chartInstance.clear();
+  }
+
+  chartInstance.showLoading();
+
+  try {
+    const response = await fetchChartDataFromApi();
+    const data = response.data;
+
+    chartInstance.hideLoading();
+
+    const option = {
+      title: {
+        text: activeChart.value === 'credit' ? '信用分变化' : '消费变化'
+      },
+      tooltip: {
+        trigger: 'axis'
+      },
+      xAxis: {
+        type: 'category',
+        data: data.map(d => d.date)
+      },
+      yAxis: {
+        type: 'value'
+      },
+      series: [
+        {
+          data: data.map(d => d.value),
+          type: 'line',
+          smooth: true,
+          areaStyle: activeChart.value === 'consume' ? {} : undefined
+        }
+      ]
+    };
+
+    chartInstance.setOption(option);
+  } catch (e) {
+    chartInstance.hideLoading();
+    ElMessage.error("图表加载失败");
+  }
+};
+
+const fetchChartDataFromApi = async (): Promise<{ data: { date: string; value: number }[] }> => {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      if (activeChart.value === 'credit') {
+        resolve({
+          data: [
+            { date: '1月', value: 650 },
+            { date: '2月', value: 670 },
+            { date: '3月', value: 690 },
+            { date: '4月', value: 710 },
+            { date: '5月', value: 740 },
+          ]
+        });
+      } else {
+        resolve({
+          data: [
+            { date: '1月', value: 1200 },
+            { date: '2月', value: 1800 },
+            { date: '3月', value: 1400 },
+            { date: '4月', value: 2000 },
+            { date: '5月', value: 1700 },
+          ]
+        });
+      }
+    }, 800); // 模拟延迟
+  });
+};
+
+
+onMounted(() => {
+  nextTick(() => renderChart());
+});
+
+watch(activeChart, () => {
+  nextTick(() => renderChart());
+});
+const allServices = [
+  { name: '酒店预定', icon: '🏨' },
+  { name: '二手房租赁', icon: '🏠' },
+  { name: '优惠购物', icon: '🛍️' },
+  { name: '舒心就医', icon: '🩺' },
+  { name: '便捷停车', icon: '🅿️' },
+  { name: '图书借阅', icon: '📚' },
+  { name: '亲社会行为', icon: '🤝' },
+];
+
+const getRecentUsedServices = async () => {
+  return new Promise<{ name: string; icon: string }[]>(resolve => {
+    setTimeout(() => {
+      // 模拟返回最近使用的3个服务
+      const shuffled = allServices.sort(() => 0.5 - Math.random());
+      resolve(shuffled.slice(0, 3));
+    }, 500);
+  });
+};
+const recentServices = ref<{ name: string; icon: string }[]>([]);
+
+onMounted(async () => {
+  recentServices.value = await getRecentUsedServices();
+});
+
+const logout=async ()=>{
+  const id=userInfo.value.uuid
+  const deviceStore=useDeviceStore()
+  const device=deviceStore.device
+  const res=await userLogout(id,device)
+  if(res.status===200){
+    await router.push('/home')
+    ElMessage.success("退出成功")
+  }
+  else{
+    ElMessage.error("退出失败")
+  }
+}
+
+
+
 </script>
 
 <style scoped lang="scss">
@@ -250,7 +662,7 @@ const goToCreditBusiness = () => {
   gap: 10px;
 }
 .left{
-  height: 880px;
+  height: 1000px;
   width: 100%;
   border-radius: 8px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
@@ -258,24 +670,93 @@ const goToCreditBusiness = () => {
   grid-template-rows: auto auto;
   gap: 10px;
 }
-.right{
-  height: 640px;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 
-}
+
 .left-info{
-
   height: 500px;
   border-radius: 8px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
 .left-charts{
-  height: 400px;
+  height: 480px;
   border-radius: 8px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
+.right{
+  height: 930px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  display: grid;
+  grid-template-rows: auto auto auto;
+  gap: 10px;
+}
+.right-top {
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
 
+  .top-content {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .avatar {
+    width: 120px;
+    height: 120px;
+    border: 2px solid #e0e0e0;
+  }
+
+  .gauge {
+    width: 120px;
+    height: 120px;
+  }
+
+  .greeting-section {
+    text-align: center;
+
+    .greeting-text {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .greeting-subtext {
+      font-size: 14px;
+      color: #888;
+    }
+  }
+}
+
+
+.top-bottom{
+  height: 80px;
+  width: 100%;
+  display: flex;
+  border-radius: 8px;
+  justify-content: flex-start;
+  align-items: center;
+}
+.right-middle{
+  height: 410px;
+  width: 100%;
+  background-color: #f5f7fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+.right-bottom{
+  height: 190px;
+  width: 100%;
+  background-color: #6dd5ed;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
 .info-row {
   margin-left: 20px;
   display: flex;
@@ -302,5 +783,141 @@ const goToCreditBusiness = () => {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.percentage-value {
+  display: block;
+  margin-top: 10px;
+  font-size: 28px;
+}
+.percentage-label {
+  display: block;
+  margin-top: 10px;
+  font-size: 12px;
+}
+//排行榜样式
+.ranking-container {
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  height: 100%;
+  overflow: auto;
 
+  .ranking-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    .ranking-item {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #eee;
+
+      .rank-num {
+        width: 20px;
+        font-weight: bold;
+        color: #409EFF;
+        margin-right: 12px;
+      }
+
+      .el-avatar {
+        margin-right: 12px;
+      }
+
+      .user-area {
+        flex: 1;
+        color: #333;
+        font-size: 14px;
+      }
+
+      .user-score {
+        font-weight: bold;
+        color: #67C23A;
+      }
+    }
+  }
+}
+.recent-services {
+  padding: 8px;
+  color: #fff;
+
+  .service-list {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .service-card {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 8px;
+    width: 80px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+
+    .service-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .service-name {
+      font-size: 14px;
+      font-weight: 500;
+    }
+  }
+}
+
+
+::v-deep(.custom-avatar-popover) {
+  padding: 8px 0;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  background-color: #fff;
+}
+
+.avatar-options {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 12px;
+
+  .option-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    .icon {
+      font-size: 18px;
+      transition: color 0.3s;
+
+      &.info {
+        color: #409EFF; // 蓝色
+      }
+
+      &.primary {
+        color: #67C23A; // 绿色
+      }
+
+      &.danger {
+        color: #F56C6C; // 红色
+      }
+    }
+
+    &:hover {
+      background-color: #f5f7fa;
+    }
+
+    &.logout:hover {
+      background-color: #fef0f0;
+    }
+  }
+}
 </style>

@@ -206,7 +206,19 @@
       </div>
       <!-- 酒店预订记录 -->
       <div v-else-if="activeTab === 'hotel'">
-        <el-table
+        <!-- 判断酒店数据是否为空 -->
+       <div v-if="hotelRecords.length === 0" class="empty-state">
+        <div class="empty-icon"></div>
+        <div class="empty-text">暂无酒店预订记录</div>
+        <div class="empty-hint">快去预订心仪的酒店吧</div>
+        <el-button 
+          @click="goHotel" 
+          type="primary" 
+          style="margin-top: 16px;">
+          去预订酒店
+        </el-button>
+       </div>
+       <div v-else><el-table
           :data="hotelRecords"
           stripe
           style="width: 100%;"
@@ -268,6 +280,8 @@
             </template>
           </el-table-column>
         </el-table>
+      </div>
+        
       </div>
     </div>
     <!-- 支付弹窗 -->

@@ -7,6 +7,7 @@ export const useTokenStore = defineStore('token', {
     state: () => ({
         token: null as Token | null
     }),
+    persist: true,
     actions: {
         setToken(payload: Token) {
             const now = Math.floor(Date.now() / 1000);

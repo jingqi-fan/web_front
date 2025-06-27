@@ -76,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue';
+import {onMounted, ref,computed} from 'vue';
 import type {FormInstanceFunctions, FormRule} from 'tdesign-vue-next';
 import {MessagePlugin} from 'tdesign-vue-next';
 import useRouterStore from "../../../stores/useSystemStore.ts";
@@ -85,11 +85,10 @@ import {getUserCreditScoreInfo, getUserInfo, login} from "@/api/user.ts";
 import router from "@/router";
 import {ElMessage} from "element-plus";
 import {useUserInfoStore} from "@/stores/useUserInfoStore.ts";
+import {useDeviceStore} from "@/stores/useDeviceStore.ts";
 
 
 const routerStore = useRouterStore();
-const tokenStore = useTokenStore();
-// const counter=useTimerStore();
 
 const UserNameForm=ref({
   name:'zachary',
@@ -139,7 +138,34 @@ const sendCode =async () => {
     await MessagePlugin.error("请输入正确的电话号码")
   }
 };
-const deviceId="21376"
+// 设备ID
+const deviceStore = useDeviceStore();
+const deviceId =ref(deviceStore.device)
+
+function getDeviceId(): string {
+  if (deviceStore.device !== '') {
+    return deviceStore.device;
+  }
+  const fingerprint = [
+    navigator.userAgent,
+    screen.width + "x" + screen.height,
+    navigator.language,
+    new Date().getTimezoneOffset(),
+    navigator.hardwareConcurrency || "unknown"
+  ].join("|");
+
+  const encoded = btoa(fingerprint).slice(0,15);
+  deviceId.value = encoded.toString();
+  deviceStore.setDevice(deviceId.value);
+  return encoded;
+}
+
+onMounted(() => {
+  getDeviceId();
+});
+
+
+
 const token=ref('')
 const onSubmit = async () => {
   await LoginTo()
@@ -148,11 +174,10 @@ const LoginTo=async ()=>{
   const res=await login({
     username: UserNameForm.value.name,
     password: UserNameForm.value.password,
-    device: deviceId
+    device: deviceStore.device===''?deviceId:deviceStore.device
   })
   await getText()
   await getUserScore()
-
   if(res.status==="SUCCESS"){
     await MessagePlugin.success("登录成功!")
     if(routerStore.selectedRouter===''){
