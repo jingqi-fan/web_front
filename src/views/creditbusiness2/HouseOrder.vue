@@ -105,11 +105,11 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ArrowLeftBold } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
-import { getHouseById } from '../api/house'
-import { placeHouseOrder } from '../api/houseOrder'
-import { useUserInfoStore } from '../stores/useUserInfoStore'
-import type { House } from '../entity/House'
-import type { PlaceHouseOrderRequest } from '../entity/HouseOrder'
+import { getHouseById } from '../../api/house'
+import { placeHouseOrder } from '../../api/houseOrder'
+import { useUserInfoStore } from '../../stores/useUserInfoStore'
+import type { House } from '../../entity/House'
+import type { PlaceHouseOrderRequest } from '../../entity/HouseOrder'
 
 const route = useRoute()
 const router = useRouter()
@@ -231,13 +231,18 @@ const submitOrder = async () => {
     
     submitting.value = true
     
-    // 将日期转换为ISO格式的时间戳字符串，后端可以正确解析为Timestamp
+    // 将日期转换为当天0点的ISO格式字符串
     const formatDateForBackend = (date: string | Date): string => {
+      let targetDate: Date
       if (date instanceof Date) {
-        return date.toISOString()
+        // 确保是当天的0点
+        targetDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+      } else {
+        // 如果是字符串格式的日期，转换为当天0点
+        const dateObj = new Date(date)
+        targetDate = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate())
       }
-      // 如果是字符串格式的日期，转换为Date对象再转为ISO字符串
-      return new Date(date + 'T00:00:00.000Z').toISOString()
+      return targetDate.toISOString()
     }
     
     orderData = {
@@ -246,6 +251,7 @@ const submitOrder = async () => {
       startDate: formatDateForBackend(orderForm.value.startDate),
       deadline: formatDateForBackend(orderForm.value.endDate),
       price: totalPrice.value,
+      orderTime: new Date().toISOString(), // 记录实际下单时间
       status: 0, // 默认状态为未支付
       promise: 0 // 默认守约状态
     }

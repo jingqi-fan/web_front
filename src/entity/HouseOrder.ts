@@ -6,6 +6,7 @@ export interface HouseOrder {
     startDate: string; // 租赁开始时间
     status: number; // 状态：0.未支付、1.已支付
     price: number; // 总金额
+    orderTime?: string; // 下单时间
     payDate?: string; // 支付时间
     promise: number; // 是否守约：0.守约 1.违约
 }
@@ -16,6 +17,7 @@ export interface PlaceHouseOrderRequest {
     startDate: string;
     deadline: string;
     price: number;
+    orderTime?: string;
     status?: number;
     promise?: number;
 }

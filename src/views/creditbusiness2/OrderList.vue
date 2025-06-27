@@ -130,9 +130,9 @@ import {
   ArrowLeft,
   Refresh
 } from '@element-plus/icons-vue'
-import { getOrdersByUserId, updateOrderStatus } from '../api/order'
-import type { CommodityOrder } from '../entity/Order'
-import { OrderStatus, PaymentMethod } from '../entity/Order'
+import { getOrdersByUserId, updateOrderStatus } from '../../api/order'
+import type { CommodityOrder } from '../../entity/Order'
+import { OrderStatus, PaymentMethod } from '../../entity/Order'
 
 // 路由相关
 const route = useRoute()

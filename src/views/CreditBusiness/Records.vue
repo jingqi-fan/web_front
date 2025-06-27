@@ -122,6 +122,7 @@
       </div>
       <!-- 信用租房订单列表 -->
       <div v-else-if="activeTab === 'rental'">
+
         <!-- 加载状态 -->
         <div v-if="rentalLoading" class="loading-container">
           <el-skeleton :rows="6" animated />
@@ -137,7 +138,7 @@
               <div class="order-header">
                 <div class="order-info">
                   <span class="order-id">订单号：#{{ order.id }}</span>
-                  <span class="order-time">{{ formatDateTime(order.startDate) }}</span>
+                  <span class="order-time">下单时间：{{ order.orderTime ? formatDateTimeBeijing(order.orderTime) : '未知时间' }}</span>
                 </div>
                 <el-tag 
                   :type="getRentalStatusTagType(order.status)" 
@@ -153,20 +154,20 @@
                   </div>
                   <div class="detail-item">
                     <span class="label">租期：</span>
-                    <span class="value">{{ formatDateTime(order.startDate) }} - {{ formatDateTime(order.deadline) }}</span>
+                    <span class="value">{{ formatDateTimeBeijing(order.startDate) }} - {{ formatDateTimeBeijing(order.deadline) }}</span>
                   </div>
                   <div class="detail-item">
-                    <span class="label">月租金：</span>
+                    <span class="label">总租金：</span>
                     <span class="value price">¥{{ formatPrice(order.price) }}</span>
                   </div>
                   <div v-if="order.payDate" class="detail-item">
                     <span class="label">支付时间：</span>
-                    <span class="value">{{ formatDateTime(order.payDate) }}</span>
+                    <span class="value">{{ formatDateTimeBeijing(order.payDate) }}</span>
                   </div>
                   <div class="detail-item">
                     <span class="label">守约状态：</span>
-                    <span class="value" :class="{ 'overdue': order.promise === 1 }">
-                      {{ order.promise === 0 ? '守约' : '逾期' }}
+                    <span class="value" :class="getPromiseStatusClass(order)">
+                      {{ formatPromiseStatus(order) }}
                     </span>
                   </div>
                 </div>
@@ -292,7 +293,7 @@ import {
 import { getHotelById } from '../../api/hotel'
 import { getRoomTypesByHotel } from '../../api/roomType'
 import { getOrdersByUserId, updateOrderStatus } from '../../api/order'
-import { getHouseOrdersByUserId, updateHouseOrderStatus } from '../../api/houseOrder'
+import { getHouseOrdersByUserId, payHouseOrder } from '../../api/houseOrder'
 import type { HotelReservation } from '../../entity/HotelReservation'
 import type { CommodityOrder } from '../../entity/Order'
 import type { HouseOrder } from '../../entity/HouseOrder'
@@ -309,6 +310,7 @@ const shoppingOrders = ref<CommodityOrder[]>([])
 const shoppingLoading = ref(false)
 const rentalOrders = ref<HouseOrder[]>([])
 const rentalLoading = ref(false)
+
 const hotelRecords = ref<(HotelReservation & {
   hotelName: string
   typeName: string
@@ -408,7 +410,7 @@ async function payRentalOrder(order: HouseOrder) {
       '确认支付',
       { confirmButtonText: '确认支付', cancelButtonText: '取消', type: 'warning' }
     )
-    await updateHouseOrderStatus(order.id!, 1)
+    await payHouseOrder(order.id!)
     ElMessage.success('支付成功！')
     loadRentalOrders()
   } catch (error: any) {
@@ -453,6 +455,18 @@ function formatDateTime(dateTime: string | null | undefined) {
     hour: '2-digit', minute: '2-digit'
   })
 }
+
+// 北京时间格式化函数
+function formatDateTimeBeijing(dateString: string | null | undefined) {
+  if (!dateString) return '未知时间'
+  const date = new Date(dateString)
+  // 直接使用北京时区格式化，不需要手动加8小时
+  return date.toLocaleString('zh-CN', {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit',
+    timeZone: 'Asia/Shanghai'
+  })
+}
 function formatPrice(price: number | null | undefined) {
   return price == null ? '0.00' : parseFloat(price.toString()).toFixed(2)
 }
@@ -486,7 +500,7 @@ function getPaymentMethodText(method: string) {
 function diffDays(late: string, early: string) {
   const dLate = new Date(late.split(' ')[0]).getTime()
   const dEarly = new Date(early.split(' ')[0]).getTime()
-  return Math.ceil((dLate - dEarly) / (1000 * 3600 * 24))
+  return Math.floor((dLate - dEarly) / (1000 * 3600 * 24))
 }
 function formatRemainingDays(row: any) {
   const today = new Date().toISOString().split('T')[0]
@@ -499,6 +513,73 @@ function formatOverdueDays(row: { checkoutDate: string; payDate?: string }) {
 function isBeforeCheckin(checkin: string) {
   const today = new Date().toISOString().split('T')[0]
   return new Date(today).getTime() < new Date(checkin.split(' ')[0]).getTime()
+}
+
+// 房屋订单守约状态格式化
+function formatPromiseStatus(order: any) {
+  const today = new Date().toISOString().split('T')[0]
+  const deadline = order.deadline ? order.deadline.split(' ')[0] : null
+  
+  if (!deadline) return '未知状态'
+  
+  // promise状态说明：
+  // 0: 守约/剩余天数 (未支付且未到期 或 已支付且在截止日期前支付)
+  // 1: 逾期天数 (未支付且已过期)
+  // 2: 固定逾期状态 (已支付但在截止日期后支付)
+  
+  if (order.promise === 0) {
+    // 已支付的情况
+    if (order.status === 1) {
+      return '守约'
+    }
+    // 未支付的情况
+    else if (order.status === 0) {
+      const remainingDays = diffDays(deadline, today)
+      if (remainingDays > 0) {
+        return `剩余${remainingDays}天`
+      } else if (remainingDays === 0) {
+        return '今日到期'
+      } else {
+        // remainingDays < 0，表示已经逾期
+        const overdueDays = Math.abs(remainingDays)
+        return `逾期${overdueDays}天`
+      }
+    }
+    return '守约'
+  } else if (order.promise === 1) {
+    // 未支付且已逾期
+    const overdueDays = diffDays(today, deadline)
+    return `逾期${overdueDays}天`
+  } else if (order.promise === 2) {
+    // 已支付但逾期支付，显示固定逾期天数
+    const payDate = order.payDate ? order.payDate.split(' ')[0] : today
+    const overdueDays = diffDays(payDate, deadline)
+    return `逾期${overdueDays}天`
+  }
+  
+  return '未知状态'
+}
+
+// 房屋订单守约状态样式类
+function getPromiseStatusClass(order: any) {
+  if (order.promise === 1 || order.promise === 2) {
+    return { 'overdue': true }
+  } else if (order.promise === 0 && order.status === 0) {
+    const today = new Date().toISOString().split('T')[0]
+    const deadline = order.deadline ? order.deadline.split(' ')[0] : null
+    if (deadline) {
+      const remainingDays = diffDays(deadline, today)
+      // 如果已经逾期（remainingDays < 0），应用逾期样式
+      if (remainingDays < 0) {
+        return { 'overdue': true }
+      }
+      // 未支付但还有剩余时间，显示警告色
+      else if (remainingDays <= 3 && remainingDays > 0) {
+        return { 'warning': true }
+      }
+    }
+  }
+  return {}
 }
 </script>
 <style scoped>
@@ -664,6 +745,10 @@ function isBeforeCheckin(checkin: string) {
 }
 .overdue {
   color: #e74c3c;
+  font-weight: 600;
+}
+.warning {
+  color: #e6a23c;
   font-weight: 600;
 }
 </style>
