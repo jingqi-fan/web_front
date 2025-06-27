@@ -210,8 +210,8 @@ import {
     filterCommodityByCategory,
     filterCommodityByPriceRange,
     filterCommodities
-} from '../api/commodity.ts'
-import type { Commodity, CommoditySearchParams } from '../entity/Commodity.ts'
+} from '../../api/commodity.ts'
+import type { Commodity, CommoditySearchParams } from '../../entity/Commodity.ts'
 
 // 路由
 const router = useRouter()

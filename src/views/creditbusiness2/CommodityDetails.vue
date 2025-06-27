@@ -183,8 +183,8 @@ import {
   Plus,
   Minus
 } from '@element-plus/icons-vue'
-import { getCommodityDetails } from '../api/commodity.ts'
-import type { Commodity } from '../entity/Commodity.ts'
+import { getCommodityDetails } from '../../api/commodity.ts'
+import type { Commodity } from '../../entity/Commodity.ts'
 
 // 路由相关
 const route = useRoute()

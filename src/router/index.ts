@@ -15,15 +15,15 @@ import {useUserCreditScoreStore} from "../stores/useUserCreditScore.ts";
 import {useUserInfoStore} from "../stores/useUserInfoStore.ts";
 import {useTokenStore} from "../stores";
 import Records from '../views/CreditBusiness/Records.vue';
-import HouseOrder from '../views/HouseOrder.vue';
+import HouseOrder from '../views/creditbusiness2/HouseOrder.vue';
 
 
-import House  from "../views/House.vue"
-import HouseDetails  from "../views/HouseDetails.vue"
-import Commodity  from "../views/Commodity.vue"
-import CommodityDetails  from "../views/CommodityDetails.vue"
-import OrderConfirm from "../views/OrderConfirm.vue"
-import OrderList from "../views/OrderList.vue"
+import House  from "../views/creditbusiness2/House.vue"
+import HouseDetails  from "../views/creditbusiness2/HouseDetails.vue"
+import Commodity  from "../views/creditbusiness2/Commodity.vue"
+import CommodityDetails  from "../views/creditbusiness2/CommodityDetails.vue"
+import OrderConfirm from "../views/creditbusiness2/OrderConfirm.vue"
+import OrderList from "../views/creditbusiness2/OrderList.vue"
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [

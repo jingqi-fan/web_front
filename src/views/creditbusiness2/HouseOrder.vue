@@ -105,11 +105,11 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ArrowLeftBold } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
-import { getHouseById } from '../api/house'
-import { placeHouseOrder } from '../api/houseOrder'
-import { useUserInfoStore } from '../stores/useUserInfoStore'
-import type { House } from '../entity/House'
-import type { PlaceHouseOrderRequest } from '../entity/HouseOrder'
+import { getHouseById } from '../../api/house'
+import { placeHouseOrder } from '../../api/houseOrder'
+import { useUserInfoStore } from '../../stores/useUserInfoStore'
+import type { House } from '../../entity/House'
+import type { PlaceHouseOrderRequest } from '../../entity/HouseOrder'
 
 const route = useRoute()
 const router = useRouter()

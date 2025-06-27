@@ -170,12 +170,12 @@ import {
   Money,
   Check
 } from '@element-plus/icons-vue'
-import { getCommodityDetails } from '../api/commodity'
-import { placeOrder } from '../api/order'
-import type { Commodity } from '../entity/Commodity'
-import type { PlaceOrderRequest } from '../entity/Order'
-import { useUserInfoStore } from '../stores/useUserInfoStore'
-import { useUserCreditScoreStore } from '../stores/useUserCreditScore'
+import { getCommodityDetails } from '../../api/commodity'
+import { placeOrder } from '../../api/order'
+import type { Commodity } from '../../entity/Commodity'
+import type { PlaceOrderRequest } from '../../entity/Order'
+import { useUserInfoStore } from '../../stores/useUserInfoStore'
+import { useUserCreditScoreStore } from '../../stores/useUserCreditScore'
 
 // 路由相关
 const route = useRoute()
