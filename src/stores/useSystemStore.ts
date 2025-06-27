@@ -9,6 +9,7 @@ export const useRouterStore=defineStore('router',()=>{
     const removeRouter=()=>{
         selectedRouter.value = '';
     }
+
     return {
         selectedRouter,
         setRouter,

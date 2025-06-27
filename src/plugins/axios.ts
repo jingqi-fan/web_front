@@ -26,6 +26,7 @@ axiosInstance.interceptors.request.use(
             return config; // 直接返回配置，不进行Token处理
         }
         const tokenStore = useTokenStore();
+        const deviceStore=useDeviceStore()
         if (tokenStore.token) {
             const isExpiringSoon = checkTokenExpiry(tokenStore.token.accessToken);
 
@@ -128,24 +129,6 @@ function checkTokenExpiry(token: string): boolean {
     } catch (e) {
         return false;
     }
-}
-// 设备ID获取方法（示例）
-function getDeviceId(): string {
-    const deviceStore = useDeviceStore();
-    if (deviceStore.device) {
-        return deviceStore.device;
-    }
-
-    const fingerprint = [
-        navigator.userAgent,
-        screen.width + "x" + screen.height,
-        navigator.language,
-        new Date().getTimezoneOffset(),
-        navigator.hardwareConcurrency || "unknown"
-    ].join("|");
-    deviceStore.setDevice(btoa(fingerprint));
-     // Base64编码
-    return btoa(fingerprint);
 }
 
 //响应拦截器

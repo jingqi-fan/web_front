@@ -3,8 +3,8 @@
     <auto-monitor-logo class="logo" @click="goToHome" />
 
     <div class="header-option">
-      <t-button variant="text" @click="goToHomePage">
-        首页
+      <t-button variant="text" @click="goToManagerPage">
+        管理员入口
       </t-button>
       <t-button variant="text" @click="goToUserCenter">
         个人中心
@@ -75,8 +75,9 @@ const isUserLogged=()=>{
   const userStore = useUserInfoStore();
   return userStore.user !== null;
 }
-const goToHomePage = () => {
+const goToManagerPage = () => {
   router.push('/');
+  ElMessage.success('管理员入口即将上线，敬请期待!')
 }
 //个人中心
 const goToUserCenter = () => {

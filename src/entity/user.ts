@@ -15,4 +15,5 @@ export interface User {
     updateTime?: string;
     username: string;
     uuid: string;
+    county: string;
 }

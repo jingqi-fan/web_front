@@ -1,47 +1,73 @@
 <template>
-  <div class="chart-wrapper">
-    <ReLineChart
-        :width="600"
-        :height="280"
-        :data="chartData"
-        :margin="{ top: 5, right: 30, left: 20, bottom: 5 }"
-    >
-      <ReXAxis dataKey="name" />
-      <ReYAxis />
-      <ReTooltip />
-      <ReLegend />
-      <ReLine type="monotone" dataKey="裤子" stroke="#8884d8" />
-      <ReLine type="monotone" dataKey="羽绒" stroke="#82ca9d" />
-      <ReLine type="monotone" dataKey="健身" stroke="#ffc658" />
-      <ReLine type="monotone" dataKey="图书" stroke="#ff7300" />
-    </ReLineChart>
+  <div>
+    <el-tabs v-model="activeTab" stretch style="width: 100%;">
+      <el-tab-pane label="信用分变化折线图" name="credit" />
+      <el-tab-pane label="消费折线图" name="consume" />
+    </el-tabs>
+    <div ref="chartRef" style="height: 400px; width: 100%; padding: 10px;" />
   </div>
 </template>
 
 <script setup lang="ts">
-import {
-  LineChart as ReLineChart,
-  Line as ReLine,
-  XAxis as ReXAxis,
-  YAxis as ReYAxis,
-  Tooltip as ReTooltip,
-  Legend as ReLegend
-} from 'recharts/lib'
+import { ref, watch, onMounted, nextTick } from 'vue'
+import * as echarts from 'echarts'
 
-const chartData = [
-  { name: '周一', 裤子: 120, 羽绒: 200, 健身: 100, 图书: 300 },
-  { name: '周二', 裤子: 90, 羽绒: 140, 健身: 80, 图书: 150 },
-  { name: '周三', 裤子: 150, 羽绒: 160, 健身: 110, 图书: 220 },
-  { name: '周四', 裤子: 110, 羽绒: 180, 健身: 90, 图书: 240 },
-  { name: '周五', 裤子: 130, 羽绒: 170, 健身: 95, 图书: 260 },
-  { name: '周六', 裤子: 95, 羽绒: 150, 健身: 75, 图书: 180 },
-  { name: '周日', 裤子: 105, 羽绒: 160, 健身: 85, 图书: 210 }
-]
-</script>
+const activeTab = ref('credit')
+const chartRef = ref<HTMLElement | null>(null)
+let chartInstance: echarts.ECharts | null = null
 
-<style scoped>
-.chart-wrapper {
-  width: 100%;
-  overflow-x: auto;
+const fetchData = async (): Promise<{ date: string; value: number }[]> => {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      if (activeTab.value === 'credit') {
+        resolve([
+          { date: '1月', value: 650 },
+          { date: '2月', value: 670 },
+          { date: '3月', value: 690 },
+          { date: '4月', value: 710 },
+          { date: '5月', value: 740 },
+        ])
+      } else {
+        resolve([
+          { date: '1月', value: 1200 },
+          { date: '2月', value: 1800 },
+          { date: '3月', value: 1400 },
+          { date: '4月', value: 2000 },
+          { date: '5月', value: 1700 },
+        ])
+      }
+    }, 500)
+  })
 }
-</style>
+
+const renderChart = async () => {
+  if (!chartRef.value) return
+  chartInstance = echarts.init(chartRef.value)
+  chartInstance.showLoading()
+
+  const data = await fetchData()
+  chartInstance.hideLoading()
+
+  const option = {
+    title: {
+      text: activeTab.value === 'credit' ? '信用分变化' : '消费变化'
+    },
+    tooltip: { trigger: 'axis' },
+    xAxis: { type: 'category', data: data.map(d => d.date) },
+    yAxis: { type: 'value' },
+    series: [
+      {
+        data: data.map(d => d.value),
+        type: 'line',
+        smooth: true,
+        areaStyle: activeTab.value === 'consume' ? {} : undefined
+      }
+    ]
+  }
+
+  chartInstance.setOption(option)
+}
+
+onMounted(() => nextTick(() => renderChart()))
+watch(activeTab, () => nextTick(() => renderChart()))
+</script>
