@@ -24,12 +24,28 @@ import Commodity  from "../views/Commodity.vue"
 import CommodityDetails  from "../views/CommodityDetails.vue"
 import OrderConfirm from "../views/OrderConfirm.vue"
 import OrderList from "../views/OrderList.vue"
+
+
+///管理员
+import Manager from "../views/manager/index.vue"
+import ManagerLogin from "../views/manager/component/ManagerLogin.vue"
+
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         {
             path: '/',
             redirect: '/home',
+        },
+        {
+            path: '/managerLogin',
+            name: 'managerLogin',
+            component: ManagerLogin
+        },
+        {
+            path: '/manager',
+            name: 'manager',
+            component: Manager
         },
         {
             path: '/home',

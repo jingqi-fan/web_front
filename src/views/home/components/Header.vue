@@ -57,7 +57,7 @@
 
 <script setup lang="tsx">
 import AutoMonitorLogo from "@/assets/logo.svg";
-import Logo from "@/assets/logo-image.png"
+
 
 import { ref } from "vue";
 import {ElMessage} from "element-plus";
@@ -76,8 +76,13 @@ const isUserLogged=()=>{
   return userStore.user !== null;
 }
 const goToManagerPage = () => {
-  router.push('/');
-  ElMessage.success('管理员入口即将上线，敬请期待!')
+  if(!isUserLogged()){
+    routerStore.setRouter('/manager')
+    ElMessage.warning('请先登录')
+    router.push('/managerLogin')
+    return
+  }
+  router.push('/manager');
 }
 //个人中心
 const goToUserCenter = () => {
