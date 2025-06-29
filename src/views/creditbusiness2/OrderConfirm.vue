@@ -170,12 +170,12 @@ import {
   Money,
   Check
 } from '@element-plus/icons-vue'
-import { getCommodityDetails } from '../api/commodity'
-import { placeOrder } from '../api/order'
-import type { Commodity } from '../entity/Commodity'
-import type { PlaceOrderRequest } from '../entity/Order'
-import { useUserInfoStore } from '../stores/useUserInfoStore'
-import { useUserCreditScoreStore } from '../stores/useUserCreditScore'
+import { getCommodityDetails } from '../../api/commodity'
+import { placeOrder } from '../../api/order'
+import type { Commodity } from '../../entity/Commodity'
+import type { PlaceOrderRequest } from '../../entity/Order'
+import { useUserInfoStore } from '../../stores/useUserInfoStore'
+import { useUserCreditScoreStore } from '../../stores/useUserCreditScore'
 
 // 路由相关
 const route = useRoute()
@@ -320,12 +320,9 @@ const submitOrder = async () => {
     
     ElMessage.success('下单成功！')
     
-    // 跳转到订单列表或订单详情页
+    // 跳转回商品列表页面
     router.push({
-      name: 'OrderList',
-      query: {
-        userId: orderForm.value.userId
-      }
+      name: 'CreditShopping'
     })
     
   } catch (error) {

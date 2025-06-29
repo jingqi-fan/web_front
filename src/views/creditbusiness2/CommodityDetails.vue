@@ -110,7 +110,9 @@
             </div>
             <div class="info-item">
               <div class="info-label">库存数量</div>
-              <div class="info-value">{{ commodity.inventory }}件</div>
+              <div class="info-value" :class="{ 'out-of-stock': commodity.inventory === 0 }">
+                {{ commodity.inventory === 0 ? '库存为空' : `${commodity.inventory}件` }}
+              </div>
             </div>
             <div class="info-item">
               <div class="info-label">商品ID</div>
@@ -132,14 +134,15 @@
               <label class="quantity-label">购买数量：</label>
               <el-input-number 
                 v-model="quantity" 
-                :min="1" 
-                :max="commodity.inventory"
+                :min="commodity.inventory > 0 ? 1 : 0" 
+                :max="commodity.inventory > 0 ? commodity.inventory : 0"
+                :disabled="commodity.inventory === 0"
                 size="large"
                 class="quantity-input" />
             </div>
             <div class="total-price">
               <span class="total-label">总价：</span>
-              <span class="total-amount">¥{{ formatPrice(commodity.price * quantity) }}</span>
+              <span class="total-amount">¥{{ formatPrice(commodity.price * (quantity || 0)) }}</span>
             </div>
             <div class="action-buttons">
               <el-button 
@@ -170,7 +173,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import {
@@ -183,8 +186,8 @@ import {
   Plus,
   Minus
 } from '@element-plus/icons-vue'
-import { getCommodityDetails } from '../api/commodity.ts'
-import type { Commodity } from '../entity/Commodity.ts'
+import { getCommodityDetails } from '../../api/commodity.ts'
+import type { Commodity } from '../../entity/Commodity.ts'
 
 // 路由相关
 const route = useRoute()
@@ -260,6 +263,13 @@ const fetchCommodityDetails = async () => {
     
     commodity.value = await getCommodityDetails(Number(commodityId))
     console.log('商品详情:', commodity.value)
+    
+    // 根据库存情况调整购买数量
+    if (commodity.value && commodity.value.inventory === 0) {
+      quantity.value = 0
+    } else if (commodity.value && quantity.value === 0) {
+      quantity.value = 1
+    }
   } catch (error) {
     console.error('获取商品详情失败:', error)
     ElMessage.error('获取商品详情失败，请稍后重试')
@@ -289,6 +299,13 @@ const formatPrice = (price) => {
 const goToCheckout = () => {
   if (!commodity.value || commodity.value.inventory === 0) {
     ElMessage.warning('商品暂时缺货')
+    return
+  }
+  
+  // 检查购买数量是否超过库存
+  if (quantity.value > commodity.value.inventory) {
+    ElMessage.warning(`库存不足，当前库存为${commodity.value.inventory}件`)
+    quantity.value = commodity.value.inventory
     return
   }
   
@@ -509,6 +526,11 @@ onMounted(() => {
   font-size: 16px;
   color: #2c3e50;
   font-weight: 600;
+}
+
+.info-value.out-of-stock {
+  color: #f56c6c;
+  font-weight: bold;
 }
 
 .action-content {

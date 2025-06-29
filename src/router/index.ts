@@ -15,7 +15,7 @@ import {useUserCreditScoreStore} from "../stores/useUserCreditScore.ts";
 import {useUserInfoStore} from "../stores/useUserInfoStore.ts";
 import {useTokenStore} from "../stores";
 import Records from '../views/CreditBusiness/Records.vue';
-import HouseOrder from '../views/HouseOrder.vue';
+import HouseOrder from '../views/creditbusiness2/HouseOrder.vue';
 
 
 import House  from "../views/House.vue"

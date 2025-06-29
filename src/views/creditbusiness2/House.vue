@@ -175,8 +175,8 @@
 import { ref, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search, Location, Loading } from '@element-plus/icons-vue'
-import { getHouseList, searchHouseByTitle, filterHouses, getDistrictOptions, filterHouseByDistrict, filterHouseByRentalType, filterHouseByPriceRange } from '../api/house.ts'
-import type { House, HouseSearchParams } from '../entity/House.ts'
+import { getHouseList, searchHouseByTitle, filterHouses, getDistrictOptions, filterHouseByDistrict, filterHouseByRentalType, filterHouseByPriceRange } from '../../api/house.ts'
+import type { House, HouseSearchParams } from '../../entity/House.ts'
 import { useRouter } from 'vue-router'
 
 

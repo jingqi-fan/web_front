@@ -15,7 +15,7 @@
         <div class="header-actions">
           <el-button size="large" type="primary" round @click="goToOrder">
             <el-icon><ShoppingCart /></el-icon>
-            <span style="margin-left: 8px">下单</span>
+            <span style="margin-left: 8px">去租赁</span>
           </el-button>
         </div>
       </div>
@@ -173,10 +173,6 @@
                 <el-icon><Phone /></el-icon>
                 立即联系
               </el-button>
-              <el-button size="large" round>
-                <el-icon><ChatLineRound /></el-icon>
-                在线咨询
-              </el-button>
             </div>
           </div>
         </el-card>
@@ -206,7 +202,6 @@ import {
   Grid, 
   Clock, 
   Phone, 
-  ChatLineRound,
   Picture,
   ShoppingCart
 } from '@element-plus/icons-vue'
@@ -348,11 +343,22 @@ const name = 'HouseDetails'
     
     // 显示联系信息
     const showContactInfo = () => {
-      // 生成随机手机号
+      // 基于房源ID生成固定的手机号
+      const houseId = route.params.id
+      if (!houseId) {
+        ElMessage.error('房源信息不存在')
+        return
+      }
+      
       const phonePrefix = ['130', '131', '132', '133', '134', '135', '136', '137', '138', '139', '150', '151', '152', '153', '155', '156', '157', '158', '159', '186', '187', '188', '189']
-      const randomPrefix = phonePrefix[Math.floor(Math.random() * phonePrefix.length)]
-      const randomSuffix = Math.floor(Math.random() * 100000000).toString().padStart(8, '0')
-      const phoneNumber = randomPrefix + randomSuffix
+      // 使用房源ID作为种子生成固定的电话号码
+      const seed = parseInt(houseId.toString())
+      const prefixIndex = seed % phonePrefix.length
+      const selectedPrefix = phonePrefix[prefixIndex]
+      
+      // 基于房源ID生成固定的后8位数字
+      const suffix = ((seed * 12345 + 67890) % 100000000).toString().padStart(8, '0')
+      const phoneNumber = selectedPrefix + suffix
       
       // 显示提示框
       ElMessage({
