@@ -18,12 +18,14 @@ import Records from '../views/CreditBusiness/Records.vue';
 import HouseOrder from '../views/creditbusiness2/HouseOrder.vue';
 
 
-import House  from "../views/House.vue"
-import HouseDetails  from "../views/HouseDetails.vue"
-import Commodity  from "../views/Commodity.vue"
-import CommodityDetails  from "../views/CommodityDetails.vue"
-import OrderConfirm from "../views/OrderConfirm.vue"
-import OrderList from "../views/OrderList.vue"
+import ManageHome from "../views/creditManage/creditProfile.vue"
+
+import House  from "../views/creditbusiness2/House.vue"
+import HouseDetails  from "../views/creditbusiness2/HouseDetails.vue"
+import Commodity  from "../views/creditbusiness2/Commodity.vue"
+import CommodityDetails  from "../views/creditbusiness2/CommodityDetails.vue"
+import OrderConfirm from "../views/creditbusiness2/OrderConfirm.vue"
+import OrderList from "../views/creditbusiness2/OrderList.vue"
 
 
 ///管理员
@@ -46,6 +48,11 @@ const router = createRouter({
             path: '/manager',
             name: 'manager',
             component: Manager
+        },
+        {
+            path: '/manageHouse',
+            name: 'manageHouse',
+            component: ManageHome
         },
         {
             path: '/home',
