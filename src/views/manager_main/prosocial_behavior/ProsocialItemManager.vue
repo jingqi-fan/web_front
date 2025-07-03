@@ -1,6 +1,5 @@
 <template>
   <div class="prosocial-item-page">
-    <!-- 页面标题 -->
     <div class="page-header">
       <el-icon><Document /></el-icon>
       <span class="title-text">亲社会条目管理</span>
@@ -21,7 +20,6 @@
       <el-button @click="resetFilter">重置</el-button>
     </div>
 
-    <!-- 数据表格 -->
     <el-table :data="filteredItems" stripe border style="width: 100%">
       <el-table-column type="index" label="序号" width="80" />
       <el-table-column prop="title" label="标题" />
@@ -38,6 +36,7 @@
       </el-table-column>
     </el-table>
   </div>
+
   <el-dialog v-model="dialogVisible" :title="isEditMode ? '编辑活动项' : '添加活动项'" width="900px">
     <el-form :model="formData" :rules="rules" ref="formRef" label-width="100px">
       <el-form-item label="所属分类" prop="activityId">
@@ -60,11 +59,9 @@
       <el-form-item label="开始时间" prop="startDate">
         <el-date-picker v-model="formData.startDate" type="datetime" placeholder="选择时间" style="width: 100%;" />
       </el-form-item>
-
       <el-form-item label="结束时间" prop="endDate">
         <el-date-picker v-model="formData.endDate" type="datetime" placeholder="选择时间" style="width: 100%;" />
       </el-form-item>
-
       <el-form-item label="二维码" prop="qrCode">
         <el-upload
             class="qr-uploader"
@@ -88,85 +85,54 @@
       <el-button type="primary" @click="handleSubmit">提交</el-button>
     </template>
   </el-dialog>
-
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted,shallowRef } from 'vue'
+import { ref, computed, onMounted, shallowRef } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import {Document, Plus} from '@element-plus/icons-vue'
-import {
-  type ActivityItem,
-  deleteActivityItem,
-  type ItemDTO,
-  loadAllActivityItems
-} from '@/api/prosocail_behavior/item.ts'
-import {loadActivityType} from "@/api/prosocail_behavior/activity.ts";
+import { Document, Plus } from '@element-plus/icons-vue'
+import { deleteActivityItem, loadAllActivityItems, addActivityItem, modifyActivityItem } from '@/api/prosocail_behavior/item.ts'
+import { loadActivityType } from '@/api/prosocail_behavior/activity.ts'
+import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
+import '@wangeditor/editor/dist/css/style.css'
+import axiosInstance from '@/plugins/axios.ts'
 
-// 模拟数据源
-const itemList = ref<ItemDTO[]>([])
-
+const itemList = ref([])
 const searchKeyword = ref('')
-const selectedCategory = ref<string | number | ''>('')
-
+const selectedCategory = ref('')
 const categories = ref([])
 
-const fetchActivityData=async ()=>{
-  const data=await loadActivityType()
-  console.log("活动大类 Activity Type : ",data)
-  categories.value=data.data?.map(item=>{
-    return {
-      id:item.id,
-      name:item.title
-    }
-  })
-}
-// 模拟加载数据
-const fetchData =async  () => {
-  itemList.value=await loadAllActivityItems()
-  console.log("活动项 Activity Items : ",itemList.value)
+const fetchActivityData = async () => {
+  const data = await loadActivityType()
+  categories.value = data.data?.map(item => ({ id: item.id, name: item.title })) || []
 }
 
-// 筛选后的数据
+const fetchData = async () => {
+  itemList.value = await loadAllActivityItems()
+}
+
 const filteredItems = computed(() => {
-  return itemList.value.filter((item) => {
-    const matchesKeyword = searchKeyword.value
-        ? item.title.includes(searchKeyword.value)
-        : true
-    const matchesCategory = selectedCategory.value
-        ? item.activityTitle === categories.value.find(c => c.id === selectedCategory.value)?.name
-        : true
-    return matchesKeyword && matchesCategory
+  return itemList.value.filter(item => {
+    const matchKeyword = searchKeyword.value ? item.title.includes(searchKeyword.value) : true
+    const matchCategory = selectedCategory.value ? item.activityTitle === categories.value.find(c => c.id === selectedCategory.value)?.name : true
+    return matchKeyword && matchCategory
   })
 })
 
-import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
-import '@wangeditor/editor/dist/css/style.css'
-import { addActivityItem, modifyActivityItem } from '@/api/prosocail_behavior/item.ts'
-import axiosInstance from "@/plugins/axios.ts";
-
 const dialogVisible = ref(false)
 const isEditMode = ref(false)
-const currentEditId = ref<number | null>(null)
-const formData = ref<{
-  activityId: number | null
-  title: string
-  content: string
-  startDate: string
-  endDate: string
-  qrCode: string
-  number: number | null
-}>({
+const currentEditId = ref(null)
+const editorRef = shallowRef()
+
+const formData = ref({
   activityId: null,
   title: '',
   content: '',
   startDate: '',
   endDate: '',
   qrCode: '',
-  number: null,
+  number: null
 })
-
-const editorRef = shallowRef()
 
 const formRef = ref()
 const rules = {
@@ -175,12 +141,9 @@ const rules = {
   content: [{ required: true, message: '请输入内容', trigger: 'blur' }],
   startDate: [{ required: true, message: '请选择开始时间', trigger: 'change' }],
   endDate: [{ required: true, message: '请选择结束时间', trigger: 'change' }],
-  number: [{ required: true, type: 'number', message: '请输入总人数', trigger: 'blur' }],
-  qrCode: [{ required: true, message: '请输入二维码地址', trigger: 'blur' }],
-
+  qrCode: [{ required: true, message: '请上传二维码', trigger: 'blur' }],
+  number: [{ required: true, type: 'number', message: '请输入总人数', trigger: 'blur' }]
 }
-
-
 
 const handleAdd = () => {
   isEditMode.value = false
@@ -196,12 +159,12 @@ const handleAdd = () => {
   }
 }
 
-const handleEdit = (item: ItemDTO) => {
+const handleEdit = (item) => {
   isEditMode.value = true
   dialogVisible.value = true
   currentEditId.value = item.itemId
   formData.value = {
-    activityId: categories.value.find(c => c.name === item.activityTitle)?.id ?? null,
+    activityId: categories.value.find(c => c.name === item.activityTitle)?.id || null,
     title: item.title,
     content: item.content,
     startDate: item.startDate,
@@ -213,15 +176,13 @@ const handleEdit = (item: ItemDTO) => {
 
 const handleSubmit = async () => {
   if (!formRef.value) return
-  formRef.value.validate(async (valid: boolean) => {
-    if (!valid) {
-      ElMessage.warning('请完整填写表单')
-      return
-    }
+  formRef.value.validate(async (valid) => {
+    if (!valid) return ElMessage.warning('请完整填写表单')
 
     try {
       if (isEditMode.value && currentEditId.value != null) {
         await modifyActivityItem(formData.value.activityId!, {
+          itemId: currentEditId.value,
           title: formData.value.title,
           content: formData.value.content,
           startDate: new Date(formData.value.startDate).toISOString(),
@@ -249,28 +210,24 @@ const handleSubmit = async () => {
     }
   })
 }
-const beforeUpload = (file: File) => {
+
+const beforeUpload = (file) => {
   const isImg = file.type.startsWith('image/')
   if (!isImg) ElMessage.warning('只能上传图片')
   return isImg
 }
 
-const uploadToMinioForQr = async ({ file }: { file: File }) => {
+const uploadToMinioForQr = async ({ file }) => {
   const formDataToUpload = new FormData()
   formDataToUpload.append('file', file)
-
   try {
     const { data } = await axiosInstance.post('/activity/upload', formDataToUpload, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
-
-    if (data === '500') {
-      ElMessage.error('二维码上传失败')
-    } else {
-      formData.value.qrCode = data
-      ElMessage.success('二维码上传成功')
-    }
-  } catch (err) {
+    if (data === '500') return ElMessage.error('二维码上传失败')
+    formData.value.qrCode = data
+    ElMessage.success('二维码上传成功')
+  } catch {
     ElMessage.error('二维码上传失败')
   }
 }
@@ -279,23 +236,17 @@ const editorConfig = {
   placeholder: '请输入内容...',
   MENU_CONF: {
     uploadImage: {
-      async customUpload(file: File, insertFn: (url: string) => void) {
+      async customUpload(file, insertFn) {
         const formData = new FormData()
         formData.append('file', file)
-
         try {
           const { data } = await axiosInstance.post('/activity/upload', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
           })
-
-          if (data === '500') {
-            ElMessage.error('上传失败')
-            return
-          }
-
+          if (data === '500') return ElMessage.error('上传失败')
           insertFn(data)
           ElMessage.success('图片上传成功')
-        } catch (err) {
+        } catch {
           ElMessage.error('上传失败')
         }
       }
@@ -303,16 +254,13 @@ const editorConfig = {
   }
 }
 
-
-
-const handleDelete =async (id: number) => {
+const handleDelete = async (id) => {
   ElMessageBox.confirm('确认删除该条目？', '提示', {
-    type: 'warning',
-  }).then(() => {
-    const res=deleteActivityItem(id)
-    console.log(`删除：${id}->`+res)
+    type: 'warning'
+  }).then(async () => {
+    await deleteActivityItem(id)
     itemList.value = itemList.value.filter(item => item.itemId !== id)
-    ElMessage.success(`删除成功`)
+    ElMessage.success('删除成功')
   })
 }
 
@@ -321,7 +269,10 @@ const resetFilter = () => {
   selectedCategory.value = ''
 }
 
-onMounted(fetchData(),fetchActivityData())
+onMounted(() => {
+  fetchData()
+  fetchActivityData()
+})
 </script>
 
 <style scoped lang="scss">
@@ -359,7 +310,6 @@ onMounted(fetchData(),fetchActivityData())
   align-items: center;
   cursor: pointer;
 }
-
 .qr-preview {
   width: 80px;
   height: 80px;
@@ -367,10 +317,8 @@ onMounted(fetchData(),fetchActivityData())
   border: 1px solid #dcdfe6;
   border-radius: 4px;
 }
-
 .qr-upload-icon {
   font-size: 28px;
   color: #909399;
 }
-
 </style>

@@ -1,13 +1,3 @@
-// src/types/activity.ts
-//      Integer itemId,
-//     String title,
-//     String content,
-//     Instant startDate,
-//     Instant endDate,
-//     Instant publishDate,
-//     String qrCode,
-//     Integer number,
-//     String activityTitle
 import {ElMessage} from "element-plus";
 
 export interface ItemDTO{
@@ -31,6 +21,7 @@ export interface ActivityItem {
     publishDate: string
     qrCode: string
     number: number
+    activityType:string
     createTime?: string
     updateTime?: string
 }
@@ -41,28 +32,32 @@ export interface ActivityItemAddCommand {
     startDate: string
     endDate: string
     publishDate: string
+    activityType:string
     qrCode: string
     number: number
 }
 
 export interface ModifyActivityItemCommand {
+    itemId: number
     title: string
     content: string
     startDate: string
     endDate: string
     qrCode: string
     number: number
+    activityType:string
 }
-
-// src/api/activityItem.ts
-
 import axiosInstance from "../../plugins/axios.ts";
 
 /** 添加活动项 */
-export function addActivityItem(activityId: number, data: ActivityItemAddCommand) {
-    return axiosInstance.post<string>('/activity/item/add', data, {
-        params: { activityId }
-    })
+export const  addActivityItem=async (activityId:number,data: ActivityItemAddCommand)=> {
+    const res= await  axiosInstance.post<string>(`/activity/item/add?activityId=${activityId}`, data)
+    if(res.data.status!=='SUCCESS'){
+        ElMessage.error(res.data.message)
+        return
+    }
+    ElMessage.success("添加成功")
+    return res.data
 }
 
 /** 删除活动项 */
@@ -73,10 +68,8 @@ export function deleteActivityItem(itemId: number) {
 }
 
 /** 修改活动项 */
-export function modifyActivityItem(activityId: number, data: ModifyActivityItemCommand) {
-    return axiosInstance.post<string>('/activity/item/modify', data, {
-        params: { activityId }
-    })
+export function modifyActivityItem(id:number,data: ModifyActivityItemCommand) {
+    return axiosInstance.post<string>(`/activity/item/modify?activityId=${id}`, data)
 }
 
 /** 获取活动项详情 */
