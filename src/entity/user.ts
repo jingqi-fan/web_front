@@ -16,4 +16,5 @@ export interface User {
     username: string;
     uuid: string;
     county: string;
+    updated:boolean;
 }

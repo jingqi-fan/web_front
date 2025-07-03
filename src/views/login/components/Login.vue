@@ -76,30 +76,30 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref,computed} from 'vue';
-import type {FormInstanceFunctions, FormRule} from 'tdesign-vue-next';
-import {MessagePlugin} from 'tdesign-vue-next';
+import { onMounted, ref } from 'vue';
+import type { FormInstanceFunctions, FormRule } from 'tdesign-vue-next';
+import { MessagePlugin } from 'tdesign-vue-next';
 import useRouterStore from "../../../stores/useSystemStore.ts";
-import {useTokenStore} from "@/stores";
-import {getUserCreditScoreInfo, getUserInfo, login} from "@/api/user.ts";
+import { useTokenStore } from "@/stores";
+import { getUserCreditScoreInfo, getUserInfo, login, userLogout } from "@/api/user.ts";
 import router from "@/router";
-import {ElMessage} from "element-plus";
-import {useUserInfoStore} from "@/stores/useUserInfoStore.ts";
-import {useDeviceStore} from "@/stores/useDeviceStore.ts";
-
+import { ElMessage } from "element-plus";
+import { useUserInfoStore } from "@/stores/useUserInfoStore.ts";
+import { useDeviceStore } from "@/stores/useDeviceStore.ts";
+import { useUserCreditScoreStore } from "@/stores/useUserCreditScore.ts";
 
 const routerStore = useRouterStore();
+const userInfoStore = useUserInfoStore(); // 提前初始化用户信息store
+const userCreditScoreStore = useUserCreditScoreStore(); // 提前初始化信用分store
 
-const UserNameForm=ref({
-  name:'zachary',
-  password:'123456',
-})
-const PhoneForm=ref({
-  phone:'',
-  code:'',
-})
-
-
+const UserNameForm = ref({
+  name: 'zachary',
+  password: '123456',
+});
+const PhoneForm = ref({
+  phone: '',
+  code: '',
+});
 
 const FORM_RULES: Record<string, FormRule[]> = {
   name: [{ required: true, message: '账号必填', type: 'error' }],
@@ -107,40 +107,48 @@ const FORM_RULES: Record<string, FormRule[]> = {
 };
 
 const type = ref('password');
-
 const form = ref<FormInstanceFunctions>();
-
 const showPsw = ref(false);
-
 
 const switchType = (val: string) => {
   type.value = val;
 };
 
+const clearBeforeUser = () => {
+  const userTokenStore = useTokenStore();
+  const deviceStore = useDeviceStore();
 
-/**
- * 发送验证码
- */
+  // 清除用户信息
+  userInfoStore.removeUserInfo();
+  userCreditScoreStore.removeUserCredit();
+  userTokenStore.removeToken();
+  deviceStore.removeDevice();
+};
+clearBeforeUser();
+
+
 const isPhone = (phone: string): boolean => {
   const phoneRegex = /^1[3-9]\d{9}$/;
   return phoneRegex.test(phone);
 };
-const sendCode =async () => {
-  counter.startTimer()
-  if(isPhone(PhoneForm.value.phone)){
-    try{
+
+const sendCode = async () => {
+  counter.startTimer();
+  if (isPhone(PhoneForm.value.phone)) {
+    try {
       await sendSms(PhoneForm.value.phone);
-    }catch (e){
+    } catch (e) {
       console.log(e);
-      await MessagePlugin.error("验证码发送失败")
+      await MessagePlugin.error("验证码发送失败");
     }
-  }else{
-    await MessagePlugin.error("请输入正确的电话号码")
+  } else {
+    await MessagePlugin.error("请输入正确的电话号码");
   }
 };
+
 // 设备ID
 const deviceStore = useDeviceStore();
-const deviceId =ref(deviceStore.device)
+const deviceId = ref(deviceStore.device);
 
 function getDeviceId(): string {
   if (deviceStore.device !== '') {
@@ -154,7 +162,7 @@ function getDeviceId(): string {
     navigator.hardwareConcurrency || "unknown"
   ].join("|");
 
-  const encoded = btoa(fingerprint).slice(0,15);
+  const encoded = btoa(fingerprint).slice(0, 15);
   deviceId.value = encoded.toString();
   deviceStore.setDevice(deviceId.value);
   return encoded;
@@ -164,57 +172,88 @@ onMounted(() => {
   getDeviceId();
 });
 
-
-
-const token=ref('')
+const token = ref('');
 const onSubmit = async () => {
-  await LoginTo()
+  await LoginTo();
 };
-const LoginTo=async ()=>{
-  const res=await login({
-    username: UserNameForm.value.name,
-    password: UserNameForm.value.password,
-    device: deviceStore.device===''?deviceId:deviceStore.device
-  })
-  await getText()
-  await getUserScore()
-  if(res.status==="SUCCESS"){
-    await MessagePlugin.success("登录成功!")
-    if(routerStore.selectedRouter===''){
-      await router.push('/welcome')
-      return
-    }
-    let page=routerStore.selectedRouter
-    await router.push(page)
-  }else{
-    await MessagePlugin.error(res.message)
-  }
 
-}
+// ================== 核心修改：用户信息检查逻辑 ==================
+const checkUserInfoComplete = (): boolean => {
+
+  // 检查昵称是否完善
+  const isNicknameComplete = userInfoStore.user!==null && userInfoStore.user.updated;
+
+  // 检查信用分账户类型是否完善
+  const isCreditInfoComplete = userCreditScoreStore.score!=null && userCreditScoreStore.score.updated;
+
+  // 返回综合检查结果
+  return isNicknameComplete && isCreditInfoComplete;
+};
+
+const redirectBasedOnInfoComplete = async () => {
+  if (!checkUserInfoComplete()) {
+    // 信息不完善，跳转到个人信息完善页
+    await router.push('/personal');
+    await MessagePlugin.warning('请先完善个人信息和信用信息');
+  } else {
+    // 信息完善，跳转到目标页面
+    if (routerStore.selectedRouter === '') {
+      await router.push('/welcome');
+    } else {
+      const page = routerStore.selectedRouter;
+      await router.push(page);
+    }
+  }
+};
+// ================== 核心修改结束 ==================
+
+const LoginTo = async () => {
+  try {
+    const res = await login({
+      username: UserNameForm.value.name,
+      password: UserNameForm.value.password,
+      device: deviceStore.device === '' ? deviceId.value : deviceStore.device
+    });
+
+    if (res.status === "SUCCESS") {
+      await MessagePlugin.success("登录成功!");
+
+      // 获取用户信息和信用分信息
+      await getText();
+      await getUserScore();
+
+      // ================== 核心修改：添加信息检查 ==================
+      // 根据用户信息是否完善决定跳转目标
+      await redirectBasedOnInfoComplete();
+      // ================== 核心修改结束 ==================
+    } else {
+      await MessagePlugin.error(res.message);
+    }
+  } catch (error) {
+    console.error("登录过程中发生错误:", error);
+    await MessagePlugin.error("登录失败，请重试");
+  }
+};
+
 const getText = async () => {
   try {
     const tokenStore = useTokenStore();
-    const res=await getUserInfo(tokenStore.token.userId);
-    await MessagePlugin.success('用户信用分加载成功');
+    await getUserInfo(tokenStore.token.userId);
   } catch (error) {
     console.error('获取用户信息失败', error);
     ElMessage.error('用户信息加载失败');
   }
-}
-const getUserScore=()=>{
-  try{
-    const userInfoStore=useUserInfoStore()
-    const id=userInfoStore.user.id
-    const res=getUserCreditScoreInfo(id)
-    if(res.accountType===null){
-      MessagePlugin.error(`用户信用分加载失败`);
-    }
-    MessagePlugin.success(`用户信用分加载成功`);
-  }catch (e) {
-    console.error('用户信用分加载失败', error);
-    ElMessage.error('用户信用分加载失败');
+};
+
+const getUserScore = async () => {
+  try {
+    const id = userInfoStore.user.id;
+    await getUserCreditScoreInfo(id);
+  } catch (e) {
+    console.error('用户信用分加载失败', e);
+    MessagePlugin.error('用户信用分加载失败');
   }
-}
+};
 </script>
 
 <style lang="less" scoped>

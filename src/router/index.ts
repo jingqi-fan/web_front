@@ -18,24 +18,100 @@ import Records from '../views/CreditBusiness/Records.vue';
 import HouseOrder from '../views/creditbusiness2/HouseOrder.vue';
 
 
-import House  from "../views/House.vue"
-import HouseDetails  from "../views/HouseDetails.vue"
-import Commodity  from "../views/Commodity.vue"
-import CommodityDetails  from "../views/CommodityDetails.vue"
-import OrderConfirm from "../views/OrderConfirm.vue"
-import OrderList from "../views/OrderList.vue"
+import House  from "../views/creditbusiness2/House.vue"
+import HouseDetails  from "../views/creditbusiness2/HouseDetails.vue"
+import Commodity  from "../views/creditbusiness2/Commodity.vue"
+import CommodityDetails  from "../views/creditbusiness2/CommodityDetails.vue"
+import OrderConfirm from "../views/creditbusiness2/OrderConfirm.vue"
+import OrderList from "../views/creditbusiness2/OrderList.vue"
 
-
+import CreditLife from "../views/credit_life/index.vue"
+import Parking from "../views/credit_life/parking/index.vue"
+import Library from "../views/credit_life/library/index.vue"
+import Hospital from "../views/credit_life/hospital/index.vue"
 ///管理员
 import Manager from "../views/manager/index.vue"
 import ManagerLogin from "../views/manager/component/ManagerLogin.vue"
+import ManagerMainPage from "../views/manager_main/index.vue"
+import Overview from "../views/manager_main/Overview.vue"
+import ProsocialType from "../views/manager_main/prosocial_behavior/ProcialTypeManager.vue"
+import ProsocialItem from "../views/manager_main/prosocial_behavior/ProsocialItemManager.vue"
+import BookManager from "../views/manager_main/book/BookManager.vue"
+import DepartmentManager from "../views/manager_main/hospital/DepartmentManager.vue"
+import DoctorManager from "../views/manager_main/hospital/DoctorManager.vue"
+import ParkingManager from "../views/manager_main/parking/ParkingManager.vue"
+
+
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         {
+            path: '/manager/manager',
+            redirect: '/publish/manager/overview',
+            component: ManagerMainPage,
+            children:[
+                {
+                    path: '/publish/manager/overview',
+                    name: 'overview',
+                    component: Overview
+                },
+                {
+                    path: '/publish/manager/prosocial/type',
+                    name: 'prosocial_type',
+                    component: ProsocialType
+                },
+                {
+                    path: '/publish/manager/prosocial/item',
+                    name: 'prosocial_item',
+                    component: ProsocialItem
+                },
+                {
+                    path: '/publish/manager/book/manager',
+                    name: 'book_manager',
+                    component: BookManager
+                },
+                {
+                    path: '/publish/manager/parking/manager',
+                    name: 'parking_manager',
+                    component: ParkingManager
+                },
+                {
+                    path: '/publish/manager/hospital/department',
+                    name: 'hospital_department',
+                    component: DepartmentManager
+                },
+                {
+                    path: '/publish/manager/hospital/doctor',
+                    name: 'hospital_doctor',
+                    component: DoctorManager
+                }
+            ]
+        },
+
+        {
             path: '/',
             redirect: '/home',
+        },
+        {
+            path: '/life',
+            name: 'Life',
+            component: CreditLife
+        },
+        {
+            path: '/life/parking',
+            name: 'parking',
+            component: Parking
+        },
+        {
+            path: '/life/library',
+            name: 'library',
+            component: Library
+        },
+        {
+            path: '/life/hospital',
+            name: 'hospital',
+            component: Hospital
         },
         {
             path: '/managerLogin',
@@ -68,11 +144,10 @@ const router = createRouter({
             component: Layout
         },
         {
-            path: '/map',
-            name: 'map',
+            path: '/manager/dataCenter',
+            name: 'data',
             component: Data
         },
-
         {
             path: '/house',
             name: 'house',
@@ -108,7 +183,7 @@ const router = createRouter({
             path: '/house-details/:id',
             name: 'HouseDetails',
             component: HouseDetails,
-            props: true // 允许将路由参数作为 props 传递给组件
+            props: true
         },
 
         {
