@@ -19,6 +19,7 @@ import HouseOrder from '../views/creditbusiness2/HouseOrder.vue';
 
 
 import ManageHome from "../views/creditManage/creditProfile.vue"
+import CreditDimension from "../views/creditManage/creditDimension.vue"
 
 import House  from "../views/creditbusiness2/House.vue"
 import HouseDetails  from "../views/creditbusiness2/HouseDetails.vue"
@@ -53,6 +54,11 @@ const router = createRouter({
             path: '/manageHouse',
             name: 'manageHouse',
             component: ManageHome
+        },
+        {
+            path: '/creditDimension',
+            name: 'creditDimension',
+            component: CreditDimension
         },
         {
             path: '/home',
