@@ -129,7 +129,7 @@ const goToCreditManage = () => {
   //   router.push('/login')
   //   return
   // }
-  // router.push('/manage');
+  router.push('/manageHouse');
 }
 
 const navToGovernment = () => {

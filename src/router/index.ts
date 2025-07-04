@@ -18,6 +18,9 @@ import Records from '../views/CreditBusiness/Records.vue';
 import HouseOrder from '../views/creditbusiness2/HouseOrder.vue';
 
 
+import ManageHome from "../views/creditManage/creditProfile.vue"
+import CreditDimension from "../views/creditManage/creditDimension.vue"
+
 import House  from "../views/creditbusiness2/House.vue"
 import HouseDetails  from "../views/creditbusiness2/HouseDetails.vue"
 import Commodity  from "../views/creditbusiness2/Commodity.vue"
@@ -122,6 +125,16 @@ const router = createRouter({
             path: '/manager',
             name: 'manager',
             component: Manager
+        },
+        {
+            path: '/manageHouse',
+            name: 'manageHouse',
+            component: ManageHome
+        },
+        {
+            path: '/creditDimension',
+            name: 'creditDimension',
+            component: CreditDimension
         },
         {
             path: '/home',
