@@ -145,10 +145,13 @@ import MapComponent from './components/Map.vue'
 import router from "../../router/index.ts";
 import {Back, User} from "@element-plus/icons-vue";
 import AreaInfo from "./components/AutoRotate.vue"
-import {ref, watch} from "vue";
-import {ElMessage} from "element-plus";
+import {ref, watch,onMounted} from "vue";
+import {ElMessage, ElNotification} from "element-plus";
 import Logo from "@/views/personal/component/Logo.vue";
 import Weather from "@/views/data/components/Weather.vue";
+import { v4 as uuidv4 } from 'uuid';
+
+
 const goToHome=()=> {
   router.push("/home");
 }
@@ -399,6 +402,32 @@ const backUp=()=>{
 const personalCenter=()=>{
   ElMessage.warning('管理员个人中心正在开发中')
 }
+const OverdueMessage = (data) => {
+  ElNotification({
+    title: '逾期还款消息更新',
+    message: `用户逾期还款--${data}`,
+    duration: 0,
+  })
+}
+onMounted(() => {
+  const uuid=uuidv4()
+  const clientId = 'data_screen-'+uuid; // 每个客户端唯一ID
+  const eventSource = new EventSource(`/api/overdue/stream/subscribe?clientId=${clientId}`)
+
+  eventSource.addEventListener('overdue-update', (event) => {
+    const data = JSON.parse(event.data)
+    console.log('收到逾期更新推送：', data)
+
+    // TODO：更新数据大屏的展示内容
+    OverdueMessage(data)
+  })
+
+  eventSource.onerror = () => {
+    console.error('SSE连接失败，尝试重连')
+    eventSource.close()
+  }
+})
+
 </script>
 
 <style scoped>

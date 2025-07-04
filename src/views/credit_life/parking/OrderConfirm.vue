@@ -1,6 +1,3 @@
-
-
-<!-- src/views/credit_life/parking/OrderConfirm.vue -->
 <template>
   <div>
     <h2>预约确认</h2>
