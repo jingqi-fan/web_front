@@ -18,22 +18,15 @@ import Records from '../views/CreditBusiness/Records.vue';
 import HouseOrder from '../views/creditbusiness2/HouseOrder.vue';
 
 
-<<<<<<< HEAD
 import ManageHome from "../views/creditManage/creditProfile.vue"
 import CreditDimension from "../views/creditManage/creditDimension.vue"
 
-=======
->>>>>>> 318b653542aa20ff89195414be6d081f25664183
 import House  from "../views/creditbusiness2/House.vue"
 import HouseDetails  from "../views/creditbusiness2/HouseDetails.vue"
 import Commodity  from "../views/creditbusiness2/Commodity.vue"
 import CommodityDetails  from "../views/creditbusiness2/CommodityDetails.vue"
 import OrderConfirm from "../views/creditbusiness2/OrderConfirm.vue"
 import OrderList from "../views/creditbusiness2/OrderList.vue"
-<<<<<<< HEAD
-
-=======
->>>>>>> 318b653542aa20ff89195414be6d081f25664183
 
 import CreditLife from "../views/credit_life/index.vue"
 import Parking from "../views/credit_life/parking/index.vue"
