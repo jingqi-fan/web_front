@@ -76,12 +76,12 @@ const isUserLogged=()=>{
   return userStore.user !== null;
 }
 const goToManagerPage = () => {
-  if(!isUserLogged()){
-    routerStore.setRouter('/manager')
-    ElMessage.warning('请先登录')
-    router.push('/managerLogin')
-    return
-  }
+  // if(!isUserLogged()){
+  //   routerStore.setRouter('/manager')
+  //   ElMessage.warning('请先登录')
+  //   router.push('/managerLogin')
+  //   return
+  // }
   router.push('/manager');
 }
 //个人中心
@@ -119,7 +119,7 @@ const goToCreditLife = () => {
   //   return
   // }
   // // 跳转到应用中心页面
-  // router.push('/life');
+  router.push('/life');
 };
 const goToCreditManage = () => {
   ElMessage.success('信用管理即将上线，敬请期待!')

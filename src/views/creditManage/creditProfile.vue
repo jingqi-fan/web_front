@@ -8,7 +8,9 @@
           信用分：<strong class="text-blue-500 text-2xl">{{ userInfo.creditScore }}</strong>
         </p>
         <el-tag type="success">{{ userInfo.creditLevel }}</el-tag>
-        <p class="text-xs text-gray-400">更新时间：{{ userInfo.updateTime }}</p>
+        <p class="text-xs text-gray-400">
+            更新时间：{{ formatTime(userInfo.updateTime) }}
+        </p>
       </div>
     </div>
     <!--  跳转按钮到信用分详情 -->
@@ -64,18 +66,28 @@ import { onMounted, reactive } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router'
 import axiosInstance from '@/plugins/axios';
+import { useUserInfoStore } from '../../stores/useUserInfoStore';
+import { useUserCreditScoreStore } from '../../stores/useUserCreditScore';
+// import {User } from '@/entity/user.ts';
 
 const router = useRouter()
 const goToCreditDimension = () => {
   router.push({ path: '/creditDimension' })
 }
 
-const userId = 101;
+const userInfoStore=useUserInfoStore()
+const userCreditScoreStore=useUserCreditScoreStore()
+
+const userBasicInfo=userInfoStore.user  //User
+const creditScoreInfo=userCreditScoreStore.score  //UserCreditScore
+
+const userId = userBasicInfo.id;
 const userInfo = reactive({
-  name: "张三",
-  creditScore: 800,
+  name: userBasicInfo.nickName,
+  avatar: userBasicInfo.profilePicture,
+  creditScore: creditScoreInfo.creditScore,
   creditLevel: '信用极好',
-  updateTime: '2023-12-12',
+  updateTime: creditScoreInfo.updateTime,
   records: []
 });
 const behaviorCount = reactive({
@@ -84,6 +96,13 @@ const behaviorCount = reactive({
     creditLifeCount: 0,
     creditBusinessCount: 0,
 })
+
+//格式化时间
+function formatTime(raw) {
+  return new Date(raw).toLocaleString('zh-CN', {
+    hour12: false
+  });
+}
 
 onMounted(() => {
   // TODO: 发请求到后端获取数据

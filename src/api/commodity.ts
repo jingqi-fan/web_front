@@ -1,6 +1,5 @@
 
 import type { Commodity, CommoditySearchParams, CommodityListResponse } from "../entity/Commodity.ts";
-import type { Result } from "../entity/result.ts";
 import { ElMessage } from "element-plus";
 import axiosInstance from '../plugins/axios';
 

@@ -10,4 +10,5 @@ export class UserCreditScore {
     maritalStatus: string;
     qualification: string;
     updateTime:string;
+    updated: boolean;
 }

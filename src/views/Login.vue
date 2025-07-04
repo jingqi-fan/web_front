@@ -29,7 +29,6 @@ import {useUserInfoStore} from "../stores/useUserInfoStore.ts";
 import {ref} from "vue";
 import {ElMessage} from "element-plus";
 import type {UserCreditScore} from "../entity/user_credit_score.ts";
-import router from "../router";
 const deviceId="123456"
 const visible=ref(false)
 const username="zachary"

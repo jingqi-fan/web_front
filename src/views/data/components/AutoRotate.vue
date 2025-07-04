@@ -2,7 +2,7 @@
   <div class="carousel">
     <div class="circle">
       <!-- 中心数字 -->
-      <div class="center-number">{{ items[activeIndex].id }}</div>
+      <div class="center-number">{{ items[activeIndex].title }}</div>
 
       <!-- Lottie 动画 -->
       <div class="lottie-container" ref="AreaServerContainer"></div>
@@ -32,7 +32,7 @@
       >
         <div class="content">
           <div class="label">{{ item.name }}</div>
-          <div class="value">{{ item.value }}</div>
+          <div class="value">{{ item.value }}（{{item.nickname}}）</div>
         </div>
       </div>
     </div>
@@ -45,13 +45,11 @@ import lottie from "lottie-web"; // 引入 lottie-web
 
 // 模拟数据
 const items = ref([
-  { id: 1, name: "东北区", value: 150000 },
-  { id: 2, name: "华北区", value: 200000 },
-  { id: 3, name: "华中区", value: 900000 },
-  { id: 4, name: "华东区", value: 350000 },
-  { id: 5, name: "华南区", value: 120000 },
-  { id: 6, name: "西北区", value: 140000 },
-  { id: 7, name: "西南区", value: 180000 },
+  { id: 1, name: "总信用分", value: 2301,title:"信用楷模",nickname:"Alice" },  //总信用分最高
+  { id: 2, name: "信用商业", value: 1298,title:"诚信领袖",nickname:"Kyson" },  //信用商业部分得分最高
+  { id: 3, name: "信用生活", value: 1324,title: "守信模范",nickname:"Zachary" }, //信用生活部分得分最高
+  { id: 4, name: "亲社会行为", value: 793,title:"公益先锋",nickname:"God" },  //亲社会行为得分最高
+  { id: 5, name: "基本信息", value: 692,title: "信用磐石",nickname:"Bolulu" }         //基本信息评估信用分得分最高
 ]);
 
 const activeIndex = ref(0); // 当前激活的索引
@@ -127,7 +125,7 @@ onMounted(() => {
   top: 20%;
   left: 130%;
   transform: translate(-50%, -50%);
-  font-size: 18px;
+  font-size: 14px;
   font-weight: bold;
   color: #00d4ff;
   z-index: 20;
