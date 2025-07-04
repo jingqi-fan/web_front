@@ -1,6 +1,7 @@
 
 import type { Commodity, CommoditySearchParams, CommodityListResponse } from "../entity/Commodity.ts";
 import type { Result } from "../entity/result.ts";
+import type { Commodity2 } from "../entity/Commodity2.ts";
 import { ElMessage } from "element-plus";
 import axiosInstance from '../plugins/axios';
 
@@ -320,3 +321,11 @@ export const getCommodityCategories = async (): Promise<string[]> => {
         return ['电子产品', '服装', '图书', '家居', '食品', '运动', '美妆'];
     }
 };
+
+
+export async function getTopPurchased(userId: number): Promise<Commodity2[]> {
+    const response = await axiosInstance.get<Commodity2[]>('/commodities/top-purchased', {
+      params: { userId }
+    })
+    return response.data
+  }

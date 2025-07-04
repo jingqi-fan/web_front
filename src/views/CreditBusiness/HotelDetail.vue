@@ -1,24 +1,18 @@
-<!-- src/views/HotelDetail.vue -->
 <template>
   <div class="detail-page">
     <el-card class="detail-card" shadow="never">
-      <!-- ① 叉号：绝对定位在卡片右上 -->
+      <!-- ① 叉号 -->
       <div class="close-wrapper" @click="goBack">
         <el-icon><Close /></el-icon>
       </div>
-      <!-- Header 区域：酒店主图 + 叉号 + 房型 Thumb -->
+      <!-- Header 区域 -->
       <div class="header">
         <div class="header-img-wrapper">
-          <el-image
-            :src="`/${hotel?.img}`"
-            fit="cover"
-            class="main-img"
-          />
-          <!-- 右下角房型缩略图 -->
+          <el-image :src="`/${hotel?.img}`" fit="cover" class="main-img" />
           <img
             v-if="selectedRoom"
             :src="`/${selectedRoom.img}`"
-            alt="房型图"
+            alt="房型缩略"
             class="room-thumb"
           />
         </div>
@@ -32,7 +26,7 @@
         </div>
       </div>
 
-      <!-- 预订表单：入住日期 + 房型选择 + 立即预订按钮 -->
+      <!-- 预订表单 + 预测小图表 -->
       <div class="booking-panel">
         <div class="left">
           <el-form label-width="80px">
@@ -43,7 +37,9 @@
                 placeholder="选择入住日期"
                 :disabled-date="disabledDate"
               />
-              <el-text style="margin-left: 20px ; color:red; font-size: 13px;">时间限制：未来半年</el-text>
+              <el-text style="margin-left: 20px; color:red; font-size:13px;">
+                时间限制：未来半年
+              </el-text>
             </el-form-item>
             <el-form-item label="房型选择">
               <el-select v-model="selectedTypeId" placeholder="选择房型">
@@ -55,7 +51,6 @@
                 />
               </el-select>
             </el-form-item>
-            <!-- 新增：立即预订按钮 -->
             <el-form-item>
               <el-button
                 type="primary"
@@ -68,14 +63,20 @@
           </el-form>
         </div>
         <div class="right">
-          <el-card class="forecast-card">
-            <p>入住率预测（开发中）</p >
-            <div class="placeholder-chart">图表区域</div>
+          <el-card class="forecast-card" shadow="never">
+            <p>入住率预测</p >
+            <div
+              v-if="forecastDates.length"
+              ref="smallChart"
+              class="small-chart"
+              @click="showDialog = true"
+            ></div>
+            <div v-else class="placeholder-chart">暂无预测</div>
           </el-card>
         </div>
       </div>
 
-      <!-- 房型详情卡片 -->
+      <!-- 房型详情 -->
       <div class="room-detail" v-if="selectedRoom">
         <el-card shadow="hover">
           <el-row :gutter="20">
@@ -106,35 +107,62 @@
       :check-in-date="checkInDate"
       @confirm="confirmBooking"
     />
+
+    <!-- 放大图对话框 -->
+    <el-dialog
+      v-model="showDialog"
+      title="未来 7 天入住率预测"
+      width="60%"
+      :destroy-on-close="false"
+    >
+      <div ref="bigChart" class="big-chart"></div>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import * as echarts from 'echarts'
+import dayjs from 'dayjs'
 import { getHotelById } from '../../api/hotel'
 import { getRoomTypesByHotel } from '../../api/roomType'
+import { getOccupancyForecast } from '../../api/forecast'
 import type { Hotel } from '../../entity/Hotel'
 import type { RoomType } from '../../entity/RoomType'
 import HotelOrderDialog from './HotelOrderDialog.vue'
 import { Location, Close } from '@element-plus/icons-vue'
 
+// 路由 & 回退
 const route = useRoute()
 const router = useRouter()
 const hotelId = Number(route.params.hotelId)
+function goBack() {
+  router.back()
+}
 
+// 核心数据
 const hotel = ref<Hotel | null>(null)
 const roomTypes = ref<RoomType[]>([])
 const selectedTypeId = ref<number | null>(null)
 const checkInDate = ref<Date | null>(null)
-
-// 控制预订弹窗显示
 const bookingDialogVisible = ref(false)
 
+// 预测相关
+const forecastDates = ref<string[]>([])
+const forecastValues = ref<number[]>([])
+const showDialog = ref(false)
+const smallChart = ref<HTMLDivElement>()
+const bigChart = ref<HTMLDivElement>()
+let smallEchart: echarts.ECharts | null = null
+let bigEchart: echarts.ECharts | null = null
+
+// 选中房型
 const selectedRoom = computed(
   () => roomTypes.value.find(r => r.typeId === selectedTypeId.value) || null
 )
 
+// 加载酒店及房型
 async function loadData() {
   hotel.value = await getHotelById(hotelId)
   roomTypes.value = await getRoomTypesByHotel(hotelId)
@@ -143,34 +171,99 @@ async function loadData() {
   }
 }
 
-function goBack() {
-  router.back()
-}
-
-// 打开预订弹窗
+// 预订弹窗
 function openBooking() {
   bookingDialogVisible.value = true
 }
-
-// 确认预订（具体逻辑待实现）
 function confirmBooking() {
-  // TODO: 提交预订请求
   bookingDialogVisible.value = false
-  console.log('收到预订事件')
-  // 可根据需求清空或保留状态
+  console.log('确认预订')
 }
 
-// 入住日期可选范围：今天 ~ 半年后
- function disabledDate(date: Date) {
-  // 今天 00:00:00
+// 禁选日期：今天 ~ 半年后
+function disabledDate(date: Date) {
   const start = new Date()
   start.setHours(0, 0, 0, 0)
-  // 半年后的 23:59:59.999
   const end = new Date(start)
   end.setMonth(end.getMonth() + 6)
   end.setHours(23, 59, 59, 999)
   return date < start || date > end
 }
+
+// 监听日期 & 酒店变化，拉取预测
+watch(
+  [() => checkInDate.value, () => hotelId],
+  async ([d]) => {
+    if (!d) return
+    const currentDate = dayjs(d).format('YYYY-MM-DD')
+    const data = await getOccupancyForecast(hotelId, currentDate)
+    forecastDates.value = Object.keys(data)
+    forecastValues.value = Object.values(data)
+    await nextTick()
+    renderSmallChart()
+  },
+  { immediate: true }
+)
+
+// 渲染“小折线图”
+function renderSmallChart() {
+  if (!smallChart.value) return
+  if (!smallEchart) {
+    smallEchart = echarts.init(smallChart.value)
+  }
+  smallEchart.setOption({
+    xAxis: { data: forecastDates.value, show: false, boundaryGap: false },
+    yAxis: { show: false },
+    series: [
+      {
+        type: 'line',
+        data: forecastValues.value,
+        smooth: true,
+        symbol: 'none',
+        lineStyle: { width: 2, color: '#409EFF' }
+      }
+    ],
+    grid: { left: 0, right: 0, top: 0, bottom: 0 }
+  })
+}
+
+// 监听 showDialog 打开／关闭
+watch(showDialog, async open => {
+  if (!open) return;           // 只处理打开情况
+  await nextTick();            // 等 DOM 真正渲染完成
+
+  if (!bigChart.value) return; // 容器不存在就算了
+
+  if (!bigEchart) {
+    // 第一次打开，初始化
+    bigEchart = echarts.init(bigChart.value);
+  } else {
+    // 后面每次打开，强制重新调整大小
+    bigEchart.resize();
+  }
+
+  // 重新设置（或更新）配置项
+  bigEchart.setOption({
+    title: { text: '未来 7 天入住率预测', left: 'center' },
+    tooltip: { trigger: 'axis', formatter: '{b}<br/>{c}%' },
+    xAxis: {
+      type: 'category',
+      data: forecastDates.value,
+      axisLabel: { rotate: 45 }
+    },
+    yAxis: { type: 'value', axisLabel: { formatter: '{value} %' } },
+    series: [{
+      name: '入住率',
+      type: 'line',
+      data: forecastValues.value.map(value => value * 100), // 将数据乘以100
+      smooth: true,
+      symbol: 'circle',
+      symbolSize: 6,
+      lineStyle: { width: 2, color: '#67C23A' }
+    }],
+    grid: { left: '10%', right: '10%', top: '15%', bottom: '15%' }
+  });
+})
 
 onMounted(loadData)
 </script>
@@ -183,39 +276,32 @@ onMounted(loadData)
   position: relative;
   background-color: #fbfbf6;
   .close-wrapper {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 38px;
-  height: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--card-bg);
-  border-radius: 50%;
-  box-shadow: var(--shadow);
-  cursor: pointer;
-  
-  /* 缩小图标尺寸 */
-  .el-icon {
-    font-size: 29px;
-    color: #cf3036;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--card-bg);
+    border-radius: 50%;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    .el-icon {
+      font-size: 29px;
+      color: #cf3036;
+    }
   }
 }
-}
-
-
-/* Header */
 .header {
   display: flex;
   margin-bottom: 16px;
-
   .header-img-wrapper {
     position: relative;
     width: 40%;
     height: 280px;
     overflow: hidden;
-
     .main-img {
       width: 100%;
       height: 100%;
@@ -233,7 +319,6 @@ onMounted(loadData)
       border-radius: 4px;
     }
   }
-
   .header-info {
     padding: 0 24px;
     h2 {
@@ -248,23 +333,27 @@ onMounted(loadData)
     }
   }
 }
-
-/* 预订表单 */
 .booking-panel {
   display: flex;
   margin-bottom: 24px;
-
   .left {
     flex: 1;
     .el-form-item {
       margin-bottom: 16px;
     }
   }
-
   .right {
     width: 240px;
     .forecast-card {
       text-align: center;
+      p {
+        margin-bottom: 8px;
+      }
+      .small-chart {
+        width: 100%;
+        height: 120px;
+        cursor: pointer;
+      }
       .placeholder-chart {
         height: 120px;
         background: #f5f7fa;
@@ -275,8 +364,6 @@ onMounted(loadData)
     }
   }
 }
-
-/* 房型详情 */
 .room-detail {
   .room-img {
     width: 100%;
@@ -284,5 +371,10 @@ onMounted(loadData)
     object-fit: cover;
     border-radius: 4px;
   }
+}
+/* 放大弹窗大图 */
+.big-chart {
+  width: 100%;
+  height: 400px;
 }
 </style>

@@ -1,8 +1,7 @@
 <template>
     <div class="recommend-container">
       <div class="recommend-title">
-        <el-icon><House /></el-icon>
-        智能推荐：信用租房
+        👍智能推荐：信用租房
       </div>
       <div class="recommend-desc">
         <p>精选高分房源、品质公寓，部分房型押金立减，月租优惠中。</p >
