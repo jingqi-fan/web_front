@@ -69,6 +69,7 @@ axiosInstance.interceptors.request.use(
                 config.headers.Authorization = `Bearer ${tokenStore.token.accessToken}`;
             }
         }
+        console.log("config==>",config.headers.Authorization)
         
         return config;
     },

@@ -32,6 +32,7 @@ export const register = (data: RegisterCommand):Promise<ApiResponse>=> {
 export const login = async (data: LoginCommand):Promise<ApiResponse> => {
     try{
         const res = await axiosInstance.post<Result<Token>>('/user/login', data);
+        console.log("登录结果==> ",res)
         if (res?.data?.status === 'SUCCESS') {
             const tokenStore = useTokenStore();
             tokenStore.setToken(res.data.data);
@@ -124,7 +125,7 @@ export const getUserCreditScoreInfo = async (id: number) => {
             maritalStatus: res.data.data.maritalStatus,
             qualification: res.data.data.qualification,
             updateTime: res.data.data.updateTime,
-            updated:res.data.data.updated,
+            status:res.data.data.status,
         };
 
         const userCreditScoreStore = useUserCreditScoreStore();

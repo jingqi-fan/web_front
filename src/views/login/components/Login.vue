@@ -184,7 +184,12 @@ const checkUserInfoComplete = (): boolean => {
   const isNicknameComplete = userInfoStore.user!==null && userInfoStore.user.updated;
 
   // 检查信用分账户类型是否完善
-  const isCreditInfoComplete = userCreditScoreStore.score!=null && userCreditScoreStore.score.updated;
+  const isCreditInfoComplete = userCreditScoreStore.score!=null && userCreditScoreStore.score.status===3;
+  console.log("用户信息逻辑")
+  console.log("pinia存储是否为空：",userInfoStore.user)
+  console.log("用户信息状态：",userInfoStore.user.updated)
+  console.log("pinia存储信用分信息：",userCreditScoreStore.score)
+  console.log("信用分状态：",userCreditScoreStore.score.status)
 
   // 返回综合检查结果
   return isNicknameComplete && isCreditInfoComplete;

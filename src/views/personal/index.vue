@@ -77,7 +77,8 @@
         <div class="left-info">
           <div style="display: flex;justify-content: space-between;align-items: center">
             <h2 style="margin-left: 20px">个人信息</h2>
-            <el-button type="primary" @click="editInfo" style="margin-right: 20px;margin-top: 14px">编辑基本信息</el-button>
+            <el-button type="success" @click="editCreditScore" style="margin-left: 660px;margin-top: 14px" plain>完善/上传 实名资产信息</el-button>
+            <el-button type="primary" @click="editInfo" style="margin-right: 20px;margin-top: 14px" plain>编辑基本信息</el-button>
           </div>
 
           <div class="info-row">
@@ -277,6 +278,81 @@
     </template>
   </el-dialog>
 
+  <el-dialog v-model="ucsDialogVisible" title="完善/修改用户信用分信息" width="600">
+    <el-form :model="ucForm" :rules="ucRules" ref="formRef" label-width="120px">
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="账号" prop="accountType">
+            <el-input v-model="ucForm.accountType"/>
+          </el-form-item>
+        </el-col>
+
+      </el-row>
+      <el-row :gutter="20">
+
+        <el-col :span="12">
+          <el-form-item label="身份证号" prop="idNumber">
+            <el-input v-model="ucForm.idNumber" />
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="工作类型" prop="categoryId">
+            <el-select v-model="ucForm.jobType" placeholder="请选择工作类型">
+              <el-option
+                  v-for="(cat, index) in jobTypes"
+                  :key="index"
+                  :label="cat"
+                  :value="index + 1" />
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="学历" prop="categoryId">
+            <el-select v-model="ucForm.qualification" placeholder="请选择学历">
+              <el-option
+                  v-for="(cat, index) in qualifications"
+                  :key="index"
+                  :label="cat"
+                  :value="index + 1" />
+            </el-select>
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="婚姻状态" prop="gender">
+            <el-radio-group v-model="ucForm.maritalStatus">
+              <el-radio label="未婚">未婚</el-radio>
+              <el-radio label="已婚">已婚</el-radio>
+              <el-radio label="离婚">离婚</el-radio>
+              <el-radio label="丧偶">丧偶</el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="年收入" prop="annualIncome">
+            <el-input-number v-model="ucForm.annualIncome" :min="0" :step="5000" :precision="2" />
+          </el-form-item>
+        </el-col>
+
+      </el-row>
+
+    </el-form>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click=" ucsDialogVisible= false">取消</el-button>
+        <el-button type="primary" @click="submitUcsForm">确认</el-button>
+      </div>
+    </template>
+  </el-dialog>
+
 </template>
 
 <script setup lang="ts">
@@ -290,7 +366,7 @@ import {useUserCreditScoreStore} from "@/stores/useUserCreditScore.ts";
 import RegisterIdNumberPng from "@/assets/register_id_number.png";
 import UnregisterIdNumberPng from "@/assets/unregister_id_number.png";
 import {useTokenStore} from "@/stores";
-import {updateUserInfo, getTopCreditUsers, userLogout} from "@/api/user.ts";
+import {updateUserInfo, getTopCreditUsers, userLogout, updateUserCreditScore} from "@/api/user.ts";
 const userInfo=ref(null)
 const creditScore=ref(null)
 //lottie动画部分
@@ -649,8 +725,64 @@ const logout=async ()=>{
     ElMessage.error("退出失败")
   }
 }
+//信用分信息
+// const res=await updateUserCreditScore(id,{
+//   accountType: "330100194911070086",
+//   idNumber:"52242220030312081X",
+//   annualIncome:8328.0,
+//   qualification: "高中",
+//   jobType:"退休人员",
+//   maritalStatus:"已婚"
+// })
+const ucsDialogVisible=ref(false);
+const ucForm=reactive({
+  accountType:'',
+  idNumber:'',
+  annualIncome:0.0,
+  qualification:'',
+  jobType:'',
+  maritalStatus:'未婚'
+})
+const editCreditScore=()=>{
+  ucsDialogVisible.value=true
+}
 
-
+const ucRules={
+  accountType:[
+    { required: true, message: '请输入账号', trigger: 'blur' },
+  ],
+  idNumber:[
+    { required: true, message: '请输入身份证号', trigger: 'blur' },
+  ],
+  annualIncome:[
+    { required: true, message: '请输入年收入', trigger: 'blur' },
+  ],
+  qualification:[
+    { required: true, message: '请选择学历', trigger: 'blur' },
+  ],
+  jobType:[
+    { required: true, message: '请选择职业', trigger: 'blur' },
+  ],
+  maritalStatus:[
+    { required: true, message: '请选择婚姻状态', trigger: 'blur' },
+  ]
+}
+const submitUcsForm=async ()=>{
+  ElMessage.success("更新成功")
+}
+const qualifications=[
+    '文盲',
+    '小学',
+    '初中',
+    '高中',
+    '大学及以上'
+]
+const jobTypes=[
+    '公务员',
+    '自由职业',
+    '私营个体',
+    '其他'
+]
 
 </script>
 
