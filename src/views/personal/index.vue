@@ -91,7 +91,7 @@
               <p class="value">{{userInfo.phone}}</p>
             </div>
             <div class="info-item">
-              <p class="label">昵称</p>
+              <p class="label">真实姓名</p>
               <p class="value">{{userInfo.nickName}}</p>
             </div>
             <div class="info-item">
@@ -142,7 +142,7 @@
             </div>
 
             <div>
-              <img :src="creditScore.idNumber?RegisterIdNumberPng:UnregisterIdNumberPng" alt="" style="width: 200px;height: 90px">
+              <img :src="getStatusPng()" alt="" style="width: 200px;height: 90px">
             </div>
           </div>
 
@@ -214,7 +214,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="昵称" prop="nickname">
+          <el-form-item label="真实姓名" prop="nickname">
             <el-input v-model="form.nickname" />
           </el-form-item>
         </el-col>
@@ -278,11 +278,11 @@
     </template>
   </el-dialog>
 
-  <el-dialog v-model="ucsDialogVisible" title="完善/修改用户信用分信息" width="600">
+  <el-dialog v-model="ucsDialogVisible" title="完善/修改用户信用分信息" width="1000">
     <el-form :model="ucForm" :rules="ucRules" ref="formRef" label-width="120px">
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="账号" prop="accountType">
+          <el-form-item label="银行账户" prop="accountType">
             <el-input v-model="ucForm.accountType"/>
           </el-form-item>
         </el-col>
@@ -302,10 +302,10 @@
           <el-form-item label="工作类型" prop="categoryId">
             <el-select v-model="ucForm.jobType" placeholder="请选择工作类型">
               <el-option
-                  v-for="(cat, index) in jobTypes"
-                  :key="index"
-                  :label="cat"
-                  :value="index + 1" />
+                  v-for="job in jobTypes"
+                  :key="job"
+                  :label="job"
+                  :value="job" />
             </el-select>
           </el-form-item>
         </el-col>
@@ -313,10 +313,10 @@
           <el-form-item label="学历" prop="categoryId">
             <el-select v-model="ucForm.qualification" placeholder="请选择学历">
               <el-option
-                  v-for="(cat, index) in qualifications"
-                  :key="index"
-                  :label="cat"
-                  :value="index + 1" />
+                  v-for="qu in qualifications"
+                  :key="qu"
+                  :label="qu"
+                  :value="qu" />
             </el-select>
           </el-form-item>
         </el-col>
@@ -344,7 +344,92 @@
 
       </el-row>
 
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="身份证正面" prop="idCardFront">
+            <el-upload
+                :before-upload="beforeUpload"
+                :http-request="uploadProof('idCardFront')"
+                :show-file-list="false"
+            >
+              <div class="upload-box">
+                <img v-if="ucForm.idCardFront" :src="ucForm.idCardFront" alt="身份证正面" />
+                <div v-else class="upload-placeholder">点击上传身份证正面</div>
+              </div>
+            </el-upload>
+          </el-form-item>
+
+        </el-col>
+
+        <el-col :span="12">
+          <el-form-item label="身份证反面" prop="idCardBack">
+            <el-upload
+                :before-upload="beforeUpload"
+                :http-request="uploadProof('idCardBack')"
+                :show-file-list="false"
+            >
+              <div class="upload-box">
+                <img v-if="ucForm.idCardBack" :src="ucForm.idCardBack" alt="身份证反面" />
+                <div v-else class="upload-placeholder">点击上传身份证反面</div>
+              </div>
+            </el-upload>
+
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="工作证明" prop="workProof">
+            <el-upload
+                :before-upload="beforeUpload"
+                :http-request="uploadProof('workProof')"
+                :show-file-list="false"
+            >
+              <div class="upload-box">
+                <img v-if="ucForm.workProof" :src="ucForm.workProof" alt="工作证明" />
+                <div v-else class="upload-placeholder">点击上传工作证明</div>
+              </div>
+            </el-upload>
+
+          </el-form-item>
+        </el-col>
+
+        <el-col :span="12">
+          <el-form-item label="学历证明" prop="educationProof">
+            <el-upload
+                :before-upload="beforeUpload"
+                :http-request="uploadProof('educationProof')"
+                :show-file-list="false"
+            >
+              <div class="upload-box">
+                <img v-if="ucForm.educationProof" :src="ucForm.educationProof" alt="学历证明" />
+                <div v-else class="upload-placeholder">点击上传学历证明</div>
+              </div>
+            </el-upload>
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="收入证明" prop="incomeProof">
+            <el-upload
+                :before-upload="beforeUpload"
+                :http-request="uploadProof('incomeProof')"
+                :show-file-list="false"
+            >
+              <div class="upload-box">
+                <img v-if="ucForm.incomeProof" :src="ucForm.incomeProof" alt="收入证明" />
+                <div v-else class="upload-placeholder">点击上传收入证明</div>
+              </div>
+            </el-upload>
+          </el-form-item>
+        </el-col>
+      </el-row>
+
     </el-form>
+    
     <template #footer>
       <div class="dialog-footer">
         <el-button @click=" ucsDialogVisible= false">取消</el-button>
@@ -353,6 +438,25 @@
     </template>
   </el-dialog>
 
+  <el-dialog v-model="avatarDialogVisible" title="更换头像" width="400px">
+    <el-upload
+        class="avatar-uploader"
+        :before-upload="beforeUpload"
+        :http-request="uploadAvatar"
+        :show-file-list="false"
+    >
+      <img v-if="previewAvatarUrl" :src="previewAvatarUrl" class="avatar-preview" />
+      <div v-else class="upload-placeholder">点击上传头像</div>
+    </el-upload>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="avatarDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitAvatar">确认修改</el-button>
+      </div>
+    </template>
+  </el-dialog>
+
+
 </template>
 
 <script setup lang="ts">
@@ -360,22 +464,41 @@ import Logo from "./component/Logo.vue"
 import router from "@/router";
 import {computed,ref, onMounted, onBeforeUnmount,reactive} from 'vue';
 import lottie from 'lottie-web';
-import {ElMessage} from "element-plus";
+import {ElLoading, ElMessage} from "element-plus";
 import {useUserInfoStore} from "@/stores/useUserInfoStore.ts";
 import {useUserCreditScoreStore} from "@/stores/useUserCreditScore.ts";
 import RegisterIdNumberPng from "@/assets/register_id_number.png";
 import UnregisterIdNumberPng from "@/assets/unregister_id_number.png";
+import CheckingPng from "@/assets/checking.png"
+import NotPassPng from "@/assets/not_pass.png"
 import {useTokenStore} from "@/stores";
-import {updateUserInfo, getTopCreditUsers, userLogout, updateUserCreditScore} from "@/api/user.ts";
+import {updateUserInfo, getTopCreditUsers, userLogout, updateUserCreditScore, updateAvatar} from "@/api/user.ts";
 const userInfo=ref(null)
 const creditScore=ref(null)
-//lottie动画部分
 const shoppingContainer = ref(null)
 const lifeContainer=ref(null)
 const creditManagerContainer=ref(null)
-let intervalId: ReturnType<typeof setInterval> | null = null;
+
+
+const getStatusPng = () => {
+  const status = userCreditScoreStore.score.status;
+
+  switch (status) {
+    case 0:
+      return UnregisterIdNumberPng;
+    case 1:
+      return CheckingPng;
+    case 2:
+      return NotPassPng;
+    case 3:
+      return RegisterIdNumberPng;
+    default:
+      return UnregisterIdNumberPng;
+  }
+}
+
 // 动画加载
-const avatarUrl=ref('https://q8.itc.cn/q_70/images03/20250521/eac16c7d96884de3bd0cb499554c205a.jpeg')
+const avatarUrl=ref('')
 onMounted(() => {
   lottie.loadAnimation({
     container: shoppingContainer.value!,
@@ -405,6 +528,53 @@ const creditRankList = ref<{ avatar: string; score: number; area: string }[]>([]
 onMounted(async () => {
   creditRankList.value = await getTopCreditUsers()
 })
+
+
+const avatarDialogVisible = ref(false);
+const previewAvatarUrl = ref('');
+
+// 打开弹窗
+const handleChangeAvatar = () => {
+  previewAvatarUrl.value = avatarUrl.value;
+  avatarDialogVisible.value = true;
+};
+
+// 上传头像逻辑
+const uploadAvatar = async ({ file }: { file: File }) => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const { data } = await axiosInstance.post('/activity/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+
+    if (data === '500') return ElMessage.error('上传失败');
+    previewAvatarUrl.value = data;
+    ElMessage.success('上传成功');
+  } catch (err) {
+    ElMessage.error('上传失败');
+    console.error(err);
+  }
+};
+
+// 提交头像更新
+const submitAvatar = async () => {
+  const userId = userInfoStore.user.id;
+  if (!previewAvatarUrl.value) {
+    ElMessage.warning('请上传头像');
+    return;
+  }
+  try {
+    await updateAvatar(userId, previewAvatarUrl.value);
+    avatarUrl.value = previewAvatarUrl.value;
+    ElMessage.success('头像更新成功');
+    avatarDialogVisible.value = false;
+  } catch (e) {
+    ElMessage.error('头像更新失败');
+    console.error(e);
+  }
+};
 
 function getGood(): string {
   const hour = new Date().getHours()
@@ -443,6 +613,7 @@ onMounted(async () => {
   form.township=userInfoStore.user.township
   creditScoreValue.value=creditScore.value.creditScore
   joinedDays.value=userInfoStore.user.createTime
+  avatarUrl.value=userInfoStore.user.profilePicture
 });
 
 const joinedDays=ref('')
@@ -474,10 +645,10 @@ const editInfo=()=>{
     form.gender=''
   }
   if(form.province==="未设置"){
-    form.province=''
+    form.province='浙江省'
   }
   if(form.city==="未设置"){
-    form.city=''
+    form.city='杭州市'
   }
   if(form.country==="未设置"){
     form.country=''
@@ -550,15 +721,10 @@ const getCreditScoreLevel=()=>{
     return `较差${creditScore.value.creditScore}`
   }
 }
-
 // 在组件卸载前清除定时器
 onBeforeUnmount(() => {
   lottie.destroy();
 });
-
-
-
-
 const loadUserInfoAndCreditScore=async ()=>{
   if(userInfoStore.user===null){
     ElMessage.error('用户信息加载失败,请重新登录!');
@@ -566,8 +732,6 @@ const loadUserInfoAndCreditScore=async ()=>{
     return
   }
   userInfo.value=userInfoStore.user
-  console.log("userInfo.value",userInfo.value)
-
 
   if(userCreditScoreStore.score===null){
     ElMessage.error('信用评分加载失败,请重新登录尝试!');
@@ -596,12 +760,11 @@ import * as echarts from 'echarts';
 import { nextTick, watch } from 'vue';
 import {PictureFilled, SwitchButton, UserFilled} from "@element-plus/icons-vue";
 import {useDeviceStore} from "@/stores/useDeviceStore.ts";
+import axiosInstance from "@/plugins/axios.ts";
 
 const activeChart = ref('credit'); // 默认选中信用分折线图
 const chartRef = ref<HTMLElement | null>(null);
 let chartInstance: echarts.ECharts | null = null;
-
-
 
 const renderChart = async () => {
   if (!chartRef.value) return;
@@ -723,17 +886,9 @@ const logout=async ()=>{
   }
   else{
     ElMessage.error("退出失败")
+    await router.push('/home')
   }
 }
-//信用分信息
-// const res=await updateUserCreditScore(id,{
-//   accountType: "330100194911070086",
-//   idNumber:"52242220030312081X",
-//   annualIncome:8328.0,
-//   qualification: "高中",
-//   jobType:"退休人员",
-//   maritalStatus:"已婚"
-// })
 const ucsDialogVisible=ref(false);
 const ucForm=reactive({
   accountType:'',
@@ -741,9 +896,25 @@ const ucForm=reactive({
   annualIncome:0.0,
   qualification:'',
   jobType:'',
-  maritalStatus:'未婚'
+  maritalStatus:'未婚',
+  idCardFront: '',
+  idCardBack: '',
+  workProof: '',
+  educationProof: '',
+  incomeProof: ''
 })
 const editCreditScore=()=>{
+  ucForm.accountType=userCreditScoreStore.score.accountType===''?'未填写':userCreditScoreStore.score.accountType
+  ucForm.idNumber=userCreditScoreStore.score.idNumber===''?'未填写':userCreditScoreStore.score.idNumber
+  ucForm.annualIncome=userCreditScoreStore.score.annualIncome===0.0?'未填写':userCreditScoreStore.score.annualIncome
+  ucForm.qualification=userCreditScoreStore.score.qualification===''?'未填写':userCreditScoreStore.score.qualification
+  ucForm.jobType=userCreditScoreStore.score.jobType===''?'未填写':userCreditScoreStore.score.jobType
+  ucForm.maritalStatus=userCreditScoreStore.score.maritalStatus===''?'未婚':userCreditScoreStore.score.maritalStatus
+  ucForm.idCardFront=userCreditScoreStore.score.idCardFront===''?'':userCreditScoreStore.score.idCardFront
+  ucForm.idCardBack=userCreditScoreStore.score.idCardBack===''?'':userCreditScoreStore.score.idCardBack
+  ucForm.workProof=userCreditScoreStore.score.workProof===''?'':userCreditScoreStore.score.workProof
+  ucForm.educationProof=userCreditScoreStore.score.educationProof===''?'':userCreditScoreStore.score.educationProof
+  ucForm.incomeProof=userCreditScoreStore.score.incomeProof===''?'':userCreditScoreStore.score.incomeProof
   ucsDialogVisible.value=true
 }
 
@@ -765,10 +936,63 @@ const ucRules={
   ],
   maritalStatus:[
     { required: true, message: '请选择婚姻状态', trigger: 'blur' },
+  ],
+  idCardFront:[
+    { required: true, message: '请上传身份证正面', trigger: 'blur' },
+  ],
+  idCardBack:[
+    { required: true, message: '请上传身份证反面', trigger: 'blur' },
+  ],
+  workProof:[
+    { required: true, message: '请上传工作证明', trigger: 'blur' },
+  ],
+  educationProof:[
+    { required: true, message: '请上传教育证明', trigger: 'blur' },
+  ],
+  incomeProof:[
+    { required:true, message: '请上传收入证明', trigger: 'blur' },
   ]
 }
-const submitUcsForm=async ()=>{
-  ElMessage.success("更新成功")
+const submitUcsForm = async () => {
+  const userId = userInfoStore.user.id
+
+  // 校验空字段
+  const missing =
+      !ucForm.accountType ||
+      !ucForm.idNumber ||
+      !ucForm.annualIncome ||
+      !ucForm.qualification ||
+      !ucForm.jobType ||
+      !ucForm.maritalStatus ||
+      !ucForm.idCardFront ||
+      !ucForm.idCardBack ||
+      !ucForm.workProof ||
+      !ucForm.educationProof ||
+      !ucForm.incomeProof
+
+  if (missing) {
+    ElMessage.error("请填写完整信息")
+    return
+  }
+
+  // 显示加载动画
+  const loading = ElLoading.service({
+    lock: true,
+    text: '提交中，请稍候...',
+    background: 'rgba(0, 0, 0, 0.3)'
+  })
+
+  try {
+    const res = await updateUserCreditScore(userId, ucForm)
+    ElMessage.success("更新成功,请重新登录",res)
+    ucsDialogVisible.value = false
+    await logout()
+  } catch (error) {
+    ElMessage.error("请求异常")
+    console.error(error)
+  } finally {
+    loading.close()
+  }
 }
 const qualifications=[
     '文盲',
@@ -783,16 +1007,67 @@ const jobTypes=[
     '私营个体',
     '其他'
 ]
+const beforeUpload = (file: File) => {
+  const isImg = file.type.startsWith('image/')
+  if (!isImg) ElMessage.warning('只能上传图片')
+  return isImg
+}
+const uploadProof = (field: keyof typeof ucForm) => {
+  return async ({ file }: { file: File }) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    try {
+      const { data } = await axiosInstance.post('/activity/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
 
+      if (data === '500') return ElMessage.error('图片上传失败')
+      ucForm[field] = data
+      ElMessage.success('上传成功')
+    } catch (e){
+      ElMessage.error('上传失败')
+      console.log("图片上传失败:",e)
+    }
+  }
+}
 </script>
 
 <style scoped lang="scss">
 @import 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css';
+.proof-img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  margin-top: 10px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
 
 .main-container {
   display:grid;
   gap: 10px;
   grid-template-rows: auto 3fr;
+}
+.avatar-uploader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 150px;
+  border: 1px dashed #dcdfe6;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.avatar-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.upload-placeholder {
+  font-size: 14px;
+  color: #909399;
 }
 .header-container {
   display: flex;
@@ -1072,4 +1347,35 @@ const jobTypes=[
     }
   }
 }
+.upload-box {
+  width: 80px;
+  height: 80px;
+  border: 1px dashed #dcdfe6;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: #f5f7fa;
+  transition: border-color 0.3s;
+}
+
+.upload-box:hover {
+  border-color: #409EFF;
+}
+
+.upload-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-placeholder {
+  font-size: 12px;
+  color: #909399;
+  text-align: center;
+  line-height: 1.2;
+}
+
 </style>

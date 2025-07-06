@@ -11,4 +11,9 @@ export class UserCreditScore {
     qualification: string;
     updateTime:string;
     status:number;
+    idCardFront: string;
+    idCardBack: string;
+    workProof: string;
+    educationProof: string;
+    incomeProof: string;
 }
