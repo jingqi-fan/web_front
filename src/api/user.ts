@@ -48,6 +48,25 @@ export const login = async (data: LoginCommand):Promise<ApiResponse> => {
     }
 };
 
+export const AdminLogin = async (data:LoginCommand):Promise<ApiResponse> => {
+    try{
+        const res = await axiosInstance.post<Result<Token>>('/user/admin/login', data);
+        console.log("管理员登录结果==> ",res)
+        if (res?.data?.status === 'SUCCESS') {
+            const tokenStore = useTokenStore();
+            tokenStore.setToken(res.data.data);
+            return res.data;
+        } else {
+            ElMessage.error(`登录失败${res.data.message}`);
+            throw new Error('无效的响应数据');
+        }
+    }catch (error){
+        console.error('登录失败', error);
+        ElMessage.error('登录失败');
+        throw error;
+    }
+};
+
 export const getUserInfo = async (userId: string) => {
     try {
         const res = await axiosInstance.get<Result<any>>(`/user/info?userId=${userId}`);

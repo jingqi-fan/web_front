@@ -104,8 +104,7 @@ axiosInstance.interceptors.response.use(
                 case 403:
                 case 500:
                     ElMessage.error(response.data?.message || "服务异常");
-                    console.log("plugin esponse ERR");
-                    console.log(response)
+
                     break;
                 default:
                     console.log("ERR");
