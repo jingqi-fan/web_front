@@ -1,103 +1,125 @@
 <template>
-  <el-card class="box-card">
-    <div class="flex items-center mb-4">
-      <el-avatar :size="80" src="https://i.pravatar.cc/100"></el-avatar>
-      <div class="ml-4">
-        <h2 class="text-xl font-bold">{{ userInfo.name }}</h2>
-        <p class="text-sm text-gray-500">
-          信用分：<strong class="text-blue-500 text-2xl">{{ userInfo.creditScore }}</strong>
-        </p>
-        <el-tag type="success">{{ userInfo.creditLevel }}</el-tag>
-        <p class="text-xs text-gray-400">
-            更新时间：{{ formatTime(userInfo.updateTime) }}
-        </p>
+  <el-container>
+    <!-- 顶部区域 -->
+    <el-header>
+      <div class="header-wrapper">
+        <span class="header-title">信用管理</span>
+        <el-menu
+          mode="horizontal"
+          :default-active="activeMenu"
+          class="header-menu"
+          @select="handleMenuSelect"
+          background-color="#b3c0d1"
+          text-color="#333"
+          active-text-color="#409EFF"
+          >
+          <el-menu-item index="/settings">首页</el-menu-item>
+          <el-menu-item index="/personal">个人中心</el-menu-item>
+          <el-menu-item index="/creditbusiness">信用商业</el-menu-item>
+          <el-menu-item index="/life">信用生活</el-menu-item>
+          <el-menu-item index="/manageHouse">信用管理</el-menu-item>
+        </el-menu>
       </div>
-    </div>
-    <!--  跳转按钮到信用分详情 -->
-    <el-button type="primary" @click="goToCreditDimension">查看分数构成</el-button>
+    </el-header>
 
-    <!-- 行为累计 -->
-    <h3 class="text-lg font-semibold mb-2">行为累计</h3>
-    <el-row :gutter="20" class="mb-4">
-      <el-col :span="6">
-        <el-card shadow="hover">
-          <div class="text-center">
-            <div class="text-lg text-orange-500 font-bold">{{ behaviorCount.totalDays }} 天</div>
-            <p class="text-sm text-gray-500">累计天数</p>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="hover">
-          <div class="text-center">
-            <div class="text-lg text-orange-500 font-bold">{{ behaviorCount.totalAmount }} 元</div>
-            <p class="text-sm text-gray-500">累计金额</p>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="hover">
-          <div class="text-center">
-            <div class="text-lg text-orange-500 font-bold">{{ behaviorCount.creditLifeCount }} 次</div>
-            <p class="text-sm text-gray-500">信用生活使用次数</p>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="hover">
-          <div class="text-center">
-            <div class="text-lg text-orange-500 font-bold">{{  behaviorCount.creditBusinessCount }} 次</div>
-            <p class="text-sm text-gray-500">信用商业使用次数</p>
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
+    <!-- 主体区域：侧边 + 主内容 -->
+    <el-container>
+      <el-aside width="200px">
+        <el-menu default-active="overview" class="el-menu-vertical-demo" background-color="#d3dce6" text-color="#333"
+          active-text-color="#409EFF" router>
+          <el-menu-item index="/manageHouse">
+            <el-icon>
+              <House />
+            </el-icon>
+            <span>信用总览</span>
+          </el-menu-item>
+          <el-menu-item index="/CreditDimension">
+            <el-icon>
+              <PieChart />
+            </el-icon>
+            <span>分数构成</span>
+          </el-menu-item>
+        </el-menu>
+      </el-aside>
 
-    <!-- 守约记录 -->
-    <h3 class="text-lg font-semibold mb-2">守约记录</h3>
-    <el-table :data="userInfo.records" border style="width: 100%">
-      <el-table-column prop="recordType" label="类型" width="120"></el-table-column>
-      <el-table-column prop="description" label="描述"></el-table-column>
-      <el-table-column prop="amount" label="金额" width="100"></el-table-column>
-      <el-table-column prop="finishTime" label="完成时间" width="180"></el-table-column>
-      <el-table-column prop="status" label="完成状态" width="120"></el-table-column>
-    </el-table>
-    
-    <!-- 分页控件 -->
-    <el-pagination
-      class="mt-4 mb-2"
-      background
-      layout="total, sizes, prev, pager, next, jumper"
-      :total="pagination.total"
-      :page-size="pagination.pageSize"
-      :current-page="pagination.pageNum"
-      @size-change="handleSizeChange"
-      @current-change="handlePageChange"
-    />
-  </el-card>
+
+      <el-main>
+        <!-- 原有信用总览页面内容放在这里 -->
+        <el-card class="box-card">
+          <div class="flex items-center mb-4">
+            <el-avatar :size="80" src="https://i.pravatar.cc/100"></el-avatar>
+            <div class="ml-4">
+              <h2 class="text-xl font-bold">{{ userInfo.name }}</h2>
+              <p class="text-sm text-gray-500">
+                信用分：<strong class="text-blue-500 text-2xl">{{ userInfo.creditScore }}</strong>
+              </p>
+              <el-tag type="success">{{ userInfo.creditLevel }}</el-tag>
+              <p class="text-xs text-gray-400">
+                更新时间：{{ formatTime(userInfo.updateTime) }}
+              </p>
+            </div>
+          </div>
+
+          <!-- 行为累计 -->
+          <h3 class="text-lg font-semibold mb-2">行为累计</h3>
+          <el-row :gutter="20" class="mb-4">
+            <el-col :span="6" v-for="(item, index) in behaviorItems" :key="index">
+              <el-card shadow="hover">
+                <div class="text-center">
+                  <div class="text-lg text-orange-500 font-bold">{{ item.value }}</div>
+                  <p class="text-sm text-gray-500">{{ item.label }}</p>
+                </div>
+              </el-card>
+            </el-col>
+          </el-row>
+
+          <!-- 守约记录 -->
+          <h3 class="text-lg font-semibold mb-2">守约记录</h3>
+          <el-table :data="userInfo.records" border style="width: 100%">
+            <el-table-column prop="recordType" label="类型" width="120" />
+            <el-table-column prop="description" label="描述" />
+            <el-table-column prop="amount" label="金额" width="100" />
+            <el-table-column prop="finishTime" label="完成时间" width="180" />
+            <el-table-column prop="status" label="完成状态" width="120" />
+          </el-table>
+
+          <!-- 分页 -->
+          <el-pagination class="mt-4 mb-2" background layout="total, sizes, prev, pager, next, jumper"
+            :total="pagination.total" :page-size="pagination.pageSize" :current-page="pagination.pageNum"
+            @size-change="handleSizeChange" @current-change="handlePageChange" />
+        </el-card>
+      </el-main>
+    </el-container>
+  </el-container>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
-import axios from 'axios';
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import axiosInstance from '@/plugins/axios';
-import { useUserInfoStore } from '../../stores/useUserInfoStore';
-import { useUserCreditScoreStore } from '../../stores/useUserCreditScore';
-// import {User } from '@/entity/user.ts';
+import axiosInstance from '@/plugins/axios'
+import { useUserInfoStore } from '@/stores/useUserInfoStore'
+import { useUserCreditScoreStore } from '@/stores/useUserCreditScore'
+import { House, PieChart } from '@element-plus/icons-vue'
+
 
 const router = useRouter()
-const goToCreditDimension = () => {
-  router.push({ path: '/creditDimension' })
+
+// 当前选中的菜单项，初始默认首页
+const activeMenu = ref('/manageHouse')
+
+// 点击菜单项时触发，跳转到对应页面
+const handleMenuSelect = (index) => {
+  activeMenu.value = index
+  router.push(index)
 }
 
-const userInfoStore=useUserInfoStore()
-const userCreditScoreStore=useUserCreditScoreStore()
+const userInfoStore = useUserInfoStore()
+const userCreditScoreStore = useUserCreditScoreStore()
 
-const userBasicInfo=userInfoStore.user  //User
-const creditScoreInfo=userCreditScoreStore.score  //UserCreditScore
+const userBasicInfo = userInfoStore.user
+const creditScoreInfo = userCreditScoreStore.score
 
-const userId = userBasicInfo.id;
+const userId = userBasicInfo.id
 const userInfo = reactive({
   name: userBasicInfo.nickName,
   avatar: userBasicInfo.profilePicture,
@@ -105,134 +127,203 @@ const userInfo = reactive({
   creditLevel: '信用极好',
   updateTime: creditScoreInfo.updateTime,
   records: []
-});
-const behaviorCount = reactive({
-    totalDays: 0,
-    totalAmount: 0,
-    creditLifeCount: 0,
-    creditBusinessCount: 0,
 })
 
-//格式化时间
+const behaviorCount = reactive({
+  totalDays: 0,
+  totalAmount: 0,
+  creditLifeCount: 0,
+  creditBusinessCount: 0
+})
+
+const behaviorItems = computed(() => [
+  { label: '累计天数', value: behaviorCount.totalDays + ' 天' },
+  { label: '累计金额', value: behaviorCount.totalAmount + ' 元' },
+  { label: '信用生活使用次数', value: behaviorCount.creditLifeCount + ' 次' },
+  { label: '信用商业使用次数', value: behaviorCount.creditBusinessCount + ' 次' }
+])
+
 function formatTime(raw) {
-  return new Date(raw).toLocaleString('zh-CN', {
-    hour12: false
-  });
+  return new Date(raw).toLocaleString('zh-CN', { hour12: false })
 }
 
-//分页
 // 分页数据
 const pagination = reactive({
   total: 0,
   pageNum: 1,
   pageSize: 10
-});
+})
 
-// 获取分页守约记录数据
 const fetchRecords = () => {
-  userInfo.records = [];  // 清空旧数据，避免切页时闪烁或旧数据残留
-  axiosInstance.get('/record', {
-    params: {
-      pageNum: pagination.pageNum,
-      pageSize: pagination.pageSize,
-      userId: userId,
-      recordType: '',  
-      status: ''
-    }
-  }).then(res => {
-    const result = res.data;
-    if (result.code === 1 && result.data) {
-      userInfo.records = result.data.records;
-      pagination.total = result.data.total;
-    } else {
-      console.error('获取守约记录失败:', result.msg);
-    }
-  }).catch(err => {
-    console.error('请求守约记录失败', err);
-  });
-};
+  userInfo.records = []
+  axiosInstance
+    .get('/record', {
+      params: {
+        pageNum: pagination.pageNum,
+        pageSize: pagination.pageSize,
+        userId,
+        recordType: '',
+        status: ''
+      }
+    })
+    .then((res) => {
+      const result = res.data
+      if (result.code === 1 && result.data) {
+        userInfo.records = result.data.records
+        pagination.total = result.data.total
+      } else {
+        console.error('获取守约记录失败:', result.msg)
+      }
+    })
+    .catch((err) => {
+      console.error('请求守约记录失败', err)
+    })
+}
 
-// 页码变化
 const handlePageChange = (newPage) => {
-  pagination.pageNum = newPage;
-  fetchRecords();
-};
+  pagination.pageNum = newPage
+  fetchRecords()
+}
 
-// 每页大小变化
 const handleSizeChange = (newSize) => {
-  pagination.pageSize = newSize;
-  pagination.pageNum = 1; // 重置页码
-  fetchRecords();
-};
+  pagination.pageSize = newSize
+  pagination.pageNum = 1
+  fetchRecords()
+}
 
 onMounted(() => {
-  //获取用户行为统计相关信息
-  axiosInstance.get(`/credit/count/${userId}`).then((res) => {
-      const result = res.data;
-      if(result.code === 1 && result.data){
-        const data = result.data;
-        //赋值
-        behaviorCount.totalDays = data.totalDays;
-        behaviorCount.totalAmount = data.totalAmount;
-        behaviorCount.creditLifeCount = data.creditLifeCount;
-        behaviorCount.creditBusinessCount = data.creditBusinessCount;
-      }else{
-        console.error('获取用户行为统计相关信息失败:',result.msg);
+  axiosInstance
+    .get(`/credit/count/${userId}`)
+    .then((res) => {
+      const result = res.data
+      if (result.code === 1 && result.data) {
+        Object.assign(behaviorCount, result.data)
+      } else {
+        console.error('获取行为统计失败:', result.msg)
       }
-  }).catch((err) => {
-      console.error('请求失败',err);
-  });
+    })
+    .catch((err) => {
+      console.error('请求失败', err)
+    })
 
-  // 调用分页记录查询
-  fetchRecords();
-
-});
+  fetchRecords()
+})
 </script>
 
 <style scoped>
+/* 新增：设置基础HTML和Body的高度 */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.el-container {
+  height: 100%;
+}
+
+.el-header {
+  background-color: #b3c0d1;
+  color: #333;
+  text-align: center;
+  line-height: 60px;
+}
+
+.el-aside {
+  background-color: #d3dce6;
+  color: #333;
+  text-align: center;
+  /* 侧边栏高度设置 */
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+}
+
+.el-main {
+  background-color: #f5f7fa;
+  padding: 20px;
+  /* 主内容区高度设置 */
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+}
+
 .text-orange-500 {
   color: #f59e0b;
 }
+
 .text-blue-500 {
   color: #3b82f6;
 }
+
 .text-gray-500 {
   color: #6b7280;
 }
+
 .text-gray-400 {
   color: #9ca3af;
 }
+
 .text-xl {
   font-size: 1.25rem;
 }
+
 .text-2xl {
   font-size: 1.5rem;
 }
+
 .font-bold {
   font-weight: bold;
 }
+
 .ml-4 {
   margin-left: 1rem;
 }
+
 .mb-2 {
   margin-bottom: 0.5rem;
 }
+
 .mb-4 {
   margin-bottom: 1rem;
 }
+
 .flex {
   display: flex;
 }
+
 .items-center {
   align-items: center;
 }
+
 .text-center {
   text-align: center;
 }
+
 .mt-4 {
   margin-top: 1rem;
 }
-.mb-2 {
-  margin-bottom: 0.5rem;
+.header-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 左右分开 */
+  height: 60px;
+  padding: 0 20px;
+}
+
+.header-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+.header-menu {
+  flex-grow: 1;
+  margin-left: 40px;
+}
+/* 选中菜单项加深效果 */
+.el-aside .el-menu-item.is-active {
+  background-color: #a0b0c0 !important;
+  color: #1f2d3d !important;
+  font-weight: bold;
+  border-right: 4px solid #409EFF;
 }
 </style>
