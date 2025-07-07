@@ -113,13 +113,14 @@ const handleMenuSelect = (index) => {
   router.push(index)
 }
 
-const userInfoStore = useUserInfoStore()
+const userInfoStore = useUserInfoStore() 
 const userCreditScoreStore = useUserCreditScoreStore()
-
+ 
 const userBasicInfo = userInfoStore.user
 const creditScoreInfo = userCreditScoreStore.score
 
 const userId = userBasicInfo.id
+
 const userInfo = reactive({
   name: userBasicInfo.nickName,
   avatar: userBasicInfo.profilePicture,
