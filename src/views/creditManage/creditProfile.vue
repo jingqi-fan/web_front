@@ -75,6 +75,28 @@
 
           <!-- 守约记录 -->
           <h3 class="text-lg font-semibold mb-2">守约记录</h3>
+          <!-- 筛选条件 -->
+          <el-form :inline="true" class="mb-4" label-position="left" size="small">
+            <el-form-item label="记录类型">
+              <el-select v-model="filters.recordType" placeholder="请选择类型" clearable style="width: 160px">
+                <el-option label="信用生活" value="信用生活" />
+                <el-option label="信用商业" value="信用商业" />
+                <el-option label="基本信息" value="基本信息" />
+                <el-option label="亲社会行为" value="亲社会行为" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="完成状态">
+              <el-select v-model="filters.status" placeholder="请选择状态" clearable style="width: 160px">
+                <el-option label="已完成" value="已完成" />
+                <el-option label="已逾期" value="已逾期" />
+                <el-option label="逾期20天" value="逾期20天" />
+              </el-select>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="handleFilter">查询</el-button>
+              <el-button @click="resetFilter">重置</el-button>
+            </el-form-item>
+          </el-form>
           <el-table :data="userInfo.records" border style="width: 100%">
             <el-table-column prop="recordType" label="类型" width="120" />
             <el-table-column prop="description" label="描述" />
@@ -121,6 +143,8 @@ const creditScoreInfo = userCreditScoreStore.score
 
 const userId = userBasicInfo.id
 
+
+
 const userInfo = reactive({
   name: userBasicInfo.nickName,
   avatar: userBasicInfo.profilePicture,
@@ -155,6 +179,23 @@ const pagination = reactive({
   pageSize: 10
 })
 
+const handleFilter = () => {
+  pagination.pageNum = 1
+  fetchRecords()
+}
+
+const resetFilter = () => {
+  filters.recordType = ''
+  filters.status = ''
+  pagination.pageNum = 1
+  fetchRecords()
+}
+
+const filters = reactive({
+  recordType: '',
+  status: ''
+})
+
 const fetchRecords = () => {
   userInfo.records = []
   axiosInstance
@@ -163,8 +204,8 @@ const fetchRecords = () => {
         pageNum: pagination.pageNum,
         pageSize: pagination.pageSize,
         userId,
-        recordType: '',
-        status: ''
+        recordType: filters.recordType,
+        status: filters.status
       }
     })
     .then((res) => {
