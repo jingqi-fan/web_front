@@ -93,6 +93,21 @@
       <el-form-item label="逾期费用" prop="overdueFee">
         <el-input-number v-model="form.overdueFee" :min="0" :step="0.1" :precision="2" />
       </el-form-item>
+      <el-form-item label="封面图片" prop="image">
+        <el-upload
+            class="upload-demo"
+            action=""
+            :before-upload="beforeUpload"
+            :http-request="uploadImage"
+            :show-file-list="false"
+        >
+          <el-button type="primary">点击上传图片</el-button>
+        </el-upload>
+        <div v-if="form.image" class="preview-img">
+          <img :src="form.image" alt="封面" style="margin-top: 10px; width: 100px; border: 1px solid #eee;" />
+        </div>
+      </el-form-item>
+
 
       <!-- 修正字段名 -->
       <el-form-item label="图书简介" prop="bookIntroduction">
@@ -151,6 +166,27 @@ const form = ref({
 });
 
 
+const beforeUpload = (file: File) => {
+  const isImg = file.type.startsWith('image/')
+  if (!isImg) ElMessage.warning('只能上传图片')
+  return isImg
+}
+
+const uploadImage = async ({ file }: { file: File }) => {
+  const formData = new FormData()
+  formData.append('file', file)
+  try {
+    const { data } = await axiosInstance.post('/activity/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    if (data === '500') return ElMessage.error('图片上传失败')
+    form.value.image = data
+    ElMessage.success('上传成功')
+  } catch {
+    ElMessage.error('上传失败')
+  }
+}
+
 
 // 获取图书数据
 const fetchBooks = async () => {
@@ -182,6 +218,7 @@ const fetchBooks = async () => {
 fetchBooks();
 
 import { debounce } from 'lodash-es';
+import axiosInstance from "@/plugins/axios.ts";
 
 // 在fetchBooks定义后添加
 const debouncedFetchBooks = debounce(fetchBooks, 1000);
@@ -195,6 +232,9 @@ watch(
 
 // 表单验证规则
 const rules = ref({
+  image: [
+    { required: true, message: '请上传图片', trigger: 'change' }
+  ],
   bookName: [
     { required: true, message: '书名不能为空', trigger: 'blur' }
   ],

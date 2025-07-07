@@ -32,6 +32,26 @@ export const register = (data: RegisterCommand):Promise<ApiResponse>=> {
 export const login = async (data: LoginCommand):Promise<ApiResponse> => {
     try{
         const res = await axiosInstance.post<Result<Token>>('/user/login', data);
+        console.log("登录结果==> ",res)
+        if (res?.data?.status === 'SUCCESS') {
+            const tokenStore = useTokenStore();
+            tokenStore.setToken(res.data.data);
+            return res.data;
+        } else {
+            ElMessage.error(`登录失败${res.data.message}`);
+            throw new Error('无效的响应数据');
+        }
+    }catch (error){
+        console.error('登录失败', error);
+        ElMessage.error('登录失败');
+        throw error;
+    }
+};
+
+export const AdminLogin = async (data:LoginCommand):Promise<ApiResponse> => {
+    try{
+        const res = await axiosInstance.post<Result<Token>>('/user/admin/login', data);
+        console.log("管理员登录结果==> ",res)
         if (res?.data?.status === 'SUCCESS') {
             const tokenStore = useTokenStore();
             tokenStore.setToken(res.data.data);
@@ -92,7 +112,7 @@ export  const updateUserInfo =async (uuid:String,data:UpdateUserInfo)=>{
     })
 }
 export const updateUserCreditScore=async (id:number,data:UpdateCreditScore)=>{
-    return await axiosInstance.post<UpdateCreditScore>(`/user/credit/update?id=${id}`, data).then(res => {
+    return await axiosInstance.post<UpdateCreditScore>(`/user/credit/improveInfo?id=${id}`, data).then(res => {
         if (res.data.status !== 'SUCCESS') {
             ElMessage.error(res.data.message);
             return;
@@ -124,13 +144,16 @@ export const getUserCreditScoreInfo = async (id: number) => {
             maritalStatus: res.data.data.maritalStatus,
             qualification: res.data.data.qualification,
             updateTime: res.data.data.updateTime,
-            updated:res.data.data.updated,
+            status:res.data.data.status,
+            idCardFront: res.data.data.idCardFront,
+            idCardBack: res.data.data.idCardBack,
+            workProof: res.data.data.workProof,
+            educationProof: res.data.data.educationProof,
+            incomeProof: res.data.data.incomeProof,
         };
 
         const userCreditScoreStore = useUserCreditScoreStore();
         userCreditScoreStore.setUserCredit(uc)
-
-
         return uc;
     } catch (err) {
         ElMessage.error(`获取用户信用分发生异常：${err}`);
@@ -168,6 +191,42 @@ export const userLogout = async (id:string,deviceId:string) => {
         ElMessage.error(`退出登录发生异常：${err}`);
     })
 }
+export const updateAvatar=async (userId:number,avatarUrl:string)=>{
+    return await axiosInstance.get(`/user/avatar/update?userId=${userId}&url=${avatarUrl}`,avatarUrl).then(res => {
+        if (res.data.status !== 'SUCCESS') {
+            ElMessage.error(res.data.message);
+            return;
+        }
+        getUserInfo(userId)
+        ElMessage.success('头像更新成功');
+    }).catch(err => {
+        ElMessage.error(`头像更新发生异常：${err}`);
+    }).catch(err => {
+        ElMessage.error(`头像更新发生异常：${err}`);
+    })
+}
+
+export const getUcsList=async ()=>{
+    const res= await axiosInstance.get(`/admin/ucs/list`)
+    if(res.data.status !== 'SUCCESS'){
+        ElMessage.error(res.data.message);
+        return;
+    }
+    console.log("getUcsList res",res.data.data)
+    return res.data.data;
+}
+export interface FinishCheckCommand{
+    checkId:number;
+    userId:number;
+    status:number;
+    message:string;
+    stepResults:string;
+}
+export const ucsCheckFinish=async (command:FinishCheckCommand)=>{
+    const res=await axiosInstance.post(`/user/credit/admin/update`,command)
+    console.log(res)
+}
+
 //排行榜
 //排行榜
 export const getTopCreditUsers = async () => {

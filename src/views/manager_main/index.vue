@@ -129,13 +129,11 @@ const GoToManagerMainPage=()=>{
   ElMessage.warning("管理员首页正在开发中...")
 }
 const GoToDashboard=()=>{
-  //router.push('/manager/dataCenter')
-  ElMessage.warning("数据监控中心正在开发中...")
+  router.push('/manager/dataCenter')
 }
 
 const GoToExamineAndApprove=()=>{
-  //router.push('/manager/examineAndApprove')
-  ElMessage.warning("审批中心正在开发中...")
+  router.push('/manager/examine')
 }
 
 const GoToItem=(url:string)=>{

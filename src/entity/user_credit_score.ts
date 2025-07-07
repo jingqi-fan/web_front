@@ -10,5 +10,10 @@ export class UserCreditScore {
     maritalStatus: string;
     qualification: string;
     updateTime:string;
-    updated: boolean;
+    status:number;
+    idCardFront: string;
+    idCardBack: string;
+    workProof: string;
+    educationProof: string;
+    incomeProof: string;
 }

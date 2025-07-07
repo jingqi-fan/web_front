@@ -33,28 +33,28 @@
 
     <el-main style="padding-top: 95px; height: calc(100vh - 95px); position: relative;">
       <!-- 地图背景组件，放最底层 -->
-<!--      <mapComponent-->
-<!--          :ServerAdderList="GetServerList()"-->
-<!--          ref="myMap"-->
-<!--          style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;"-->
-<!--      />-->
+      <mapComponent
+          :ServerAdderList="GetServerList()"
+          ref="myMap"
+          style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;"
+      />
       <!-- 内容层 -->
       <div class="layout-container" style="position: relative; z-index: 1;">
         <!-- 柱形图区域 -->
         <div class="BarChart">
           <div class="card">
-            <p>各项服务授信额度</p>
+            <p>-</p>
             <v-chart :option="creditOption" autoresize style="height: 260px;margin-top: -50px" />
           </div>
           <div class="card">
             <div class="title">
-              <p>周服务开通及使用人数</p>
+              <p>-</p>
               <v-chart :option="openUserOption" autoresize style="height: 250px;margin-top: -50px" />
             </div>
           </div>
 
           <div class="card">
-            <p>各地信用分分布</p>
+            <p>-</p>
             <v-chart :option="scoreOption" autoresize style="height: 250px;margin-top: -50px" />
           </div>
         </div>
@@ -178,7 +178,7 @@ const GetServerList = () => {
 };
 
 const goToExamineAndApprove=()=>{
-  ElMessage.info("审批中心 正在开发中")
+  router.push("/manager/examine");
 
 }
 const goToRelease=()=>{
@@ -275,6 +275,10 @@ import VChart from 'vue-echarts'
  */
 // 服务开通人数 - 折线图
 const openUserOption = ref({
+  title: {
+    text: '服务开通人数',
+    left: 'center'
+  },
   grid: {
     left: '2%',   // 增加左侧边距，避免纵坐标文字被遮挡
     containLabel: true // 确保标签也在grid区域内（可选）
@@ -301,6 +305,10 @@ const openUserOption = ref({
 
 // 各项服务授信额度 - 横向柱状图
 const creditOption = ref({
+  title: {
+    text: '各项服务授信额度',
+    left: 'center'
+  },
   grid: {
     left: '2%',   // 增加左侧边距，避免纵坐标文字被遮挡
     containLabel: true // 确保标签也在grid区域内（可选）
@@ -333,32 +341,91 @@ const creditOption = ref({
   ],
 })
 
-// 各地信用分分布图 - 箱线图
 const scoreOption = ref({
-  title: {},
-  tooltip: {},
+  title: {
+    text: '杭州市各区信用分分布',
+    left: 'center'
+  },
+  tooltip: {
+    trigger: 'item',
+    formatter: function(params) {
+      const data = params.value;
+      return `${params.name}<br/>
+        最小值: ${data[0]}<br/>
+        下四分位数: ${data[1]}<br/>
+        中位数: ${data[2]}<br/>
+        上四分位数: ${data[3]}<br/>
+        最大值: ${data[4]}`;
+    }
+  },
   xAxis: {
     type: 'category',
-    data: ['核心服务区', '拥江发展区', '城西科创区', '城北智造区', '西南生态区']
+    data: [
+      '上城', '拱墅', '西湖', '滨江', '萧山',
+      '余杭', '临平', '钱塘', '富阳', '临安'
+    ],
+    axisLabel: {
+      interval: 0,
+      rotate: 30
+    }
   },
   yAxis: {
     type: 'value',
+    name: '信用分数',
     min: 300,
-    max: 850
+    max: 850,
+    nameTextStyle: {
+      padding: [0, 0, 0, 10]
+    }
   },
   series: [
     {
       type: 'boxplot',
       data: [
-        [480, 520, 620, 700, 720],
-        [460, 500, 600, 660, 700],
-        [500, 560, 610, 690, 740],
-        [520, 580, 640, 710, 780],
-        [450, 490, 550, 620, 670],
-      ]
+        // 上城区：中心城区，信用分整体较高
+        [580, 645, 720, 780, 830],
+
+        // 拱墅区：老城区，分布较均衡
+        [490, 590, 670, 740, 800],
+
+        // 西湖区：高科技企业聚集，信用表现优异
+        [600, 680, 735, 800, 845],
+
+        // 滨江区：高新区，高分集中
+        [610, 695, 745, 810, 840],
+
+        // 萧山区：城乡结合，分布范围较大
+        [480, 560, 650, 720, 780],
+
+        // 余杭区：新兴科技区，中位数高
+        [550, 630, 710, 770, 820],
+
+        // 临平区：发展一般，信用分中等
+        [450, 530, 620, 690, 760],
+
+        // 钱塘区：新设立区域，数据波动大
+        [410, 500, 585, 680, 750],
+
+        // 富阳区：郊区，整体偏低
+        [400, 480, 570, 650, 710],
+
+        // 临安区：偏远区域，信用分最低
+        [350, 450, 540, 610, 690]
+      ],
+      itemStyle: {
+        color: '#5470c6',
+        borderColor: '#91cc75'
+      },
+      emphasis: {
+        itemStyle: {
+          borderWidth: 2,
+          shadowBlur: 10,
+          shadowColor: 'rgba(0, 0, 0, 0.3)'
+        }
+      }
     }
   ]
-})
+});
 
 watch(value, (newVal) => {
   if (newVal === '全部' && myMap.value?.initializeMap) {

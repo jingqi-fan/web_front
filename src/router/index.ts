@@ -43,12 +43,17 @@ import BookManager from "../views/manager_main/book/BookManager.vue"
 import DepartmentManager from "../views/manager_main/hospital/DepartmentManager.vue"
 import DoctorManager from "../views/manager_main/hospital/DoctorManager.vue"
 import ParkingManager from "../views/manager_main/parking/ParkingManager.vue"
-
+import ExamineImprove from "../views/manager_main/examine_and_approve/index.vue"
 
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
+        {
+            path: '/manager/examine',
+            name: 'examine_improve',
+            component:ExamineImprove
+        },
         {
             path: '/manager/manager',
             redirect: '/publish/manager/overview',
