@@ -103,6 +103,13 @@
             <el-table-column prop="amount" label="金额" width="100" />
             <el-table-column prop="finishTime" label="完成时间" width="180" />
             <el-table-column prop="status" label="完成状态" width="120" />
+            <el-table-column label="信用分变化" width="120">
+              <template #default="{ row }">
+                <span :style="{ color: row.changeCredit > 0 ? 'green' : (row.changeCredit < 0 ? 'red' : '#333') }">
+                  {{ row.changeCredit > 0 ? '+' + row.changeCredit : row.changeCredit }}
+                </span>
+              </template>
+            </el-table-column>
           </el-table>
 
           <!-- 分页 -->
