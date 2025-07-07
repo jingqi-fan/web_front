@@ -1,6 +1,6 @@
 <template>
-  <div class="main-container">
-    <div class="header-container">
+  <div class="main-container animate__animated animate__fadeIn">
+    <div class="header-container animate__animated animate__fadeInDown animate__fast">
       <logo style="margin-left: 20px;cursor: pointer" @click="backHome"/>
       <el-popover
           placement="right"
@@ -9,7 +9,7 @@
           content="酒店、租房、购物更省心"
       >
         <template #reference>
-          <div class="card-icon" @click="goToCreditBusiness" style="cursor: pointer">
+          <div class="card-icon animate__animated animate__zoomIn" @click="goToCreditBusiness" style="cursor: pointer">
             <div ref="shoppingContainer" class="lottie-container"></div>
           </div>
         </template>
@@ -22,7 +22,7 @@
           content="停车、就医、借阅更舒心"
       >
         <template #reference>
-          <div class="card-icon" @click="goToCreditLife" style="cursor: pointer">
+          <div class="card-icon animate__animated animate__zoomIn" @click="goToCreditLife" style="cursor: pointer">
             <div ref="lifeContainer" class="lottie-container"></div>
           </div>
         </template>
@@ -35,11 +35,12 @@
           content="个人信用一目了然"
       >
         <template #reference>
-          <div @click="goToCreditManagerPage" class="card-icon" style="cursor: pointer">
+          <div class="card-icon animate__animated animate__zoomIn" @click="goToCreditManagerPage" style="cursor: pointer">
             <div ref="creditManagerContainer" class="lottie-container"></div>
           </div>
         </template>
       </el-popover>
+
       <el-popover
           placement="bottom-end"
           :width="160"
@@ -50,6 +51,7 @@
           <el-avatar
               :src="avatarUrl"
               style="margin-right: 40px; cursor: pointer;"
+              class="animate__animated animate__fadeInRight"
           />
         </template>
 
@@ -68,8 +70,6 @@
           </div>
         </div>
       </el-popover>
-
-
     </div>
 
     <div class="content-container">
@@ -246,12 +246,12 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="省份" prop="province">
-            <el-input v-model="form.province" />
+            <el-input v-model="form.province"/>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="城市" prop="city">
-            <el-input v-model="form.city" />
+            <el-input v-model="form.city"/>
           </el-form-item>
         </el-col>
       </el-row>
@@ -330,11 +330,6 @@ onMounted(async () => {
   creditRankList.value = await getTopCreditUsers()
 })
 
-
-
-
-
-
 function getGood(): string {
   const hour = new Date().getHours()
 
@@ -390,6 +385,30 @@ function daysSince(dateStr: string): number {
 const dialogFormVisible = ref(false)
 const editInfo=()=>{
   dialogFormVisible.value=true
+  if(form.nickname==="未设置"){
+    form.nickname=''
+  }
+  if(form.email==="未设置"){
+    form.email=''
+  }
+  if(form.phone==="未设置"){
+    form.phone=''
+  }
+  if(form.gender==="未设置"){
+    form.gender=''
+  }
+  if(form.province==="未设置"){
+    form.province=''
+  }
+  if(form.city==="未设置"){
+    form.city=''
+  }
+  if(form.country==="未设置"){
+    form.country=''
+  }
+  if(form.township==="未设置"){
+    form.township=''
+  }
 }
 const form = reactive({
   username: '',
@@ -398,8 +417,8 @@ const form = reactive({
   email: '',
   phone: '',
   gender: '',
-  province: '',
-  city: '',
+  province: '浙江省',
+  city: '杭州市',
   country: '',
   township: ''
 })
@@ -430,7 +449,9 @@ const submitForm = () => {
         ...form
       });
 
-      ElMessage.success('更新成功');
+      ElMessage.success('更新成功,请重新登录');
+      await userLogout(userInfoStore.user.id)
+      await router.push('/login')
       dialogFormVisible.value = false;
     } catch (e) {
       ElMessage.error('更新失败，请重试');
@@ -474,12 +495,10 @@ const loadUserInfoAndCreditScore=async ()=>{
 
   if(userCreditScoreStore.score===null){
     ElMessage.error('信用评分加载失败,请重新登录尝试!');
-    console.log("creditScore.value",userCreditScoreStore.score)
     await router.push('/login')
     return
   }
   creditScore.value=userCreditScoreStore.score
-  console.log("creditScore.value",userCreditScoreStore.score)
 }
 loadUserInfoAndCreditScore()
 
@@ -500,7 +519,6 @@ const goToCreditBusiness = () => {
 import * as echarts from 'echarts';
 import { nextTick, watch } from 'vue';
 import {PictureFilled, SwitchButton, UserFilled} from "@element-plus/icons-vue";
-import useRouterStore from "@/stores/useSystemStore.ts";
 import {useDeviceStore} from "@/stores/useDeviceStore.ts";
 
 const activeChart = ref('credit'); // 默认选中信用分折线图
@@ -637,6 +655,8 @@ const logout=async ()=>{
 </script>
 
 <style scoped lang="scss">
+@import 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css';
+
 .main-container {
   display:grid;
   gap: 10px;
