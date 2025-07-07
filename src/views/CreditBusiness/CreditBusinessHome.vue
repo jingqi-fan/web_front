@@ -10,7 +10,7 @@
       </div>
     </div>
 
-    <div class="user-info-bar" v-if="userName">
+    <div class="user-info-bar" v-if="userName" @click="fetchCredit">
       <span>欢迎 <b>{{ userName }}</b> 使用信用商业服务</span>
       <span>
     当前信用分：
