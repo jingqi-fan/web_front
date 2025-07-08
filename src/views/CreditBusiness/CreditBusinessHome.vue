@@ -10,7 +10,7 @@
       </div>
     </div>
 
-    <div class="user-info-bar" v-if="userName">
+    <div class="user-info-bar" v-if="userName" @click="fetchCredit">
       <span>欢迎 <b>{{ userName }}</b> 使用信用商业服务</span>
       <span>
     当前信用分：
@@ -35,7 +35,7 @@
       ref="carouselRef"
       @mouseenter="pauseCarousel"
       @mouseleave="playCarousel"
-      autoplay
+      :autoplay="autoplayEnabled"
       class="features-carousel"
       @change="onCarouselChange"
     >
@@ -68,6 +68,8 @@
       <div
         class="recommend-area"
         :key="activeIndex"
+        @mouseenter="pauseCarousel"
+        @mouseleave="playCarousel"
       >
         <component
           :is="features[activeIndex].recommendComponent"
@@ -95,6 +97,7 @@ import { useUserInfoStore } from "../../stores/useUserInfoStore"
 import { getUserCreditScoreInfo } from '../../api/user'
 import { ElMessage } from 'element-plus'
 import { Loading } from '@element-plus/icons-vue'
+import type { CarouselRef } from 'element-plus'
 
 import RecommendShopping from './RecommendShopping.vue'
 import RecommendRent from './RecommendRent.vue'
@@ -133,9 +136,11 @@ const features = reactive([
   }
 ])
 
-const carouselRef = ref()
-const pauseCarousel = () => carouselRef.value?.pause()
-const playCarousel = () => carouselRef.value?.play()
+// 引用 el-carousel 实例
+const carouselRef = ref<CarouselRef|null> (null)
+const autoplayEnabled = ref(true)
+const pauseCarousel = () => autoplayEnabled.value = false
+const playCarousel = () => autoplayEnabled.value = true
 
 const showRecommend = ref(false)
 const activeIndex = ref(0)
@@ -287,8 +292,7 @@ onMounted(fetchCredit)
 
 /* 推荐区域样式 */
 .recommend-area {
-  width: 520px;
-  max-width: 96vw;
+  width: 90%;
   margin: 32px auto 0 auto;
   padding: 34px 20px;
   background: linear-gradient(90deg,#f3f6fa 70%,#e9eef9 100%);

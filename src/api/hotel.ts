@@ -31,3 +31,17 @@ export async function getHotelById(hotelId: number): Promise<Hotel> {
   const res = await axiosInstance.get<Hotel>(`/hotels/${hotelId}`)
   return res.data
 }
+
+
+
+/**
+ * 获取用户的酒店“常住推荐”和“人气推荐”列表
+ * 后端已按照“常住推荐”优先、“人气推荐”次序返回
+ * @param userId 用户 ID
+ */
+export async function getHotelTops(userId: number): Promise<Hotel[]> {
+  const response = await axiosInstance.get<Hotel[]>('/hotels/tops', {
+    params: { userId }
+  })
+  return response.data
+}

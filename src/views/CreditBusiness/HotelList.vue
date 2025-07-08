@@ -73,7 +73,11 @@
             <template #footer>
               <el-button link @click="goDetail(h.id)">
                 <el-icon><View /></el-icon>
-                查看
+                  查看
+              </el-button>
+              <el-button link @click="showHistory(h.id)">
+                 <el-icon><DataAnalysis /></el-icon>
+                  历史入住率
               </el-button>
             </template>
           </el-card>
@@ -91,20 +95,39 @@
         @current-change="handlePageChange"
       />
     </div>
+
+    <el-dialog
+      v-model="historyDialog"
+      title="过去一年入住率"
+      width="60%"
+      @open="renderHistoryChart"
+      :destroy-on-close="false"
+    >
+       <div ref="historyChart" class="history-chart"></div>
+    </el-dialog>
+
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted ,nextTick} from 'vue'
 import { useRouter } from 'vue-router'
 import { filterHotels, searchHotelsByName } from '../../api/hotel'
 import type { Hotel } from '../../entity/Hotel'
-import { View, Location } from '@element-plus/icons-vue'
+import { View, Location ,DataAnalysis} from '@element-plus/icons-vue'
+import dayjs from 'dayjs'
+import * as echarts from 'echarts'
 
 
 
 const router = useRouter()
 const hotels = ref<Hotel[]>([])
+
+const historyDialog = ref(false)
+const historyDates  = ref<string[]>([])
+const historyValues = ref<number[]>([])
+const historyChart  = ref<HTMLDivElement>()
+let   historyEchart: echarts.ECharts | null = null
 
 // 筛选/搜索条件
 const minScore = ref<number|undefined>()
@@ -173,6 +196,56 @@ function handlePageChange(page: number) {
 function goDetail(id: number) {
   router.push({ name: 'HotelDetail', params: { hotelId: id } })
 }
+
+async function showHistory(hotelId: number) {
+  const resp = await fetch(`/hoteldata/${hotelId}/occupancy.csv`)
+  const text = await resp.text()
+  const lines = text.trim().split(/\r?\n/).slice(1)
+
+  historyDates.value  = []
+  historyValues.value = []
+
+  for (const line of lines) {
+    const [d, v] = line.split(',')
+    if (!d || !v) continue
+    historyDates.value.push(d)
+    historyValues.value.push(parseFloat(v))
+  }
+
+  historyDialog.value = true
+}
+
+async function renderHistoryChart() {
+  await nextTick()
+  if (!historyChart.value) return
+
+  if (!historyEchart) {
+    historyEchart = echarts.init(historyChart.value)
+  } else {
+    historyEchart.resize()
+  }
+
+  historyEchart.setOption({
+    title:   { text: '过去一年入住率', left: 'center' },
+    tooltip: { trigger: 'axis', formatter: '{b}<br/>{c}' },
+    xAxis: {
+      type:      'category',
+      data:      historyDates.value,
+      axisLabel: { rotate: 45, formatter: (v: string) => v.slice(5) }
+    },
+    yAxis: { type: 'value', name: '入住率' },
+    series: [{
+      name:       '入住率',
+      type:       'line',
+      data:       historyValues.value,
+      smooth:     true,
+      symbol:     'none',
+      areaStyle:  {}
+    }],
+    grid: { left: '10%', right: '10%', top: '15%', bottom: '15%' }
+  })
+}
+
 </script>
 
 <style lang="scss" scoped>
@@ -205,6 +278,10 @@ function goDetail(id: number) {
       }
     }
   }
+  .history-chart {
+  width: 100%;
+  height: 300px;
+}
 
   .hotel-list-container {
     margin-bottom: 1%;

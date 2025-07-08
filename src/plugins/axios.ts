@@ -111,6 +111,7 @@ axiosInstance.interceptors.response.use(
                     
                     ElMessage.error("服务异常");
             }
+            console.log("响应拦截·",response)
         } else if (error.request) {
             ElMessage.error("网络请求未响应");
         } else {

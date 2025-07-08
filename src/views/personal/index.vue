@@ -247,12 +247,12 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="省份" prop="province">
-            <el-input v-model="form.province" disabled/>
+            <el-input v-model="form.province"/>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="城市" prop="city">
-            <el-input v-model="form.city" disabled/>
+            <el-input v-model="form.city"/>
           </el-form-item>
         </el-col>
       </el-row>

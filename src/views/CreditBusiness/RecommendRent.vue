@@ -1,41 +1,143 @@
 <template>
-    <div class="recommend-container">
-      <div class="recommend-title">
-        <el-icon><House /></el-icon>
-        智能推荐：信用租房
-      </div>
-      <div class="recommend-desc">
-        <p>精选高分房源、品质公寓，部分房型押金立减，月租优惠中。</p >
-        <p style="color: #7e553c;">信用等级高可优先预订热门房源，享专属服务！</p >
-      </div>
+  <div class="recommend-shopping-container">
+    <!-- 上方文字说明 -->
+    <div class="recommend-desc">
+      <h3>👍智能推荐：信用租房</h3>
+      <p>根据你的消费偏好，精选热销房源推荐，库存充足，限时优惠，立即选购！</p >
+      <p class="highlight">爆款热销，抢先入手，不容错过！</p >
     </div>
-  </template>
-  
-  <script setup lang="ts">
-  import { House } from '@element-plus/icons-vue'
-  </script>
-  
-  <style scoped>
-  .recommend-container {
-    padding: 10px 8px;
+
+    <!-- 下方水平卡片走马灯 -->
+    <el-carousel
+      class="shopping-carousel"
+      type="card"
+      arrow="always"
+      :interval="4500"
+      :autoplay="true"
+      height="320px"
+      indicator-position="outside"
+    >
+      <el-carousel-item v-for="(item, idx) in houses" :key="item.id">
+        <el-card class="commodity-card" shadow="hover">
+          <!-- 右上角印章 -->
+
+          <img
+            class="commodity-image"
+            :src="item.img"
+            alt="商品图片"
+          />
+
+          <div class="commodity-info">
+            <h4 class="commodity-name">{{ item.title }}</h4>
+            <p class="commodity-category">位置：{{ item.address }}</p >
+            <p class="commodity-price">价格：¥{{ item.price }}</p >
+              <p class="commodity-purchases" v-if="item.rentalType === '0'">类型：整租</p>
+              <p class="commodity-purchases" v-else-if="item.rentalType === '1'">类型：合租</p>
+
+          </div>
+        </el-card>
+      </el-carousel-item>
+    </el-carousel>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import type { House ,HouseSearchParams} from '../../entity/House'
+import { useUserInfoStore } from '../../stores/useUserInfoStore'
+import { getHouseList } from '../../api/house'
+import { ShoppingCart, ShoppingCartFull } from '@element-plus/icons-vue'
+
+const houses = ref<House[]>([])
+const userInfoStore = useUserInfoStore()
+
+async function fetchhouse() {
+  try {
+    const userId = userInfoStore.user.id
+    const allHouses = (await getHouseList()).records
+    houses.value = allHouses.sort(() => Math.random() - 0.5).slice(0, 10)
+  } catch (err) {
+    console.error('获取房屋推荐失败', err)
+  }
+}
+
+onMounted(fetchhouse)
+</script>
+
+<style scoped>
+.recommend-shopping-container {
+  max-width: 1000px;
+  margin: 6px auto;
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+}
+
+ /* 上方文字说明 */
+ .recommend-desc {
     text-align: center;
+    margin-bottom: 24px;
+    h3 {
+      font-size: 24px;
+      color: #0e5b45;
+      margin-bottom: 8px;
+    }
+    p {
+      font-size: 16px;
+      color: #555;
+      line-height: 1.6;
+      &.highlight {
+        color: #0e5b45;
+        margin-top: 8px;
+      }
+    }
   }
-  .recommend-title {
-    font-size: 20px;
-    font-weight: bold;
-    color: #28754a;
-    margin-bottom: 8px;
+
+.shopping-carousel {
+  width: 100%;
+
+}
+
+
+.commodity-card {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-  }
-  .recommend-title .el-icon {
-    margin-right: 8px;
-    font-size: 23px;
-  }
-  .recommend-desc {
-    font-size: 15px;
-    color: #405169;
-    line-height: 1.7;
-  }
-  </style>
+    padding: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fafafa;
+}
+
+
+.commodity-image {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+}
+
+.commodity-info {
+  padding: 8px;
+  text-align: left;
+}
+
+.commodity-name {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.commodity-category,
+.commodity-price,
+.commodity-purchases {
+  margin: 2px 0;
+  font-size: 14px;
+  color: #606266;
+}
+
+.commodity-price {
+  color: #f56c6c;
+  font-weight: 500;
+}
+</style>
