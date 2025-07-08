@@ -32,6 +32,7 @@ import CreditLife from "../views/credit_life/index.vue"
 import Parking from "../views/credit_life/parking/index.vue"
 import Library from "../views/credit_life/library/index.vue"
 import Hospital from "../views/credit_life/hospital/index.vue"
+import Chat from "../views/welcome/components/chat.vue"
 ///管理员
 import Manager from "../views/manager/index.vue"
 import ManagerLogin from "../views/manager/component/ManagerLogin.vue"
@@ -117,6 +118,16 @@ const router = createRouter({
             component: Library
         },
         {
+            path: '/parking/detail/:lotId',
+            name: 'ParkingDetail',
+            component: () => import('@/views/credit_life/parking/ParkingDetail.vue')
+        },
+        {
+            path: '/parking/order/confirm',
+            name: 'ParkingOrderConfirm',
+            component: () => import('@/views/credit_life/parking/OrderConfirm.vue')
+        },
+        {
             path: '/life/hospital',
             name: 'hospital',
             component: Hospital
@@ -125,6 +136,11 @@ const router = createRouter({
             path: '/managerLogin',
             name: 'managerLogin',
             component: ManagerLogin
+        },
+        {
+            path: '/chat',
+            name: 'chat',
+            component: Chat
         },
         {
             path: '/manager',

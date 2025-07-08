@@ -112,12 +112,6 @@
       <footer class="copyright">Copyright @ 2025-2030 中软国际. All Rights Reserved</footer>
     </div>
   </div>
-
-
-
-
-
-
 </template>
 
 <script setup lang="tsx">
@@ -125,6 +119,7 @@
 
 import { ref,onMounted,computed } from 'vue';
 import HomeHeader from './components/Header.vue';
+import {getNewsList} from "@/api/news.ts";
 
 
 
@@ -132,75 +127,14 @@ const type = ref('login');
 const switchType = (val: string) => {
   type.value = val;
 };
+const newsData=ref([])
 // 模拟新闻数据
-const newsData = ref([
-  {
-    id: 1,
-    title: '数字经济促进条例正式实施，助力企业数字化转型',
-    description: '新条例明确支持企业采用云计算、大数据等新技术，提供税收优惠和政策支持...',
-    date: '2025-06-28',
-    author: '政策研究室',
-    image: 'https://img1.baidu.com/it/u=647515632,2461271687&fm=253&fmt=auto&app=120&f=JPEG?w=407&h=273',
-    category: 'policy',
-    tags: ['政策解读', '数字化转型'],
-    views: 2456
-  },
-  {
-    id: 2,
-    title: '人工智能在金融风控领域的应用取得突破性进展',
-    description: '最新研究表明，AI模型可将金融欺诈识别准确率提升至98.7%，大幅降低风险...',
-    date: '2025-06-26',
-    author: '科技前沿',
-    image: 'https://img1.baidu.com/it/u=647515632,2461271687&fm=253&fmt=auto&app=120&f=JPEG?w=407&h=273',
-    category: 'tech',
-    tags: ['AI技术', '金融科技'],
-    views: 1872
-  },
-  {
-    id: 3,
-    title: '信用体系建设新标准发布，推动行业规范化发展',
-    description: '国家标准化委员会发布信用体系建设新标准，涵盖数据安全、评估模型等方面...',
-    date: '2025-06-25',
-    author: '行业观察',
-    image: 'https://img0.baidu.com/it/u=3140518324,139428137&fm=253&fmt=auto&app=138&f=JPEG?w=758&h=500',
-    category: 'industry',
-    tags: ['信用体系', '行业标准'],
-    views: 3210
-  },
-  {
-    id: 4,
-    title: '区块链技术在供应链金融中的应用实践案例分享',
-    description: '多家银行联合发布基于区块链的供应链金融平台，解决中小企业融资难题...',
-    date: '2025-06-23',
-    author: '金融研究',
-    image: 'https://img1.baidu.com/it/u=3683469652,66499945&fm=253&fmt=auto&app=138&f=JPEG?w=962&h=491',
-    category: 'finance',
-    tags: ['区块链', '供应链金融'],
-    views: 2897
-  },
-  {
-    id: 5,
-    title: '数据安全法实施细则公布，企业需加强个人信息保护',
-    description: '新细则明确了企业在数据收集、存储和使用中的责任义务，违规处罚力度加大...',
-    date: '2025-06-20',
-    author: '政策法规',
-    image: 'https://img0.baidu.com/it/u=1247916885,430552639&fm=253&fmt=auto&app=120&f=JPEG?w=1420&h=800',
-    category: 'policy',
-    tags: ['数据安全', '隐私保护'],
-    views: 4123
-  },
-  {
-    id: 6,
-    title: '云计算成本优化白皮书发布，助力企业降本增效',
-    description: '最新研究报告显示，合理配置云资源可帮助企业节省30%以上的IT支出...',
-    date: '2025-06-18',
-    author: '技术研究',
-    image: 'https://img1.baidu.com/it/u=5356201,1036009099&fm=253&fmt=auto&app=120&f=JPEG?w=710&h=305',
-    category: 'tech',
-    tags: ['云计算', '成本优化'],
-    views: 1568
-  }
-]);
+const loadNewsData =async () => {
+  const res=await getNewsList()
+  newsData.value=res.data
+}
+loadNewsData()
+
 
 // 当前激活的分类
 const activeCategory = ref('policy');
