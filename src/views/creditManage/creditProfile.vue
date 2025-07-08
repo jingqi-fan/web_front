@@ -37,14 +37,13 @@
             <el-icon>
               <PieChart />
             </el-icon>
-            <span>分数构成</span>
+            <span>分数详情</span>
           </el-menu-item>
         </el-menu>
       </el-aside>
 
 
       <el-main>
-        <!-- 原有信用总览页面内容放在这里 -->
         <el-card class="box-card">
           <div class="flex items-center mb-4">
             <el-avatar :size="80" src="https://i.pravatar.cc/100"></el-avatar>
@@ -97,6 +96,7 @@
               <el-button @click="resetFilter">重置</el-button>
             </el-form-item>
           </el-form>
+          
           <el-table :data="userInfo.records" border style="width: 100%">
             <el-table-column prop="recordType" label="类型" width="120" />
             <el-table-column prop="description" label="描述" />

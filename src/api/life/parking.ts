@@ -1,15 +1,3 @@
-// private Integer id;
-// private String parkingLotName;
-// private String parkingLotLocation;
-// private Integer parkingLotType;
-// private Integer totalSpaces;
-// private String image;
-// private Integer leftCount;
-// private Integer price;
-// private Integer deleted;
-// private Date createdAt;
-// private Date updatedAt;
-
 export interface ParkingLot{
     id:number,
     parkingLotName:string,

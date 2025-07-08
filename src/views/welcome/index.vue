@@ -1,99 +1,45 @@
 <template>
   <div class="common-layout">
     <el-container>
-      <el-header class="header">
-        <el-row align="middle" class="header-content">
-          <el-col :span="4" class="model-select-container">
-            <!-- 图标 -->
-            <model-icon class="logo" @click="GoHome"/>
-            <!-- 大模型选择框 -->
-            <el-select size="small" no-data-text="数据加载失败" effect="light" v-model="selectedModel" class="model-select" default-first-option>
-              <el-option label="ChatGPT-4o" value="modelA" />
-              <el-option label="ChatGPT-3 mini" value="modelB" />
-              <el-option label="ChatGPT-4 plus" value="modelC" />
-            </el-select>
-          </el-col>
+      <el-header class="custom-header">
+        <div class="title-left">
+          <model-icon class="logo" @click="GoHome" />
+        </div>
 
-          <el-col :span="18" class="header-buttons">
-            <!-- 按钮部分 -->
-            <el-button link icon="el-icon-bell" @click="goToAppCenter">信用商业</el-button>
-        <el-button link icon="el-icon-grid" @click="goToDataCenter">信用生活</el-button>
-            <el-button style="margin-left: 10px;background-color: #f5f5f5" :icon="ChatDotRound" @click="goToMessageCenter" plain round></el-button>
-            <el-button style="background-color: #f5f5f5" :icon="User" @click="goToUserCenter"  plain round></el-button>
-          </el-col>
-        </el-row>
+        <!-- 居中标题 -->
+        <div class="credit-life-title">
+          <div class="main-title">西湖分信用平台<div class="title-decoration"></div></div>
+          <div class="subtitle">个人信用智能服务平台</div>
+        </div>
+
+        <div class="title-right">
+          <el-button @click="goToTraining" class="custom-button">信用商业</el-button>
+          <el-button @click="goToDataCenter" class="custom-button">信用生活</el-button>
+          <el-button
+              class="ai-button custom-button"
+              :class="{ 'pulse': hasNewMessage, 'active': isActive }"
+              @click="goToMessageCenter"
+              plain
+              round
+          >
+            <span style="font-weight: bold; color: #409EFF;">AI助手</span>
+          </el-button>
+          <el-button class="custom-button" :icon="User" @click="goToUserCenter" plain round></el-button>
+        </div>
       </el-header>
 
       <el-main class="main">
         <div class="welcome-message">
-          <h2>欢迎使用“西湖分”个人信用平台!</h2>
+          <h2>欢迎使用 西湖分——个人信用平台!</h2>
         </div>
         <div class="message-container">
-          <div class="input-wrapper">
-            <el-input
-                v-model="messageInput"
-                placeholder="输入你想查询的问题..."
-                clearable
-                @input="handleMessageInput"
-                class="message-input"
-                type="textarea"
-                :rows="6"
-                show-word-limit
-                :maxlength="6000"
-                :style="{ border: 'none', backgroundColor: 'transparent',resize: 'none'  }"
-            />
-            <el-row class="message-actions" type="flex" justify="space-between" align="middle">
-              <el-col :span="8">
-                <!-- 文件上传按钮 TODO: 添加action="/upload",完成事件触发 -->
-                <el-upload
-                    class="upload-button"
-                    :auto-upload="false"
-                    :show-file-list="false"
-                >
-                  <el-button :icon="UploadFilled" @click="UploadFile"></el-button>
-                </el-upload>
-              </el-col>
-              <el-col :span="8" class="send-button-container">
-                <el-button type="info" :icon="Promotion" @click="handleSendMessage" plain></el-button>
-              </el-col>
-            </el-row>
-          </div>
+          <AiChat
+              :messages="messages"
+              @send="handleSendMessage"
+              @clear="handleClearContext"
+          />
         </div>
-        <div class="card-row">
-          <el-row :gutter="70" class="card-row">
-            <el-col :span="12">
-              <el-card class="card training">
-                <div class="card-icon">
-                  <div ref="modelTrainContainer" class="lottie-container"></div>
-                </div>
-                <h3 class="card-title">信用商业</h3>
-                <p class="card-description">
-                  酒店、租房、购物，舒心乐享    
-                </p>
-                <div class="card-actions">
-                  <el-button :icon="Right" link @click="goToTraining">立即前往</el-button>
-          <el-button :icon="Link" link @click="goToModelDoc">帮助文档</el-button>
-                </div>
-              </el-card>
-            </el-col>
 
-            <el-col :span="12">
-              <el-card class="card square">
-                <div class="card-icon">
-                  <div ref="modelSquareContainer" class="lottie-container"></div>
-                </div>
-                <h3 class="card-title">信用生活</h3>
-                <p class="card-description">
-                  停车、借书、就医一码通
-                </p>
-                <div class="card-actions">
-                  <el-button :icon="Right" link @click="goToModelSquare">立即前往</el-button>
-          <el-button :icon="Link" link @click="goToModelSquareDocument">帮助文档</el-button>
-                </div>
-              </el-card>
-            </el-col>
-          </el-row>
-        </div>
         <!-- 文字显示框 -->
         <div class="carousel-text">
           <div class="text-display" v-for="(message, index) in messagesList" :key="index" v-show="currentIndex === index">
@@ -107,26 +53,17 @@
 </template>
 
 <script setup lang="ts">
-import {ref, onMounted, onBeforeUnmount} from 'vue';
-import lottie from 'lottie-web';
-import {ChatDotRound, Link, Promotion, Right, TopRight, UploadFilled, User} from "@element-plus/icons-vue";
+import {ref, onBeforeUnmount} from 'vue';
+import { TopRight, User} from "@element-plus/icons-vue";
 import ModelIcon from '@/assets/ModelCenter.svg';
 import router from "@/router/index.ts";
-import {ElMessage} from "element-plus"; // 导入图标
+import {ElMessage} from "element-plus";
+import AiChat from "@/views/welcome/components/AiChat.vue"; // 导入图标
 
-// 数据与状态
-const selectedModel = ref('modelA'); // 当前选择的大模型
-const messageInput = ref(''); // 消息输入框内容
-const isMessageProcessed = ref(false); // 是否在处理中
-const messages = ref<string[]>([]); // 用户收到的信息
+const hover = ref(false);
+const isActive = ref(false);
 
-// 动画容器
-const modelTrainContainer = ref(null);
-const modelSquareContainer = ref(null);
 
-const UploadFile=()=>{
-  ElMessage.info("该功能暂不可用")
-}
 
 // 消息数组
 const messagesList = ref([
@@ -136,72 +73,81 @@ const messagesList = ref([
 ]);
 const currentIndex = ref(0); // 当前显示的消息索引
 let intervalId: ReturnType<typeof setInterval> | null = null;
-// 动画加载
-onMounted(() => {
-  lottie.loadAnimation({
-    container: modelTrainContainer.value!,
-    renderer: 'svg',
-    loop: true,
-    autoplay: true,
-    path: new URL('@/assets/model-train-card.json', import.meta.url).href,
-  });
-
-  lottie.loadAnimation({
-    container: modelSquareContainer.value!,
-    renderer: 'svg',
-    loop: true,
-    autoplay: true,
-    path: new URL('@/assets/model-square-card.json', import.meta.url).href,
-  });
-  startMessageRotation();
-});
 
 
-// 在组件卸载前清除定时器
 onBeforeUnmount(() => {
   if (intervalId) clearInterval(intervalId);
 });
 
-// 启动消息定时轮换
 const startMessageRotation = () => {
   intervalId = setInterval(() => {
-    // 更新 currentIndex, 当到达消息数组末尾时回到第一条
     currentIndex.value = (currentIndex.value + 1) % messagesList.value.length;
-  }, 3000); // 每3秒更新一次消息
+  }, 3000);
 };
 
-const handleSendMessage = ()=>{
-  ElMessage.info("正在开发中...")
+interface Message {
+  role: string;
+  content: string;
 }
 
+// 数据与状态
+const selectedModel = ref('qwen-plus'); // 默认选择通义千问-plus
+// 消息列表
+const messages = ref<Message[]>([]);
 
+// 处理发送消息
+const handleSendMessage = (content: string) => {
+  if (!content.trim()) return;
 
-// 消息处理
-const handleMessageInput = () => {
-  if (messageInput.value.trim()) {
-    isMessageProcessed.value = true;
-    setTimeout(() => {
-      isMessageProcessed.value = false;
-      messages.value.push(messageInput.value); // 处理完后，保存消息
-      messageInput.value = ''; // 清空输入框
-    }, 3000); // 模拟AI消息处理
-  }
+  // 添加用户消息
+  messages.value.push({
+    role: 'user',
+    content: content.trim()
+  });
+
+  messages.value.push({
+    role: 'assistant',
+    content: ''
+  });
+
+  const index = messages.value.length - 1;
+  getAIResponse(content, index);
 };
-// 前往模型训练中心
+
+const getAIResponse = (prompt: string, index: number) => {
+  const source = new EventSource(`/api/chat/stream?prompt=${encodeURIComponent(prompt)}`);
+
+  source.onmessage = (event) => {
+    if (event.data === '[DONE]') {
+      source.close();
+    } else if (event.data.startsWith('[ERROR]')) {
+      messages.value[index].content = `\n[错误] ${event.data.substring(8)}`;
+      source.close();
+    } else {
+      messages.value[index].content += event.data;
+    }
+  };
+
+  source.onerror = (e) => {
+    console.error('SSE error:', e);
+    messages.value[index].content += '\n[连接错误]';
+    source.close();
+  };
+};
+
+const handleClearContext = () => {
+  fetch('/api/chat/clear', { method: 'POST' })
+      .then(() => {
+        messages.value = [];
+      })
+      .catch(e => {
+        console.error('清除上下文失败:', e);
+        ElMessage.error('清除上下文失败');
+      });
+};
+// 前往信用商业
 const goToTraining = () => {
   router.push('/creditbusiness');
-};
-// 前往模型训练帮助文档
-const goToModelDoc = () => {
-  ElMessage.info("正在开发中...")
-};
-// 前往模型广场
-const goToModelSquare = () => {
-  ElMessage.info("正在开发中...")
-};
-// 模型广场帮助文档
-const goToModelSquareDocument = () => {
-  ElMessage.info("正在开发中...")
 };
 // 数据中心
 const goToDataCenter=()=>{
@@ -213,19 +159,19 @@ const goToAppCenter=()=>{
   ElMessage.info("正在开发中...")
 };
 // 消息通知
-const goToMessageCenter=()=>{
-  ElMessage.info("正在开发中...")
+const goToMessageCenter = () => {
+  isActive.value = true;
+  setTimeout(() => {isActive.value = false;
+    router.push('/chat')
+  }, 300);
 };
-// 特定消息通知
 const goToMessageDetail=(id:number)=>{
   // router.push($`message/{id}`)
   ElMessage.info("正在开发中...")
 };
-//个人中心
 const goToUserCenter=()=>{
   router.push('/personal')
 }
-// 回到首页
 const GoHome = () => {
   router.push('/')
 }
@@ -235,10 +181,37 @@ const GoHome = () => {
 .common-layout {
   display: flex;
   flex-direction: column;
-  height: 800px;
+  padding-top: 90px;
+  height: 700px;
   overflow-y: hidden;
-  margin: -8px -8px auto;
 }
+
+.custom-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 90px;
+  z-index: 3000; /* 提高层级避免遮挡 */
+  background-color: #f5f5f5;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 139, 0.5);
+  border-radius: 8px;
+}
+
+/* 居中标题样式 */
+.credit-life-title {
+  text-align: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+  white-space: nowrap;
+}
+
 
 .send-button-container .el-button {
   background-image: linear-gradient(to right, #6dd5ed, #2193b0);
@@ -251,7 +224,61 @@ const GoHome = () => {
   background-image: linear-gradient(to right, #6dd5ed, #2193b0);
   opacity: 0.8;
 }
+.ai-button {
+  position: relative;
+  transition: all 0.3s ease;
+  padding: 12px;
+}
+.ai-button svg {
+  display: block;
+}
 
+.pulse::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border-radius: 50%;
+  background-color: rgba(64, 158, 255, 0.3);
+  animation: pulse 1.5s infinite;
+  z-index: -1;
+}
+
+.active::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  background-color: rgba(64, 158, 255, 0.2);
+  animation: ripple 0.6s ease-out;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
 
 .header {
   height: 70px;
@@ -289,74 +316,10 @@ const GoHome = () => {
   margin: 20px 0;
 }
 
-.input-wrapper {
-  border: 1px solid #ebeef5;
-  border-radius: 8px;
-  padding: 10px;
-  width: 1000px;
-}
-
-.message-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 10px;
-}
-
-.upload-button {
-  display: flex;
-  align-items: center;
-}
-
-.send-button-container {
-  display: flex;
-  justify-content: flex-end;
-}
-.message-input {
-  width: 100%;
-  margin-right: 10px;
-  height: 90px;
-  overflow-y: clip;
-  background-color: #FFFFFF;
-}
 .message-input textarea {
   height: 180px;
 }
-.card-row {
-  padding: 20px;
-  display: flex;
-  justify-content: center;
-  margin-top: 10px;
-}
-.card {
-  text-align: center;
-  padding: 20px;
-  width: 440px;
-  height: 272px;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-}
-.card-icon {
-  height: 120px;
-  margin-bottom: 10px;
-}
-.lottie-container {
-  width: 100px;
-  height: 100px;
-  margin: 0 auto;
-}
-.card-title {
-  font-size: 20px;
-  font-weight: bold;
-}
-.card-description {
-  font-size: 14px;
-  color: #606266;
-}
-.card-actions {
-  display: flex;
-  justify-content: space-around;
-}
+
 .carousel-text {
   margin-top: 20px;
   text-align: center;
@@ -372,15 +335,107 @@ const GoHome = () => {
   text-align: center;
 }
 
-.card.training {
-  background: linear-gradient(to bottom, #E6D6F5, #FCFAFF);
-}
-.card.square {
-  background: linear-gradient(to bottom, #BFE7FF, #FCFAFF);
-}
 .model-select-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+.custom-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 90px;
+  z-index: 1000;
+  background-color: #f5f5f5;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 139, 0.5);
+  border-radius: 8px;
+}
+
+.title-left {
+  display: flex;
+  align-items: center;
+  min-width: 300px;
+}
+
+.logo {
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  margin-right: 20px;
+}
+
+.credit-life-title {
+  text-align: left;
+}
+
+.main-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #1a56db;
+  position: relative;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(26, 86, 219, 0.15);
+}
+
+.title-decoration {
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #3b82f6, #93c5fd, #3b82f6);
+  border-radius: 2px;
+  opacity: 0.7;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 4px;
+  letter-spacing: 2px;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.title-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.custom-button {
+  background-image: linear-gradient(to right, #6dd5ed, #2193b0);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.custom-button:hover {
+  background-image: linear-gradient(to right, #6dd5ed, #2193b0);
+  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.custom-button:active {
+  transform: translateY(0);
+}
+
+.ai-button.custom-button {
+  background-color: transparent;
+  background-image: none;
+  border: 1px solid #409EFF;
+}
+
+.ai-button.custom-button:hover {
+  background-color: rgba(64, 158, 255, 0.1);
 }
 </style>
