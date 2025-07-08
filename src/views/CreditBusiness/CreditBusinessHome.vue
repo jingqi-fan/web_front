@@ -117,21 +117,18 @@ const features = reactive([
     title: '信用购物',
     desc: '在线选购，快速结算；凭信用分可享免押金或分期优惠。',
     icon: ShoppingCart,
-    route:'/creditbusiness/credit-shopping',
     recommendComponent: RecommendShopping // 这里填自定义的组件
   },
   {
     title: '信用租房',
     desc: '租房无忧，押金减免；信用分越高，可选房源越丰富。',
     icon: House,
-    route:'/creditbusiness/credit-rent',
     recommendComponent: RecommendRent
   },
   {
     title: '酒店预订',
     desc: '实时查看酒店列表，根据信用分享受押金豁免及折扣。',
     icon: OfficeBuilding,
-    route: '/creditbusiness/hotel-list',
     recommendComponent: RecommendHotel
   }
 ])
@@ -141,7 +138,6 @@ const carouselRef = ref<CarouselRef|null> (null)
 const autoplayEnabled = ref(true)
 const pauseCarousel = () => autoplayEnabled.value = false
 const playCarousel = () => autoplayEnabled.value = true
-
 const showRecommend = ref(false)
 const activeIndex = ref(0)
 
