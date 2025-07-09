@@ -1,187 +1,183 @@
 <template>
-  <div class="input-wrapper">
-    <div
-        class="chat-result"
-        ref="messageContainer"
-        :style="{ maxHeight: maxMessageHeight }"
-    >
-      <div v-for="(msg, i) in messages" :key="i" class="message">
-        <div v-if="msg.role === 'user'" class="user-message">
-          🧑‍： {{ msg.content }}
+  <div class="chat-wrapper">
+    <!-- 消息滚动容器 -->
+    <div class="chat-content" ref="chatRef">
+      <div v-for="(msg, i) in messages" :key="i" :class="['chat-item', msg.role]">
+        <div class="chat-bubble" v-if="msg.role === 'user'">
+          🧑‍：{{ msg.content }}
         </div>
-        <div v-else class="assistant-message">
-          🤖： {{ msg.content }}
-        </div>
+        <div class="chat-bubble assistant" v-else v-html="renderMarkdown(msg.content)"></div>
       </div>
     </div>
 
-    <el-input
-        v-model="input"
-        placeholder="有什么问题都可以问我！🤔"
-        clearable
-        class="message-input"
-        type="textarea"
-        :rows="3"
-        show-word-limit
-        :maxlength="6000"
-        @keyup.enter="sendMessage"
-        :style="{ border: 'none', backgroundColor: 'transparent', resize: 'none' }"
-    />
+    <!-- 固定输入框区域 -->
+    <div class="chat-input">
+      <el-input
+          type="textarea"
+          :rows="2"
+          v-model="input"
+          placeholder="有什么问题都可以问我！"
+          @keydown.enter.exact.prevent="emitSend"
+          @keydown.enter.shift.stop
+          clearable
+      />
 
-    <el-row class="message-actions" type="flex" align="middle" justify="end">
-      <el-button :icon="Delete" @click="clearContext" plain class="action-button"></el-button>
-      <el-button
-          type="primary"
-          :icon="Promotion"
-          @click="sendMessage"
-          plain
-          :disabled="!input.trim()"
-          class="send-button"
-      ></el-button>
-    </el-row>
+      <el-button type="primary" @click="emitSend">发送</el-button>
+      <el-button type="danger" @click="$emit('clear')">清除上下文</el-button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Promotion, Delete } from "@element-plus/icons-vue";
-import { ref, onMounted, watch, nextTick } from "vue";
+import { ref, watch, nextTick } from 'vue'
+import { marked } from 'marked'
+import DOMPurify from 'dompurify'
 
-const props = defineProps({
-  messages: {
-    type: Array,
-    required: true
-  },
+interface Message {
+  role: string
+  content: string
+}
 
-  maxHeight: {
-    type: String,
-    default: "400px"
-  }
-});
+const props = defineProps<{
+  messages: Message[]
+}>()
 
-const emit = defineEmits(['send', 'clear']);
-const input = ref('');
-const messageContainer = ref<HTMLElement | null>(null);
-const maxMessageHeight = ref(props.maxHeight);
+const emit = defineEmits<{
+  (e: 'send', content: string): void
+  (e: 'clear'): void
+}>()
 
-// 发送消息
-const sendMessage = () => {
-  if (!input.value.trim()) return;
-  emit('send', input.value);
-  input.value = '';
-};
+const input = ref('')
+const chatRef = ref<HTMLElement | null>(null)
 
-// 清除上下文
-const clearContext = () => {
-  emit('clear');
-};
+const emitSend = () => {
+  if (!input.value.trim()) return
+  emit('send', input.value.trim())
+  input.value = ''
+}
 
+const renderMarkdown = (content: string) => {
+  const rawHtml = marked.parse(content)
+  return DOMPurify.sanitize(rawHtml)
+}
 
-const scrollToBottom = () => {
-  nextTick(() => {
-    if (messageContainer.value) {
-      messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
-    }
-  });
-};
+watch(
+    () => props.messages,
+    async () => {
+      await nextTick()
+      if (!chatRef.value) return
+      chatRef.value.scrollTop = chatRef.value.scrollHeight
+    },
+    { deep: true }
+)
 
-watch(() => props.messages, () => {
-  scrollToBottom();
-}, { deep: true });
-
-onMounted(() => {
-  scrollToBottom();
-});
 </script>
 
+
 <style scoped>
-.input-wrapper {
+.chat-wrapper {
+  width: 1200px;
+  height: 600px;
   display: flex;
   flex-direction: column;
-  border: 1px solid #ebeef5;
-  border-radius: 8px;
-  padding: 10px;
-  width: 1000px;
+  background-color: #f9fafb;
+  border-radius: 12px;
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+  box-sizing: border-box;
+}
+.chat-input .el-button {
+  border-radius: 20px;
+  padding: 8px 20px;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
 }
 
-.chat-result {
-  order: 1;
-  background: #f7f7f7;
-  height: 375px;
-  padding: 10px;
-  border-radius: 5px;
-  margin-bottom: 15px;
+.chat-input .el-button.el-button--primary {
+  background-image: linear-gradient(to right, #6dd5ed, #2193b0);
+  color: white;
+  border: none;
+}
+
+.chat-input .el-button.el-button--primary:hover {
+  opacity: 0.9;
+}
+
+.chat-input .el-button.el-button--danger {
+  background-color: #f56c6c;
+  color: white;
+  border: none;
+}
+
+.chat-input .el-button.el-button--danger:hover {
+  background-color: #dd6161;
+}
+
+.chat-content {
+  flex: 1;
   overflow-y: auto;
-  max-height: v-bind(maxMessageHeight);
+  margin-bottom: 16px;
+  padding-right: 4px;
+}
+
+/* 聊天条目样式 */
+.chat-item {
+  margin-bottom: 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
 }
 
-.message {
-  margin-bottom: 0;
+.chat-item.user {
+  align-items: flex-end;
 }
 
-.user-message {
-  color: #2c3e50;
-  padding: 8px 12px;
-  border-left: 3px solid #4ab7bd;
-  background-color: #f0f9ff;
-  border-radius: 0 8px 8px 8px;
-  align-self: flex-end;
-  max-width: 85%;
+.chat-item.assistant {
+  align-items: flex-start;
 }
 
-.assistant-message {
-  color: #42b983;
-  padding: 8px 12px;
-  border-left: 3px solid #42b983;
-  background-color: #f0fff7;
-  border-radius: 8px 0 8px 8px;
-  align-self: flex-start;
-  max-width: 85%;
+.chat-bubble {
+  max-width: 75%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background-color: #d1ecf1;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  line-height: 1.6;
+  font-size: 15px;
 }
 
-.message-input {
-  order: 2;
+.chat-bubble.assistant {
+  background-color: #f4f6f9;
+  color: #222;
 }
 
-.message-actions {
-  order: 3;
+
+.chat-bubble :deep(pre) {
+  background: #272822;
+  color: #f8f8f2;
+  padding: 10px;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-family: 'Courier New', monospace;
+}
+
+.chat-bubble :deep(code) {
+  background-color: #eef;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: 'Courier New', monospace;
+}
+
+.chat-bubble :deep(a) {
+  color: #409eff;
+  text-decoration: underline;
+}
+
+.chat-input {
   display: flex;
-  justify-content: flex-end; /* 主要修改：右侧对齐 */
+  gap: 12px;
   align-items: center;
-  margin-top: 10px;
-  gap: 10px; /* 按钮间距 */
-}
-
-.action-button {
-  background-color: #f5f5f5;
-  border: 1px solid #dcdfe6;
-}
-
-.send-button {
-  background-image: linear-gradient(to right, #6dd5ed, #2193b0);
-  color: white;
-  border: none;
-  border-radius: 20px;
-  padding: 10px 20px;
-}
-
-.send-button:hover {
-  background-image: linear-gradient(to right, #6dd5ed, #2193b0);
-  opacity: 0.8;
-}
-
-.send-button-container .el-button {
-  background-image: linear-gradient(to right, #6dd5ed, #2193b0);
-  color: white;
-  border: none;
-  border-radius: 20px;
-  padding: 10px 20px;
-}
-
-.send-button-container .el-button:hover {
-  background-image: linear-gradient(to right, #6dd5ed, #2193b0);
-  opacity: 0.8;
 }
 </style>
+

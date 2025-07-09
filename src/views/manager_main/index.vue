@@ -302,10 +302,10 @@ const userCenter = () => {
 /* Main */
 .main-content {
   flex-grow: 1;
-  overflow-y: auto;
+  overflow-y: hidden;
   padding: 20px;
   height: 100%;
-  width: 800px;
+  width: 100%;
   margin-left: 200px;
 }
 

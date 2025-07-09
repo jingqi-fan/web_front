@@ -32,7 +32,9 @@ import CreditLife from "../views/credit_life/index.vue"
 import Parking from "../views/credit_life/parking/index.vue"
 import Library from "../views/credit_life/library/index.vue"
 import Hospital from "../views/credit_life/hospital/index.vue"
-import Chat from "../views/welcome/components/chat.vue"
+import Chat from "../views/welcome/components/ProsocialUserCenter.vue"
+
+import UserProsocialCenter from "../views/welcome/components/ProsocialUserCenter.vue"
 ///管理员
 import Manager from "../views/manager/index.vue"
 import ManagerLogin from "../views/manager/component/ManagerLogin.vue"
@@ -54,6 +56,11 @@ const router = createRouter({
             path: '/manager/examine',
             name: 'examine_improve',
             component:ExamineImprove
+        },
+        {
+            path: '/prosocial_user',
+            name: 'UserProsocialCenter',
+            component: UserProsocialCenter
         },
         {
             path: '/manager/manager',
