@@ -1,85 +1,115 @@
-<template>
-  <el-container>
-    <!-- 顶部区域 -->
-    <el-header>
-      <div class="header-wrapper">
-        <span class="header-title">信用管理</span>
-        <el-menu
-          mode="horizontal"
-          :default-active="activeMenu"
-          class="header-menu"
-          @select="handleMenuSelect"
-          background-color="#b3c0d1"
-          text-color="#333"
-          active-text-color="#409EFF"
-        >
-          <el-menu-item index="/settings">首页</el-menu-item>
-          <el-menu-item index="/personal">个人中心</el-menu-item>
-          <el-menu-item index="/creditbusiness">信用商业</el-menu-item>
-          <el-menu-item index="/life">信用生活</el-menu-item>
-          <el-menu-item index="/manageHouse">信用管理</el-menu-item>
-        </el-menu>
-      </div>
-    </el-header>
-
-    <!-- 主体区域：侧边 + 主内容 -->
+  <template>
     <el-container>
-      <el-aside width="200px">
-        <el-menu
-          default-active="overview"
-          class="el-menu-vertical-demo"
-          background-color="#d3dce6"
-          text-color="#333"
-          active-text-color="#409EFF"
-          router
-        >
-          <el-menu-item index="/manageHouse">
-            <el-icon>
-              <House />
-            </el-icon>
-            <span>信用总览</span>
-          </el-menu-item>
-          <el-menu-item index="/CreditDimension">
-            <el-icon>
-              <PieChart />
-            </el-icon>
-            <span>分数构成</span>
-          </el-menu-item>
-        </el-menu>
-      </el-aside>
+      <!-- 顶部区域 -->
+      <el-header>
+        <div class="header-wrapper">
+          <span class="header-title">信用管理</span>
+          <el-menu mode="horizontal" :default-active="activeMenu" class="header-menu" @select="handleMenuSelect"
+            background-color="#b3c0d1" text-color="#333" active-text-color="#409EFF">
+            <el-menu-item index="/settings">首页</el-menu-item>
+            <el-menu-item index="/personal">个人中心</el-menu-item>
+            <el-menu-item index="/creditbusiness">信用商业</el-menu-item>
+            <el-menu-item index="/life">信用生活</el-menu-item>
+            <el-menu-item index="/manageHouse">信用管理</el-menu-item>
+          </el-menu>
+        </div>
+      </el-header>
 
-      <!-- 主内容：分数构成 -->
-      <el-main>
-        <el-card class="score-card">
-          <div class="header">分数构成</div>
-          <div class="radar-wrapper">
-            <div
-              v-for="(item, index) in scoreItems"
-              :key="index"
-              :class="['score-item', item.position]"
-            >
-              <el-tooltip effect="dark" :content="item.description" placement="top">
-                <div class="icon-circle">
-                  <el-avatar :size="48" :src="item.icon" />
+      <!-- 主体区域：侧边 + 主内容 -->
+      <el-container>
+        <el-aside width="200px">
+          <el-menu default-active="overview" class="el-menu-vertical-demo" background-color="#d3dce6" text-color="#333"
+            active-text-color="#409EFF" router>
+            <el-menu-item index="/manageHouse">
+              <el-icon>
+                <House />
+              </el-icon>
+              <span>信用总览</span>
+            </el-menu-item>
+            <el-menu-item index="/CreditDimension">
+              <el-icon>
+                <PieChart />
+              </el-icon>
+              <span>分数详情</span>
+            </el-menu-item>
+          </el-menu>
+        </el-aside>
+
+        <!-- 主内容区域 -->
+        <el-main>
+          <div class="main-flex">
+            <!-- 信用构成 -->
+            <el-card class="score-card">
+              <div class="header">信用评分构成</div>
+              <div class="radar-wrapper">
+                <!-- 四个维度 -->
+                <div v-for="(item, index) in dimensionItems" :key="index" :class="['score-item', item.position]">
+                  <el-tooltip effect="dark" :content="item.dimensionType" placement="top">
+                    <div class="icon-circle">
+                      <el-avatar :size="48" :src="item.icon" />
+                    </div>
+                  </el-tooltip>
+                  <div class="label">{{ item.dimensionType }}</div>
+                  <div class="score">{{ item.dimensionScore }}</div>
                 </div>
-              </el-tooltip>
-              <div class="label">{{ item.label }}</div>
-            </div>
 
-            <div class="center-circle">
-              <el-icon size="28"><Compass /></el-icon>
-            </div>
+                <!-- 中心总分 -->
+                <div class="center-circle">
+                  <div class="total-score">{{ totalScore }}</div>
+                  <div class="total-label">总信用分</div>
+                </div>
+              </div>
+            </el-card>
+
+            <!-- 信用排行榜 -->
+            <el-card class="rank-card">
+              <div class="rank-header">信用排行榜</div>
+              <div class="rank-scrollbar">
+                <el-scrollbar>
+                  <div v-for="(user, index) in rankList" :key="user.id" class="rank-item">
+                    <span class="rank-index">{{ index + 1 }}</span>
+                    <el-avatar :size="36" :src="user.profilePicture" />
+                    <span class="rank-name">{{ user.nickName }}</span>
+                    <span class="rank-score">{{ user.score }}</span>
+                  </div>
+                </el-scrollbar>
+              </div>
+
+              <!-- 悬浮信用信息块 -->
+              <div class="user-credit-info">
+                <el-avatar :size="48" :src="userBasicInfo.avatar || 'https://i.pravatar.cc/150?img=15'" />
+                <div class="user-info-text">
+                  <div class="user-name">{{ userBasicInfo.nickName || '当前用户' }}</div>
+                  <div class="user-rank-score">
+                    排名：<span>{{ userRank || '暂无' }}</span>
+                    &nbsp;&nbsp;|&nbsp;&nbsp;
+                    信用分：<span>{{ totalScore }}</span>
+                  </div>
+                </div>
+              </div>
+
+            </el-card>
           </div>
-        </el-card>
-      </el-main>
+        </el-main>
+      </el-container>
     </el-container>
-  </el-container>
-</template>
+  </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { House, PieChart, Compass } from '@element-plus/icons-vue'
+import axios from 'axios'
+import { useUserInfoStore } from '@/stores/useUserInfoStore'
+import { useUserCreditScoreStore } from '@/stores/useUserCreditScore'
+import { House, PieChart } from '@element-plus/icons-vue'
+
+const userInfoStore = useUserInfoStore()
+const userCreditScoreStore = useUserCreditScoreStore()
+
+const userBasicInfo = userInfoStore.user
+const creditScoreInfo = userCreditScoreStore.score
+
+const userId = userBasicInfo.id
 
 const router = useRouter()
 const activeMenu = ref('/CreditDimension')
@@ -88,38 +118,83 @@ const handleMenuSelect = (index) => {
   router.push(index)
 }
 
-const scoreItems = ref([
-  {
-    label: '基本信息',
-    description: '包括户籍、婚姻、学历、就业等基本情况',
-    position: 'top-right',
-    icon: 'https://cdn-icons-png.flaticon.com/512/2721/2721124.png',
-  },
-  {
-    label: '商业用信',
-    description: '个人在经济合同、金融贷款等领域的用信行为',
-    position: 'right',
-    icon: 'https://cdn-icons-png.flaticon.com/512/1828/1828911.png',
-  },
-  {
-    label: '亲社会行为',
-    description: '合作互助、共享贡献等利社会行为',
-    position: 'bottom-right',
-    icon: 'https://cdn-icons-png.flaticon.com/512/3771/3771486.png',
-  },
-  {
-    label: '遵纪守法',
-    description: '守法意识与信用能力的重要体现',
-    position: 'bottom-left',
-    icon: 'https://cdn-icons-png.flaticon.com/512/3602/3602123.png',
-  },
-  {
-    label: '生活用信',
-    description: '在社会活动与公共服务中的信用表现',
-    position: 'top-left',
-    icon: 'https://cdn-icons-png.flaticon.com/512/921/921347.png',
-  },
-])
+// 维度数据
+const dimensionItems = ref([]) // 四个维度
+const totalScore = ref(0)      // 总信用分
+
+// 图标映射
+const iconMap = {
+  '基本信息': 'https://cdn-icons-png.flaticon.com/512/2721/2721124.png',
+  '信用生活': 'https://cdn-icons-png.flaticon.com/512/921/921347.png',
+  '信用商业': 'https://cdn-icons-png.flaticon.com/512/1828/1828911.png',
+  '亲社会行为': 'https://cdn-icons-png.flaticon.com/512/3771/3771486.png',
+}
+
+// 固定位置分配（按顺序）
+const positions = ['top-left', 'top-right', 'bottom-left', 'bottom-right']
+
+// 排行榜数据
+const rankList = ref([])
+// 用户自身排名
+const userRank = ref('暂无')
+
+const fetchRankList = async () => {
+  try {
+    const res = await axios.get('http://localhost:8086/credit/rank')
+    if (res.data.code === 1 && Array.isArray(res.data.data)) {
+      rankList.value = res.data.data.map(item => ({
+        userId: item.userId,
+        nickName: item.nickName,
+        profilePicture: item.profilePicture || 'https://i.pravatar.cc/150?img=10', // 若无头像默认头像
+        score: item.score
+      }))
+    } else {
+      console.error('排行榜接口返回错误:', res.data.msg)
+    }
+  } catch (error) {
+    console.error('获取排行榜失败:', error)
+  }
+}
+
+
+const fetchUserRank = async () => {
+  try {
+    const res = await axios.get(`http://localhost:8086/credit/rank/${userId}`)
+    if (res.data.code === 1) {
+      //排名這裡下標從0開始，所以+1
+      userRank.value = res.data.data + 1
+    } else {
+      console.error('获取用户排名失败:', res.data.msg)
+    }
+  } catch (error) {
+    console.error('请求用户排名接口出错:', error)
+  }
+}
+
+onMounted(async () => {
+  try {
+    const res = await axios.get(`http://localhost:8086/credit/dimensions/${userId}`)
+    if (res.data.code === 1) {
+      const data = res.data.data
+      const dims = data.filter(d => d.dimensionType !== '总信用分')
+      const total = data.find(d => d.dimensionType === '总信用分')
+
+      dimensionItems.value = dims.map((item, index) => ({
+        ...item,
+        icon: iconMap[item.dimensionType] || '',
+        position: positions[index] || 'top-left',
+      }))
+
+      totalScore.value = total?.dimensionScore ?? 0
+    }
+  } catch (err) {
+    console.error('获取维度数据失败', err)
+  }
+
+  //加载排行榜数据
+  await fetchRankList()
+  await fetchUserRank()
+})
 </script>
 
 <style scoped>
@@ -151,20 +226,53 @@ body {
 
 .el-main {
   background-color: #f9fbfd;
-  padding: 20px;
+  padding: 10px;
   height: calc(100vh - 60px);
-  overflow-y: auto;
+  overflow: auto;
 }
 
-/* 分数构成卡片样式 */
-.score-card {
-  max-width: 900px;
-  margin: 0 auto;
-  background: linear-gradient(to bottom right, #f0f7ff, #ffffff);
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.2);
-  padding: 30px;
+/* 主区域横向分栏 */
+.main-flex {
+  display: flex;
+  gap: 20px;
+  height: 100%;
 }
+
+/* 左右卡片分栏 */
+.score-card {
+  flex: 1;
+  background: #eee1f7;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.1);
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.rank-card {
+  display: flex;
+  flex-direction: column;
+  /* 保持已有样式 */
+  flex: 1;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.1);
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* 排行榜滚动容器撑满剩余高度 */
+.rank-scrollbar {
+  flex: 1;
+  overflow: hidden;
+  /* 用 el-scrollbar 自带滚动，不显示默认滚动条 */
+}
+
+.rank-scrollbar>>>.el-scrollbar__wrap {
+  height: 100% !important;
+  /* el-scrollbar 内部内容撑满容器高度 */
+}
+
+/* 分数构成样式 */
 .header {
   font-size: 24px;
   font-weight: bold;
@@ -172,11 +280,13 @@ body {
   margin-bottom: 30px;
   text-align: center;
 }
+
 .radar-wrapper {
   position: relative;
   width: 100%;
   height: 400px;
 }
+
 .score-item {
   position: absolute;
   width: 120px;
@@ -185,6 +295,7 @@ body {
   color: #409eff;
   font-weight: 500;
 }
+
 .icon-circle {
   background-color: #e6f0ff;
   border-radius: 50%;
@@ -192,42 +303,100 @@ body {
   display: inline-block;
   box-shadow: 0 0 10px rgba(64, 158, 255, 0.3);
 }
+
 .label {
   margin-top: 8px;
 }
+
+.score {
+  margin-top: 4px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #303133;
+}
+
 .top-left {
   top: 10%;
-  left: 10%;
+  left: 15%;
 }
+
 .top-right {
   top: 10%;
-  right: 10%;
+  right: 15%;
 }
-.right {
-  top: 40%;
-  right: -10px;
-}
-.bottom-right {
-  bottom: 10%;
-  right: 10%;
-}
+
 .bottom-left {
   bottom: 10%;
-  left: 10%;
+  left: 15%;
 }
+
+.bottom-right {
+  bottom: 10%;
+  right: 15%;
+}
+
 .center-circle {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 80px;
-  height: 80px;
+  width: 120px;
+  height: 120px;
   background: #d0e8ff;
   border-radius: 50%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   box-shadow: 0 0 15px rgba(0, 136, 255, 0.4);
+}
+
+.total-score {
+  font-size: 28px;
+  font-weight: bold;
+  color: #007acc;
+}
+
+.total-label {
+  font-size: 14px;
+  margin-top: 4px;
+  color: #666;
+}
+
+/* 排行榜样式 */
+.rank-header {
+  font-size: 20px;
+  font-weight: bold;
+  color: #303133;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.rank-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #ebeef5;
+}
+
+.rank-index {
+  width: 24px;
+  font-weight: bold;
+  color: #409EFF;
+  text-align: center;
+}
+
+.rank-name {
+  flex: 1;
+  margin-left: 12px;
+  font-size: 16px;
+  color: #606266;
+}
+
+.rank-score {
+  font-size: 16px;
+  color: #303133;
+  font-weight: bold;
 }
 
 .header-wrapper {
@@ -247,5 +416,42 @@ body {
 .header-menu {
   flex-grow: 1;
   margin-left: 40px;
+}
+
+.user-credit-info {
+  position: sticky;
+  bottom: 10px;
+  margin-top: 16px;
+  background: #e6f0ff;
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+  border-radius: 12px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  /* 悬浮且不遮挡滚动条 */
+  z-index: 10;
+}
+
+.user-info-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #1f2d3d;
+  font-size: 16px;
+}
+
+.user-rank-score {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #3a5bbf;
+}
+
+.user-rank-score span {
+  font-weight: bold;
 }
 </style>

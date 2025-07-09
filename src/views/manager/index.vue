@@ -107,6 +107,7 @@ const rules = {
   captchaInput: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
 }
 const deviceStore=useDeviceStore()
+const deviceId=ref('1234567hijklmnPQRSTUVWXYZ')
 const handleLogin = async () => {
   if (!formRef.value) return
 
