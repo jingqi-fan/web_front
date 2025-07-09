@@ -3,12 +3,11 @@
     <el-container>
       <el-header class="custom-header">
         <div class="title-left">
-          <model-icon class="logo" @click="GoHome" />
+          <logo style="margin-left: 20px; cursor: pointer;" @click=" GoHome" />
         </div>
 
-        <!-- 居中标题 -->
         <div class="credit-life-title">
-          <div class="main-title">西湖分信用平台<div class="title-decoration"></div></div>
+          <div class="main-title">西湖分个人信用评分系统<div class="title-decoration"></div></div>
           <div class="subtitle">个人信用智能服务平台</div>
         </div>
 
@@ -18,20 +17,18 @@
           <el-button
               class="ai-button custom-button"
               :class="{ 'pulse': hasNewMessage, 'active': isActive }"
-              @click="goToMessageCenter"
+              @click="prosocialCenter"
               plain
               round
           >
-            <span style="font-weight: bold; color: #409EFF;">AI助手</span>
+            <span style="font-weight: bold; color: #409EFF;">亲社会活动</span>
           </el-button>
           <el-button class="custom-button" :icon="User" @click="goToUserCenter" plain round></el-button>
         </div>
       </el-header>
 
       <el-main class="main">
-        <div class="welcome-message">
-          <h2>欢迎使用 西湖分——个人信用平台!</h2>
-        </div>
+
         <div class="message-container">
           <AiChat
               :messages="messages"
@@ -53,23 +50,20 @@
 </template>
 
 <script setup lang="ts">
-import {ref, onBeforeUnmount} from 'vue';
+import {ref, onBeforeUnmount, onMounted} from 'vue';
 import { TopRight, User} from "@element-plus/icons-vue";
-import ModelIcon from '@/assets/ModelCenter.svg';
 import router from "@/router/index.ts";
 import {ElMessage} from "element-plus";
 import AiChat from "@/views/welcome/components/AiChat.vue"; // 导入图标
-
+import Logo from "@/views/personal/component/Logo.vue";
 const hover = ref(false);
 const isActive = ref(false);
 
-
-
 // 消息数组
 const messagesList = ref([
-  '收到新的消息：系统更新已完成！',
-  '系统检测到新的训练任务开始执行。',
-  '注意：明天将进行一次维护更新。'
+  '系统更新已完成！',
+  '一站式AI助手-MCP服务 预发布',
+  '微信小程序已发布（只读版），快来体验吧！'
 ]);
 const currentIndex = ref(0); // 当前显示的消息索引
 let intervalId: ReturnType<typeof setInterval> | null = null;
@@ -84,12 +78,19 @@ const startMessageRotation = () => {
     currentIndex.value = (currentIndex.value + 1) % messagesList.value.length;
   }, 3000);
 };
-
+startMessageRotation()
 interface Message {
   role: string;
   content: string;
 }
-
+onMounted(() => {
+  if (messages.value.length === 0) {
+    messages.value.push({
+      role: 'assistant',
+      content: '欢迎使用 **西湖分信用平台** 🎉\n\n我是您的 AI 助手，有什么可以帮您？'
+    });
+  }
+});
 // 数据与状态
 const selectedModel = ref('qwen-plus'); // 默认选择通义千问-plus
 // 消息列表
@@ -159,11 +160,8 @@ const goToAppCenter=()=>{
   ElMessage.info("正在开发中...")
 };
 // 消息通知
-const goToMessageCenter = () => {
-  isActive.value = true;
-  setTimeout(() => {isActive.value = false;
-    router.push('/chat')
-  }, 300);
+const prosocialCenter = () => {
+  router.push('/prosocial_user')
 };
 const goToMessageDetail=(id:number)=>{
   // router.push($`message/{id}`)
@@ -201,17 +199,6 @@ const GoHome = () => {
   box-shadow: 0 4px 20px rgba(0, 0, 139, 0.5);
   border-radius: 8px;
 }
-
-/* 居中标题样式 */
-.credit-life-title {
-  text-align: center;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: auto;
-  white-space: nowrap;
-}
-
 
 .send-button-container .el-button {
   background-image: linear-gradient(to right, #6dd5ed, #2193b0);
@@ -279,36 +266,11 @@ const GoHome = () => {
     opacity: 0;
   }
 }
-
-.header {
-  height: 70px;
-  background-color: #f5f5f5;
-  border-radius: 8px;
-}
-
-
-.header-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 69px;
-}
-
 .logo {
   width: 50px;
   height: 50px;
   cursor: pointer;
 }
-.model-select {
-  background-color: #f5f5f5;
-  width: 150px;
-}
-
-.header-buttons {
-  display: flex;
-  justify-content: flex-end;
-}
-
 .message-container {
   display: flex;
   justify-content: center;
@@ -330,15 +292,6 @@ const GoHome = () => {
   height: 100%;
   line-height: 50px;
   border: none;
-}
-.welcome-message {
-  text-align: center;
-}
-
-.model-select-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
 .custom-header {
   position: fixed;
@@ -369,38 +322,6 @@ const GoHome = () => {
   margin-right: 20px;
 }
 
-.credit-life-title {
-  text-align: left;
-}
-
-.main-title {
-  font-size: 28px;
-  font-weight: 600;
-  color: #1a56db;
-  position: relative;
-  letter-spacing: 1px;
-  text-shadow: 0 2px 4px rgba(26, 86, 219, 0.15);
-}
-
-.title-decoration {
-  position: absolute;
-  bottom: -6px;
-  left: 0;
-  width: 100%;
-  height: 3px;
-  background: linear-gradient(90deg, #3b82f6, #93c5fd, #3b82f6);
-  border-radius: 2px;
-  opacity: 0.7;
-}
-
-.subtitle {
-  font-size: 14px;
-  color: #6b7280;
-  margin-top: 4px;
-  letter-spacing: 2px;
-  font-weight: 500;
-  opacity: 0.9;
-}
 
 .title-right {
   display: flex;
@@ -438,4 +359,67 @@ const GoHome = () => {
 .ai-button.custom-button:hover {
   background-color: rgba(64, 158, 255, 0.1);
 }
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes pulseGlow {
+  0% {
+    text-shadow: 0 0 6px rgba(26, 86, 219, 0.5);
+  }
+  50% {
+    text-shadow: 0 0 12px rgba(26, 86, 219, 0.9);
+  }
+  100% {
+    text-shadow: 0 0 6px rgba(26, 86, 219, 0.5);
+  }
+}
+.credit-life-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeInDown 0.8s ease;
+}
+
+.main-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1a56db;
+  position: relative;
+  letter-spacing: 1px;
+  text-shadow: 0 4px 10px rgba(26, 86, 219, 0);
+}
+
+.title-decoration {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 3px;
+  background: linear-gradient(90deg, #93c5fd, #3b82f6);
+  border-radius: 2px;
+  opacity: 0.9;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 8px;
+  font-weight: 500;
+  letter-spacing: 1.2px;
+  opacity: 0.85;
+}
+
 </style>
