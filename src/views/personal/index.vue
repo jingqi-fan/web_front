@@ -697,8 +697,8 @@ const submitForm = () => {
       });
 
       ElMessage.success('更新成功,请重新登录');
-      await userLogout(userInfoStore.user.id)
-      await router.push('/login')
+      await getUserInfo(uuid);
+      await getUserCreditScoreInfo(userInfoStore.user.id)
       dialogFormVisible.value = false;
     } catch (e) {
       ElMessage.error('更新失败，请重试');
@@ -761,6 +761,7 @@ import { nextTick, watch } from 'vue';
 import {PictureFilled, SwitchButton, UserFilled} from "@element-plus/icons-vue";
 import {useDeviceStore} from "@/stores/useDeviceStore.ts";
 import axiosInstance from "@/plugins/axios.ts";
+import { getUserCreditScoreInfo, getUserInfo } from "../../api/user";
 
 const activeChart = ref('credit'); // 默认选中信用分折线图
 const chartRef = ref<HTMLElement | null>(null);
@@ -986,7 +987,9 @@ const submitUcsForm = async () => {
     const res = await updateUserCreditScore(userId, ucForm)
     ElMessage.success("更新成功,请重新登录",res)
     ucsDialogVisible.value = false
-    await logout()
+    const tokenStore=useTokenStore()
+    await getUserInfo(tokenStore.uuid);
+    await getUserCreditScoreInfo(userInfoStore.user.id)
   } catch (error) {
     ElMessage.error("请求异常")
     console.error(error)
