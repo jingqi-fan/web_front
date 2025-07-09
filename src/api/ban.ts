@@ -1,4 +1,4 @@
-// src/api/ban.ts
+
 import axiosInstance from '../plugins/axios'
 
 // 封禁恢复结果接口
