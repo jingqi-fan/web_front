@@ -30,7 +30,7 @@ const router = useRouter()
 const appointmentId = Number(route.query.appointmentId)
 const userId = Number(route.query.id)
 
-const preOrderInfo = ref<any>(null)
+//const preOrderInfo = ref<any>(null)
 const loading = ref(false)
 
 const confirmOrder = async () => {

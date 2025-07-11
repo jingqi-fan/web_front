@@ -31,7 +31,6 @@
       <el-button
         type="warning"
         size="large"
-        :loading="recoverLoading"
         @click="attemptRecover"
       >
         功能恢复

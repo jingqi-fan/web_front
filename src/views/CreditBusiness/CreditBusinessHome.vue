@@ -1,6 +1,9 @@
 <template>
   <div class="credit-home">
     <div class="header-row">
+      <div class="mail-container2">
+        <el-button round="true" color="#626aef" @click="logout">退出登录</el-button>
+      </div>
       <h2 style="font-size: 30px;">信用商业中心</h2>
       <div class="mail-container">
         <router-link to="/creditbusiness/records" class="mail-button">
@@ -94,14 +97,15 @@ import {
 } from '@element-plus/icons-vue'
 import { reactive, ref ,computed, onMounted } from 'vue'
 import { useUserInfoStore } from "../../stores/useUserInfoStore"
-import { getUserCreditScoreInfo } from '../../api/user'
+import { getUserCreditScoreInfo,userLogout } from '../../api/user'
 import { ElMessage } from 'element-plus'
 import { Loading } from '@element-plus/icons-vue'
 import type { CarouselRef } from 'element-plus'
-
+import {useDeviceStore} from "../../stores/useDeviceStore";
 import RecommendShopping from './RecommendShopping.vue'
 import RecommendRent from './RecommendRent.vue'
 import RecommendHotel from './RecommendHotel.vue'
+import router from "@/router"
 
 const userName = ref('')
 const creditScore = ref(0)
@@ -110,8 +114,22 @@ const isLoading = ref(true)
 
 
 
-const userInfoStore = useUserInfoStore()
 
+const logout=async ()=>{
+  const userInfo2 = useUserInfoStore()
+  const id=userInfo2.user?.id
+  const deviceStore=useDeviceStore()
+  const device=deviceStore.device
+  const res=await userLogout(id,device)
+  if(res.status===200){
+    await router.push('/home')
+    ElMessage.success("退出成功")
+  }
+  else{
+    ElMessage.error("退出失败")
+    await router.push('/home')
+  }
+}
 const features = reactive([
   {
     title: '信用购物',
@@ -194,6 +212,12 @@ onMounted(fetchCredit)
     justify-content: center;
     align-items: center;
     margin-bottom: 10px;
+  }
+  .mail-container2 {
+    position: absolute;
+    top:23px;
+    left:0;
+    text-align: center;
   }
   .mail-container {
     position: absolute;
