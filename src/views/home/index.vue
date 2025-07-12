@@ -120,6 +120,7 @@
 import { ref,onMounted,computed } from 'vue';
 import HomeHeader from './components/Header.vue';
 import {getNewsList} from "@/api/news.ts";
+import type {News} from "@/entity/news.ts";
 
 
 
@@ -127,10 +128,11 @@ const type = ref('login');
 const switchType = (val: string) => {
   type.value = val;
 };
-const newsData=ref([])
+const newsData=ref<News[]>([])
 // 模拟新闻数据
 const loadNewsData =async () => {
   const res=await getNewsList()
+  console.log("新闻",res)
   newsData.value=res.data
 }
 loadNewsData()

@@ -22,7 +22,11 @@ export const getBookBacklog = async (id: number): Promise<BorrowingRecord[] | un
         const res = await axiosInstance.get<LifeApiResponse<BorrowingRecord[]>>(
             `/book/record?id=${id}`
         );
-        if (res.data.code === 0 && Array.isArray(res.data.data)) {
+        if(res.data.data===null){
+            return [];
+        }
+        console.log("getBookBacklog:", res)
+        if (res.data.code === 200 && Array.isArray(res.data.data)) {
             return res.data.data;
         } else {
             ElMessage.error(res.data.msg || "无效的响应数据");
@@ -36,7 +40,11 @@ export const getBookBacklog = async (id: number): Promise<BorrowingRecord[] | un
 export const getParkingBacklog=async (id:number)=>{
     try {
         const res=await axiosInstance.get<LifeApiResponse<ParkingRecord>>(`/park/appointmentList?id=${id}`)
-        if (res.data.code === 0 && Array.isArray(res.data.data)) {
+        console.log("getParkingBacklog:", res)
+        if(res.data.data===null){
+            return [];
+        }
+        if (res.data.code === 200 && Array.isArray(res.data.data)) {
             return res.data.data;
         } else {
             ElMessage.error(res.data.msg || "无效的响应数据");
@@ -49,8 +57,12 @@ export const getParkingBacklog=async (id:number)=>{
 
 export const getHospitalBacklog=async (id:number)=>{
     try {
-        const res=await axiosInstance.get<LifeApiResponse<HospitalRecord>>(`/hospital/appointmentList?id=${id}`)
-        if (res.data.code === 0 && Array.isArray(res.data.data)) {
+        const res=await axiosInstance.get<LifeApiResponse<HospitalRecord>>(`/hospital/order/list?id=${id}`)
+        console.log("getHospitalBacklog:", res)
+        if(res.data.data===null){
+            return [];
+        }
+        if (res.data.code === 200 && Array.isArray(res.data.data)) {
             return res.data.data;
         } else {
             ElMessage.error(res.data.msg || "无效的响应数据");

@@ -29,7 +29,7 @@ export const addDoctor = async (req: Doctor) => {
 // 获取医生详情
 export const getDoctorDetail = async (doctorId: number) => {
     const res = await axiosInstance.get<{ code: number; data: Doctor }>(
-        `/hospital/doctor/detail/${doctorId}`
+        `/hospital/doctors/details?doctorId=${doctorId}`
     )
     return res.data
 }

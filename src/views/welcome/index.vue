@@ -13,7 +13,7 @@
 
         <div class="title-right">
           <el-button @click="goToTraining" class="custom-button">信用商业</el-button>
-          <el-button @click="goToDataCenter" class="custom-button">信用生活</el-button>
+          <el-button @click="goToCreditLife" class="custom-button">信用生活</el-button>
           <el-button
               class="ai-button custom-button"
               :class="{ 'pulse': hasNewMessage, 'active': isActive }"
@@ -151,9 +151,8 @@ const goToTraining = () => {
   router.push('/creditbusiness');
 };
 // 数据中心
-const goToDataCenter=()=>{
-  //router.push('/data')
-  ElMessage.info("正在开发中...")
+const goToCreditLife=()=>{
+  router.push('/life')
 };
 // 应用中心
 const goToAppCenter=()=>{

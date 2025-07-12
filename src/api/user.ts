@@ -122,7 +122,12 @@ export const updateUserCreditScore=async (id:number,data:UpdateCreditScore)=>{
         ElMessage.error(`信用分更新发生异常：${err}`);
     });
 }
+export const getUserCreditScore = async (id: number) => {
+    const res=await axiosInstance.get<Result<any>>(`/user/credit/score?id=${id}`);
+    console.log("getUserCreditScore",res)
 
+    return res.data.data;
+}
 export const getUserCreditScoreInfo = async (id: number) => {
     try {
         const res = await axiosInstance.get<Result<any>>(`/user/credit/get?id=${id}`);

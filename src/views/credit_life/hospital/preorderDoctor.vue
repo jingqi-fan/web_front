@@ -17,7 +17,6 @@
               <el-icon><UserFilled /></el-icon>
               信用信息
             </el-dropdown-item>
-
             <el-dropdown-item divided @click="logout">
               <el-icon><SwitchButton /></el-icon>
               退出登录
@@ -27,111 +26,7 @@
       </el-dropdown>
     </div>
 
-    <!-- 主服务模块卡片 -->
-    <div class="services-section animate__animated animate__fadeInUp">
-      <div class="main-services">
-        <CreditModuleCard
-            icon="parking"
-            title="停车服务"
-            description="实时查询车位，信用积分减免停车费"
-            hint="100积分可享1小时免费"
-            to="/parking/home"
-            cardClass="parking-card"
-        />
-        <CreditModuleCard
-            icon="medical"
-            title="医疗服务"
-            description="预约挂号、健康档案，信用加速就医流程"
-            hint="200积分免排队"
-            to="/life/hospital"
-            cardClass="medical-card"
-        />
-        <CreditModuleCard
-            icon="library"
-            title="图书服务"
-            description="一键借阅，线上续期，信用免押借书"
-            hint="300积分延长借阅15天"
-            to="/life/library"
-            cardClass="library-card"
-        />
-      </div>
 
-      <!-- 信用摘要信息 -->
-      <div class="circular-summary-section">
-        <div class="circular-summary">
-          <div class="circular-card animate__animated animate__zoomIn">
-            <div class="circular-icon bg-blue">
-              <el-icon><Lock /></el-icon>
-            </div>
-            <div class="circular-content">
-              <h3>信用保障</h3>
-              <p>全程加密保护，信用信息安全可靠</p>
-            </div>
-          </div>
-
-          <div class="circular-card animate__animated animate__zoomIn">
-            <div class="circular-icon bg-green">
-              <el-icon><Refresh /></el-icon>
-            </div>
-            <div class="circular-content">
-              <h3>闭环服务</h3>
-              <p>积分使用、反馈提升完整闭环</p>
-            </div>
-          </div>
-
-          <div class="circular-card animate__animated animate__zoomIn">
-            <div class="circular-icon bg-purple">
-              <el-icon><Headset /></el-icon>
-            </div>
-            <div class="circular-content">
-              <h3>24小时支持</h3>
-              <p>随时联系在线客服解决问题</p>
-              <el-button class="support-btn" type="primary" round @click="contactSupport">联系客服</el-button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 个人服务 -->
-      <div class="personal-services animate__animated animate__fadeIn">
-        <div class="mini-option orders-option" @click="router.push('/life/orders')">
-          <div class="option-content">
-            <div class="icon-badge">
-              <el-icon class="option-icon"><List /></el-icon>
-              <span v-if="pendingCount > 0" class="notification-badge">{{ pendingCount }}</span>
-            </div>
-            <div class="option-text">
-              <h3>我的预约</h3>
-              <p>待处理: {{ pendingCount }}项</p>
-            </div>
-            <el-icon class="arrow-icon"><ArrowRight /></el-icon>
-          </div>
-        </div>
-
-        <div class="mini-option score-option">
-          <div class="option-content">
-            <div class="icon-badge">
-              <el-icon class="option-icon"><Coin /></el-icon>
-            </div>
-            <div class="option-text">
-              <h3>我的积分</h3>
-              <div class="progress-container">
-                <div class="progress-bar" :style="{ width: progressWidth }"></div>
-              </div>
-              <span>{{ creditScore }}分</span>
-            </div>
-            <el-icon class="arrow-icon"><ArrowRight /></el-icon>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 公告区 -->
-    <el-carousel height="30px" direction="vertical" :autoplay="true" :interval="4000" indicator-position="none">
-      <el-carousel-item v-for="(item, index) in notices" :key="index">
-        <div style="padding-left: 10px">📢 {{ item }}</div>
-      </el-carousel-item>
-    </el-carousel>
   </div>
 </template>
 
@@ -139,17 +34,10 @@
 import {computed, ref} from 'vue';
 import Logo from '@/views/personal/component/Logo.vue';
 import {
-  ArrowRight,
-  Coin,
-  Headset,
-  List,
-  Lock,
-  PictureFilled,
-  Refresh,
+
   SwitchButton,
   UserFilled
 } from '@element-plus/icons-vue';
-import CreditModuleCard from '@/views/credit_life/CreditModuleCard.vue';
 import router from "@/router";
 import {countBacklog} from "@/api/life/home.ts";
 import {useUserInfoStore} from "@/stores/useUserInfoStore.ts";
@@ -169,19 +57,10 @@ const userCreditScore=useUserCreditScoreStore()
 const creditScore = ref(0);
 creditScore.value=userCreditScore.score.creditScore
 
-const notices = ref([
-  '信用积分规则更新：借阅图书按时归还可获双倍积分',
-  '西湖医院本月推出积分优惠活动',
-  '图书馆新到500册畅销书籍，欢迎信用免押借阅',
-  '停车服务升级：信用分650+享每日首小时免费'
-]);
 
-const progressWidth = computed(() => `${Math.min((creditScore.value / 1000) * 100, 100)}%`);
 const backHome = () => router.push('/home');
 const handleEditRealInfo = () => router.push('/credit-life/real-info');
-const handleChangeAvatar = () => alert('更换头像功能开发中');
 const logout = () => alert('退出登录');
-const contactSupport = () => alert('联系客服功能开发中');
 </script>
 
 <style scoped lang="scss">

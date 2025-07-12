@@ -133,7 +133,7 @@ const goToCreditManage = () => {
 }
 
 const navToGovernment = () => {
-  window.open('https://www.hangzhou.gov.cn/');
+  router.push('/doctor/login')
 };
 
 const navToHelper = () => {

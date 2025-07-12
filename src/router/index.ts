@@ -33,8 +33,13 @@ import Parking from "../views/credit_life/parking/index.vue"
 import Library from "../views/credit_life/library/index.vue"
 import Hospital from "../views/credit_life/hospital/index.vue"
 import Chat from "../views/welcome/components/ProsocialUserCenter.vue"
-
+import HospitalOrderDetail from "../views/credit_life/hospital/components/OrderDetail.vue"
 import UserProsocialCenter from "../views/welcome/components/ProsocialUserCenter.vue"
+import PreorderByDepartment from "../views/credit_life/hospital/PreorderByDepartment.vue"
+import PreorderQuick from "../views/credit_life/hospital/components/PreorderQuick.vue"
+import HospitalPreorderConfirm from "../views/credit_life/hospital/components/PreorderConfirm.vue"
+import ParkingHome from "../views/credit_life/parking/index.vue"
+import ParkingLots from "../views/credit_life/parking/ParkingLots.vue"
 ///管理员
 import Manager from "../views/manager/index.vue"
 import ManagerLogin from "../views/manager/component/ManagerLogin.vue"
@@ -47,6 +52,18 @@ import DepartmentManager from "../views/manager_main/hospital/DepartmentManager.
 import DoctorManager from "../views/manager_main/hospital/DoctorManager.vue"
 import ParkingManager from "../views/manager_main/parking/ParkingManager.vue"
 import ExamineImprove from "../views/manager_main/examine_and_approve/index.vue"
+import MyOrder from "../views/credit_life/hospital/components/MyOrder.vue";
+import PreorderInfo from "../views/credit_life/hospital/components/PreorderInfo.vue";
+import BorrowBookList from "../views/credit_life/library/BorrowBook.vue";
+import DoctorLogin from "../views/credit_life/library/DoctorLogin.vue";
+import DoctorCheck from "../views/credit_life/library/DoctorCheck.vue";
+import CheckListSystem from "../views/credit_life/library/CheckListSystem.vue";
+import DrugListSystem from "../views/credit_life/library/DrugListSystem.vue";
+import PayHospitalOrder from "../views/credit_life/hospital/components/PayHospitalOrder.vue";
+import ParkingSpace from "../views/credit_life/parking/ParkingSpace.vue";
+import ConfirmPreorder from "../views/credit_life/parking/ConfirmPreorder.vue";
+import ParkingMyOrder from "../views/credit_life/parking/ParkingMyOrder.vue";
+import FeeDetail from "../views/credit_life/parking/FeeDetail.vue";
 
 
 const router = createRouter({
@@ -61,6 +78,102 @@ const router = createRouter({
             path: '/prosocial_user',
             name: 'UserProsocialCenter',
             component: UserProsocialCenter
+        },
+        {
+            path: '/life/hospital_order_home',
+            redirect: '/life/hospital_order_home/preorder'
+        },
+        {
+            path: '/parking/home',
+            name: 'ParkingHome',
+            component: ParkingHome
+        },
+        {
+            path:'/parking/lots',
+            name:'ParkingLots',
+            component:ParkingLots
+        },
+        {
+            path:'/parking/lot/:id',
+            name:'ParkingLotId',
+            component:ParkingSpace
+        },
+        {
+            path:'/parking/space/my_order',
+            name:'ParkingMyOrder',
+            component: ParkingMyOrder
+        },
+        {
+            path:'/parking/order/detail/:id',
+            name:'ParkingOrderDetail',
+            component: FeeDetail
+        },
+        {
+            path:'/parking/order/confirm/pre',
+            name:'ParkingOrderConfirm',
+            component:ConfirmPreorder
+        },
+        {
+            path: '/doctor/check',
+            name: 'DoctorCheck',
+            component: DoctorCheck
+        },
+        {
+            path: '/doctor/order/pay/:id',
+            name: 'PayHospitalOrder',
+            component: PayHospitalOrder
+        },
+        {
+            path: '/doctor/login',
+            name:'DoctorLogin',
+            component:DoctorLogin
+        },
+        {
+            path: '/doctor/check_list/:id',
+            name: 'CheckListSys',
+            component: CheckListSystem
+        },
+        {
+            path: '/doctor/drug_list/:id',
+            name: 'DrugListSys',
+            component: DrugListSystem
+        },
+        {
+            path:'/life/book/list',
+            name:'BorrowBook',
+            component: BorrowBookList
+        },
+        {
+            path: '/life/hospital_order_home',
+            name: 'HospitalOrderHome',
+            component: PreorderByDepartment,
+            children:[
+                {
+                    path: '/life/hospital_order_home/preorder',
+                    name: 'HospitalPreorder',
+                    component: PreorderQuick,
+                },
+                {
+                    path: '/life/hospital_order_home/myorder',
+                    name: 'HospitalMyOrder',
+                    component: MyOrder,
+                },
+                {
+                    path:'/life/hospital_order_home/preorder_info',
+                    name:'PreorderPreorderInfo',
+                    component: PreorderInfo
+                },
+                {
+                    path: '/life/hospital_order_home/preorder_confirm',
+                    name: 'HospitalPreorderConfirm',
+                    component: HospitalPreorderConfirm
+                },
+                {
+                    path:'/life/hospital_order_home/order_detail/:id',
+                    name: 'HospitalOrderDetail',
+                    component: HospitalOrderDetail
+                }
+            ]
         },
         {
             path: '/manager/manager',
@@ -124,16 +237,7 @@ const router = createRouter({
             name: 'library',
             component: Library
         },
-        {
-            path: '/parking/detail/:lotId',
-            name: 'ParkingDetail',
-            component: () => import('@/views/credit_life/parking/ParkingDetail.vue')
-        },
-        {
-            path: '/parking/order/confirm',
-            name: 'ParkingOrderConfirm',
-            component: () => import('@/views/credit_life/parking/OrderConfirm.vue')
-        },
+
         {
             path: '/life/hospital',
             name: 'hospital',

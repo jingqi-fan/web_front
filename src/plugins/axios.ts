@@ -99,13 +99,11 @@ axiosInstance.interceptors.response.use(
                 case 400:
                 case 403:
                 case 500:
-                    ElMessage.error(response.data?.message || "服务异常");
+                    console.log(response.data?.message || "未知错误");
 
                     break;
                 default:
                     console.log("ERR");
-                    
-                    ElMessage.error("服务异常");
             }
             console.log("响应拦截·",response)
         } else if (error.request) {
