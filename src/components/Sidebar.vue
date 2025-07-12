@@ -31,7 +31,6 @@
       <el-button
         type="warning"
         size="large"
-        :loading="recoverLoading"
         @click="attemptRecover"
       >
         功能恢复
@@ -52,6 +51,9 @@ import { useRouter, useRoute } from 'vue-router'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { useUserInfoStore } from '../stores/useUserInfoStore'
 import { getReservationsByUserId } from '../api/hotelReservation'
+import { getOrdersByUserId } from '../api/order'
+import { getHouseOrdersByUserId } from '../api/houseOrder'
+import { checkRecoveryEligibility, recoverUser } from '../api/ban'
 import axiosInstance from '../plugins/axios'
 
 interface SidebarItem {
@@ -86,11 +88,33 @@ function handleSelect(routeName: string) {
 }
 
 async function attemptRecover() {
-  // 1. 检查未支付订单
-  const orders = await getReservationsByUserId(userId)
-  const unpaid = orders.filter(o => o.isPay === 0)
-  if (unpaid.length > 0) {
-    ElMessage.warning('您尚未还清，暂无法恢复')
+  recoverLoading.value = true
+  
+  try {
+    // 1. 使用统一的恢复资格检查接口
+    const recoveryResult = await checkRecoveryEligibility(userId)
+    
+    if (!recoveryResult.canRecover) {
+      let message = '您还有未支付的订单，暂无法恢复：'
+      if (recoveryResult.unpaidHotelOrders > 0) {
+        message += `\n酒店订单：${recoveryResult.unpaidHotelOrders}个`
+      }
+      if (recoveryResult.unpaidCommodityOrders && recoveryResult.unpaidCommodityOrders > 0) {
+        message += `\n商品订单：${recoveryResult.unpaidCommodityOrders}个`
+      }
+      if (recoveryResult.unpaidHouseOrders > 0) {
+        message += `\n房屋订单：${recoveryResult.unpaidHouseOrders}个`
+      }
+      if (recoveryResult.reasons.length > 0) {
+        message += `\n详细原因：${recoveryResult.reasons.join(', ')}`
+      }
+      
+      ElMessage.warning(message)
+      return
+    }
+  } catch (error) {
+    console.error('检查恢复资格失败:', error)
+    ElMessage.error('检查恢复资格失败，请稍后重试')
     return
   }
 
@@ -106,10 +130,9 @@ async function attemptRecover() {
     return
   }
 
-  // 3. 调用恢复接口
-  recoverLoading.value = true
+  // 3. 调用统一恢复接口
   try {
-    await axiosInstance.post(`/hotels/recover`, null, { params: { userId } })
+    const result = await recoverUser(userId)
     ElMessage.success('信用商业功能已恢复')
     emit('recovered')
   } catch (e) {

@@ -541,12 +541,13 @@ function formatPromiseStatus(order: any) {
   // 1: 逾期天数 (未支付且已过期)
   // 2: 固定逾期状态 (已支付但在截止日期后支付)
   
+  // 直接使用后端返回的promise状态，不再前端重新计算
   if (order.promise === 0) {
     // 已支付的情况
     if (order.status === 1) {
       return '守约'
     }
-    // 未支付的情况
+    // 未支付的情况，显示剩余天数
     else if (order.status === 0) {
       const remainingDays = diffDays(deadline, today)
       if (remainingDays > 0) {
@@ -554,20 +555,19 @@ function formatPromiseStatus(order: any) {
       } else if (remainingDays === 0) {
         return '今日到期'
       } else {
-        // remainingDays < 0，表示已经逾期
-        const overdueDays = Math.abs(remainingDays)
-        return `逾期${overdueDays}天`
+        // 这种情况不应该出现，因为后端应该已经将promise更新为1
+        return '状态异常'
       }
     }
     return '守约'
   } else if (order.promise === 1) {
     // 未支付且已逾期
-    const overdueDays = diffDays(today, deadline)
+    const overdueDays = Math.max(1, Math.abs(diffDays(deadline, today)))
     return `逾期${overdueDays}天`
   } else if (order.promise === 2) {
     // 已支付但逾期支付，显示固定逾期天数
     const payDate = order.payDate ? order.payDate.split(' ')[0] : today
-    const overdueDays = diffDays(payDate, deadline)
+    const overdueDays = Math.max(1, Math.abs(diffDays(deadline, payDate)))
     return `逾期${overdueDays}天`
   }
   
@@ -576,6 +576,7 @@ function formatPromiseStatus(order: any) {
 
 // 房屋订单守约状态样式类
 function getPromiseStatusClass(order: any) {
+  // 直接使用后端返回的promise状态
   if (order.promise === 1 || order.promise === 2) {
     return { 'overdue': true }
   } else if (order.promise === 0 && order.status === 0) {
@@ -583,12 +584,8 @@ function getPromiseStatusClass(order: any) {
     const deadline = order.deadline ? order.deadline.split(' ')[0] : null
     if (deadline) {
       const remainingDays = diffDays(deadline, today)
-      // 如果已经逾期（remainingDays < 0），应用逾期样式
-      if (remainingDays < 0) {
-        return { 'overdue': true }
-      }
       // 未支付但还有剩余时间，显示警告色
-      else if (remainingDays <= 3 && remainingDays > 0) {
+      if (remainingDays <= 3 && remainingDays > 0) {
         return { 'warning': true }
       }
     }

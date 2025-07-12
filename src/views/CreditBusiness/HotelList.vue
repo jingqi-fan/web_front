@@ -1,5 +1,12 @@
 <template>
   <div class="hotel-list-page">
+    <!-- 头部 -->
+    <div class="header">
+      <div class="header-content">
+        <div class="logo">酒店预订</div>
+      </div>
+    </div>
+
     <!-- 筛选 + 搜索 区（固定） -->
     <el-row class="filter-search" :gutter="16" align="middle">
       <!-- 筛 选 -->
@@ -254,9 +261,38 @@ async function renderHistoryChart() {
   flex-direction: column;
   height: 94vh;
   padding: 24px;
-  background-color: #fff;
+  background-color: #ffffff;
   overflow-y: hidden;
+  
 
+  .header {
+  background: linear-gradient(to bottom, #f7f7f3 0%, #ffffff 100%);
+  margin-bottom: 10px;
+  color: rgb(42, 34, 34);
+  padding: 20px 0;
+  box-shadow: 0 2px 12px rgba(246, 247, 244, 0.1);
+}
+
+.header-content {
+  max-width: 1200px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.logo {
+  font-size: 28px;
+  color:#3b1f4b;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+
+.logo::before {
+  content: "🏨";
+  margin-right: 10px;
+  font-size: 32px;
+}
   .filter-search {
     position: sticky;
     top: 0;
@@ -284,7 +320,7 @@ async function renderHistoryChart() {
 }
 
   .hotel-list-container {
-    margin-bottom: 1%;
+    margin-bottom: 0%;
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
