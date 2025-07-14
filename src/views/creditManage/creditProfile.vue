@@ -159,15 +159,36 @@ const userId = userBasicInfo.id
 
 
 const userInfo = reactive({
-  name: userBasicInfo.nickName,
-  avatar: userBasicInfo.profilePicture,
-  creditScore: creditScoreInfo.creditScore,
-  updateTime: creditScoreInfo.updateTime,
+  name: '',
+  avatar: '',
+  creditScore: 0,
+  updateTime: '',
   records: []
 })
+
+//获取个人信息
+const fetchUserCreditInfo = () => {
+  axiosInstance
+    .get(`/credit/user/${userId}`)
+    .then((res) => {
+      const result = res.data
+      if (result.code === 1 && result.data) {
+        userInfo.name = result.data.nickName
+        userInfo.avatar = result.data.profilePicture
+        userInfo.creditScore = result.data.creditScore
+        userInfo.updateTime = result.data.updateTime
+      } else {
+        console.error('获取用户信用信息失败：', result.msg)
+      }
+    })
+    .catch((err) => {
+      console.error('请求用户信息异常：', err)
+    })
+}
+
 //信用等级及不同样式
 const creditLevel = computed(() => {
-  const score = creditScoreInfo.creditScore
+  const score = userInfo.creditScore
   if (score == 0) return '待认证'
   if (score >= 850) return '信用极好'
   if (score >= 750) return '信用较好'
@@ -176,7 +197,7 @@ const creditLevel = computed(() => {
   return '信用极差'
 })
 const creditTagType = computed(() => {
-  const score = creditScoreInfo.creditScore
+  const score = userInfo.creditScore
   if (score == 0) return 'success'
   if (score >= 850) return 'success'
   if (score >= 750) return 'primary'
@@ -268,6 +289,7 @@ const handleSizeChange = (newSize) => {
 
 //行为累计获取
 onMounted(() => {
+  fetchUserCreditInfo()
   axiosInstance
     .get(`/credit/count/${userId}`)
     .then((res) => {
