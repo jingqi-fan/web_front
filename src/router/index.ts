@@ -71,6 +71,10 @@ import MyBooksOrder from "../views/credit_life/library/MyBooksOrder.vue";
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
+        //无需验证的路由
+
+
+        //需要验证的路由
         {
             path: '/manager/examine',
             name: 'examine_improve',

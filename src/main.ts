@@ -9,7 +9,7 @@ import TDesign from 'tdesign-vue-next';
 import 'tdesign-vue-next/es/style/index.css';
 import pinia from "./stores";
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
-
+import "./router/config.ts"
 
 const app=createApp(App)
 

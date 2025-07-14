@@ -267,3 +267,36 @@ export const getTopCreditUsers = async () => {
         }, 500)
     })
 }
+import { ref } from 'vue'
+export interface RankUser {
+    userId: number
+    nickName: string
+    profilePicture: string
+    score: number
+    area?: string
+    avatar?:string
+}
+
+export const rankList = ref<RankUser[]>([])
+
+export const loadRankWithCounty = async () => {
+    // 第一步：获取排行
+    const res1 = await axiosInstance.get('/credit/rank')
+    console.log("排行数据：",res1.data)
+    const users: RankUser[] = res1.data.data || []
+    console.log(users)
+
+    // 第二步：提取 userId 并查询县区
+    const ids = users.map(u => u.userId)
+    const res2= await axiosInstance.post('/user/county', {ids})
+    console.log("地区数据：",res2.data.data)
+    const idToCounty = res2?.data?.data || {}
+
+    // 第三步：合并地区字段到排行列表中
+    rankList.value = users.map(u => ({
+        ...u,
+        area: idToCounty[u.userId].county || '未知',
+        avatar:idToCounty[u.userId].avatar || "https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png",
+    }))
+    return rankList.value
+}

@@ -256,7 +256,7 @@ const getUserScore = async () => {
     await getUserCreditScoreInfo(id);
   } catch (e) {
     console.error('用户信用分加载失败', e);
-    MessagePlugin.error('用户信用分加载失败');
+    await MessagePlugin.error('用户信用分加载失败');
   }
 };
 </script>
