@@ -13,7 +13,7 @@
           text-color="#333"
           active-text-color="#409EFF"
           >
-          <el-menu-item index="/settings">首页</el-menu-item>
+          <el-menu-item index="/home">首页</el-menu-item>
           <el-menu-item index="/personal">个人中心</el-menu-item>
           <el-menu-item index="/creditbusiness">信用商业</el-menu-item>
           <el-menu-item index="/life">信用生活</el-menu-item>
@@ -39,6 +39,12 @@
             </el-icon>
             <span>分数详情</span>
           </el-menu-item>
+          <el-menu-item index="/CreditTask">
+            <el-icon>
+              <PieChart />
+            </el-icon>
+            <span>提分任务</span>
+          </el-menu-item>
         </el-menu>
       </el-aside>
 
@@ -52,7 +58,7 @@
               <p class="text-sm text-gray-500">
                 信用分：<strong class="text-blue-500 text-2xl">{{ userInfo.creditScore }}</strong>
               </p>
-              <el-tag type="success">{{ userInfo.creditLevel }}</el-tag>
+              <el-tag type="creditTagType">{{ creditLevel }}</el-tag>
               <p class="text-xs text-gray-400">
                 更新时间：{{ formatTime(userInfo.updateTime) }}
               </p>
@@ -156,10 +162,29 @@ const userInfo = reactive({
   name: userBasicInfo.nickName,
   avatar: userBasicInfo.profilePicture,
   creditScore: creditScoreInfo.creditScore,
-  creditLevel: '信用极好',
   updateTime: creditScoreInfo.updateTime,
   records: []
 })
+//信用等级及不同样式
+const creditLevel = computed(() => {
+  const score = creditScoreInfo.creditScore
+  if (score == 0) return '待认证'
+  if (score >= 850) return '信用极好'
+  if (score >= 750) return '信用较好'
+  if (score >= 600) return '信用一般'
+  if (score >= 450) return '信用较差'
+  return '信用极差'
+})
+const creditTagType = computed(() => {
+  const score = creditScoreInfo.creditScore
+  if (score == 0) return 'success'
+  if (score >= 850) return 'success'
+  if (score >= 750) return 'primary'
+  if (score >= 600) return 'warning'
+  if (score >= 450) return 'danger'
+  return 'info'
+})
+
 
 const behaviorCount = reactive({
   totalDays: 0,
@@ -203,6 +228,7 @@ const filters = reactive({
   status: ''
 })
 
+//守约记录获取
 const fetchRecords = () => {
   userInfo.records = []
   axiosInstance
@@ -240,6 +266,7 @@ const handleSizeChange = (newSize) => {
   fetchRecords()
 }
 
+//行为累计获取
 onMounted(() => {
   axiosInstance
     .get(`/credit/count/${userId}`)
@@ -248,7 +275,7 @@ onMounted(() => {
       if (result.code === 1 && result.data) {
         Object.assign(behaviorCount, result.data)
       } else {
-        console.error('获取行为统计失败:', result.msg)
+        console.error('获取行为累计失败:', result.msg)
       }
     })
     .catch((err) => {

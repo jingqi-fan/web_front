@@ -6,7 +6,7 @@
           <span class="header-title">信用管理</span>
           <el-menu mode="horizontal" :default-active="activeMenu" class="header-menu" @select="handleMenuSelect"
             background-color="#b3c0d1" text-color="#333" active-text-color="#409EFF">
-            <el-menu-item index="/settings">首页</el-menu-item>
+            <el-menu-item index="/home">首页</el-menu-item>
             <el-menu-item index="/personal">个人中心</el-menu-item>
             <el-menu-item index="/creditbusiness">信用商业</el-menu-item>
             <el-menu-item index="/life">信用生活</el-menu-item>
@@ -32,6 +32,12 @@
               </el-icon>
               <span>分数详情</span>
             </el-menu-item>
+            <el-menu-item index="/CreditTask">
+            <el-icon>
+              <PieChart />
+            </el-icon>
+            <span>提分任务</span>
+          </el-menu-item>
           </el-menu>
         </el-aside>
 
@@ -77,7 +83,7 @@
 
               <!-- 悬浮信用信息块 -->
               <div class="user-credit-info">
-                <el-avatar :size="48" :src="userBasicInfo.avatar || 'https://i.pravatar.cc/150?img=15'" />
+                <el-avatar :size="48" :src="userBasicInfo.profilePicture || 'https://i.pravatar.cc/150?img=15'" />
                 <div class="user-info-text">
                   <div class="user-name">{{ userBasicInfo.nickName || '当前用户' }}</div>
                   <div class="user-rank-score">
@@ -192,8 +198,8 @@ onMounted(async () => {
   }
 
   //加载排行榜数据
-  await fetchRankList()
-  await fetchUserRank()
+  fetchRankList()
+  fetchUserRank()
 })
 </script>
 
