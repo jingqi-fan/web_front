@@ -10,6 +10,10 @@ export const countBacklog=async (id:number)=>{
         const cnt1=await getBookBacklog(id)
         const cnt2=await getParkingBacklog(id)
         const cnt3=await getHospitalBacklog(id)
+        console.log("countBacklog:", cnt1, cnt2, cnt3)
+        if(cnt1===undefined || cnt2===undefined || cnt3===undefined){
+            return 0;
+        }
         return cnt1?.length + cnt2?.length + cnt3?.length;
     }catch(err){
         console.error("获取待办数量失败", err);
@@ -22,12 +26,12 @@ export const getBookBacklog = async (id: number): Promise<BorrowingRecord[] | un
         const res = await axiosInstance.get<LifeApiResponse<BorrowingRecord[]>>(
             `/book/record?id=${id}`
         );
-        if(res.data.data===null){
+        if(res.data.code===500 || res.data.data===null){
             return [];
         }
         console.log("getBookBacklog:", res)
-        if (res.data.code === 200 && Array.isArray(res.data.data)) {
-            return res.data.data;
+        if (res.data.code === 200 && Array.isArray(res.data.data.bookSubBorrowings)) {
+            return res.data.data.bookSubBorrowings;
         } else {
             ElMessage.error(res.data.msg || "无效的响应数据");
         }
@@ -41,7 +45,7 @@ export const getParkingBacklog=async (id:number)=>{
     try {
         const res=await axiosInstance.get<LifeApiResponse<ParkingRecord>>(`/park/appointmentList?id=${id}`)
         console.log("getParkingBacklog:", res)
-        if(res.data.data===null){
+        if(res.data.code===500 || res.data.data===null){
             return [];
         }
         if (res.data.code === 200 && Array.isArray(res.data.data)) {
@@ -59,7 +63,7 @@ export const getHospitalBacklog=async (id:number)=>{
     try {
         const res=await axiosInstance.get<LifeApiResponse<HospitalRecord>>(`/hospital/order/list?id=${id}`)
         console.log("getHospitalBacklog:", res)
-        if(res.data.data===null){
+        if(res.data.code===500 || res.data.data===null){
             return [];
         }
         if (res.data.code === 200 && Array.isArray(res.data.data)) {

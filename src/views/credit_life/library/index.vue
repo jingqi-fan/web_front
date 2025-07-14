@@ -25,7 +25,7 @@
         <el-icon class="card-icon" :style="{ color: '#E6A23C' }"><Document /></el-icon>
         <div class="card-title">我的借阅</div>
         <div class="card-subtitle">查看历史与当前借阅</div>
-        <el-button type="success" size="small">查看记录</el-button>
+        <el-button type="success" size="small" @click="MyOrderList">查看记录</el-button>
       </el-card>
 
       <el-card class="quick-card" shadow="hover">
@@ -72,8 +72,10 @@
 <script setup lang="ts">
 import {Back, Document, Medal, Reading} from "@element-plus/icons-vue";
 import router from "@/router";
-import {type Book, getRecommendBooks} from "@/api/life/book_api.ts";
+import {addToBookListing, type Book, getRecommendBooks} from "@/api/life/book_api.ts";
 import {ref} from "vue";
+import {ElMessage} from "element-plus";
+import {useUserInfoStore} from "@/stores/useUserInfoStore.ts";
 
 
 const creditScore = 87
@@ -89,8 +91,22 @@ const getRecommendBookList=async ()=>{
 }
 getRecommendBookList()
 
+const userInfoStore=useUserInfoStore()
+const userInfo=userInfoStore.user
+const borrow = async (book: Book) => {
+  const res = await addToBookListing(book.id, userInfo.id)
+  ElMessage.success(res || '已添加到借阅清单')
+
+  // 跳转到快速借阅页（/life/book/list）
+  await router.push('/life/book/list')
+}
+
+
 const goToBorrowBook=()=>{
   router.push('/life/book/list')
+}
+const MyOrderList=()=>{
+  router.push('/book/my_order')
 }
 </script>
 

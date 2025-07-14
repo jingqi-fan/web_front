@@ -2,7 +2,7 @@
   <div class="parking-home">
     <!-- 顶部标题栏 -->
     <el-header class="top-bar">
-      <el-button type="text" :icon="Back" @click="goHome" />
+      <el-button type="text" :icon="Back" @click="goHome" >返回</el-button>
       <div class="title">智慧停车场</div>
       <div class="user-info">
         <span class="score">信用分：{{ creditScore.creditScore }}</span>

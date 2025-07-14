@@ -40,6 +40,8 @@ export interface BookPreOrderInfoRes {
     bookReturnFeesId: number
 }
 
+
+
 // 获取推荐图书
 export const getRecommendBooks = async () => {
     const res = await axiosInstance.get<{ code: number; data: Book[] }>('/book/recommend')
@@ -81,7 +83,7 @@ export const addToBookListing = async (bookId: number, userId: number) => {
         `/book/listing/add/${bookId}`,
         { params: { id: userId } }
     )
-    return res.data.data
+    return res.data
 }
 
 // 删除借阅清单中的图书
@@ -112,18 +114,19 @@ export const payOrder = async (bookReturnFeeId: number) => {
 
 // 查询借阅记录
 export const getBorrowRecords = async (userId: number) => {
-    const res = await axiosInstance.get<{ code: number; data: Book[] }>(
+    const res = await axiosInstance.get(
         '/book/record',
         { params: { id: userId } }
     )
+
     return res.data.data
 }
 
 // 归还书籍
-export const returnBook = async (userId: number) => {
+export const returnBook = async (bookId: number,borrowingsId:number) => {
     const res = await axiosInstance.get<{ code: number; data: string }>(
         '/book/return',
-        { params: { id: userId } }
+        { params: { bookId,borrowingsId } }
     )
     return res.data.data
 }

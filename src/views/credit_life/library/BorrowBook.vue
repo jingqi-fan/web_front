@@ -1,5 +1,6 @@
 <template>
-  <el-container  class="borrow-center">
+  <!-- 顶部导航 -->
+  <el-container class="borrow-center">
     <el-header class="top-bar">
       <el-button type="text" :icon="Back" @click="router.back()" />
       <div class="title">图书借阅中心</div>
@@ -8,19 +9,20 @@
         <el-avatar :size="30" :src="userInfo.profilePicture" />
       </div>
     </el-header>
+
+    <!-- 主体区域 -->
     <el-container class="main-body">
+      <!-- 左侧分类菜单 -->
       <el-aside width="180px" class="aside">
         <el-menu :default-active="activeCategory.toString()" @select="handleCategoryChange">
           <el-menu-item index="0">全部分类</el-menu-item>
-          <el-menu-item
-              v-for="category in categories"
-              :key="category.id"
-              :index="category.id.toString()"
-          >
+          <el-menu-item v-for="category in categories" :key="category.id" :index="category.id.toString()">
             {{ category.name }}
           </el-menu-item>
         </el-menu>
       </el-aside>
+
+      <!-- 右侧图书列表 -->
       <el-main class="content">
         <div class="search-bar">
           <el-input
@@ -32,13 +34,9 @@
               style="width: 300px"
           />
         </div>
+
         <div class="book-list">
-          <el-card
-              v-for="book in filteredBooks"
-              :key="book.id"
-              class="book-card"
-              shadow="hover"
-          >
+          <el-card v-for="book in filteredBooks" :key="book.id" class="book-card" shadow="hover">
             <div class="book-cover">
               <img :src="book.image" alt="封面" />
             </div>
@@ -51,27 +49,27 @@
                   {{ book.stock > 0 ? '可借阅' : '已借出' }}
                 </el-tag>
                 <div class="button-group">
+                  <el-button type="info" size="small" plain @click="viewDetail(book.id)">详情</el-button>
                   <el-button
-                      type="info"
+                      v-if="borrowList.includes(book.id)"
+                      type="danger"
                       size="small"
                       plain
-                      @click="viewDetail(book.id)"
-                  >
-                    详情
-                  </el-button>
+                      @click="removeFromList(book.id)"
+                  >取消</el-button>
                   <el-button
+                      v-else
                       type="primary"
                       size="small"
-                      :disabled="book.stock <= 0 || borrowList.includes(book.id)"
+                      :disabled="book.stock <= 0"
                       @click="addToList(book.id)"
-                  >
-                    借阅
-                  </el-button>
+                  >借阅</el-button>
                 </div>
               </div>
             </div>
           </el-card>
         </div>
+
         <div class="pagination">
           <el-pagination
               background
@@ -82,40 +80,47 @@
           />
         </div>
       </el-main>
-
     </el-container>
+
+    <!-- 底部借阅操作栏 -->
     <el-footer class="borrow-footer">
       <div class="footer-content">
         <span>当前借阅书籍：<strong>{{ borrowList.length }}</strong> 本</span>
-        <el-button type="primary" style="margin-left: 1100px" size="small" @click="viewPreBookList">查看清单</el-button>
+        <span style="margin-left: 20px">预计费用：<strong style="color: red">¥{{ totalEstimatedCost }}</strong></span>
+        <el-button type="primary" style="margin-left: auto" size="small" @click="viewPreBookList">查看清单</el-button>
         <el-button type="success" size="small" @click="submitBorrowList">提交借阅</el-button>
       </div>
     </el-footer>
   </el-container>
+
+  <!-- 借阅清单弹窗 -->
   <el-dialog
       v-model="borrowListDialogVisible"
       title="我的借阅清单"
       width="600px"
       :close-on-click-modal="false"
   >
+    <div style="color: red">一共：{{ borrowListData.length }} 本</div>
     <div v-if="borrowListData.length === 0">暂无借阅项</div>
     <div v-else class="borrow-list-dialog">
-      <div
-          class="borrow-item"
-          v-for="book in borrowListData"
-          :key="book.id"
-      >
+      <div class="borrow-item" v-for="book in borrowListData" :key="book.id">
         <img :src="book.image" alt="封面" class="book-img" />
         <div class="book-info">
           <div class="book-title">{{ book.bookName }}</div>
           <div class="book-author">作者：{{ book.author }}</div>
-          <div class="book-price">预计费用：{{ book.estimatedCost || '免费' }}</div>
+          <div class="book-price">预计费用：{{ book.price || '免费' }}</div>
         </div>
+        <el-button type="danger" size="small" plain @click="removeFromList(book.id)">取消借阅</el-button>
       </div>
     </div>
-  </el-dialog>
+    <div v-if="borrowListData.length > 0" style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px">
+      <span style="font-weight: bold; color: red">预计费用合计：¥{{ totalEstimatedCost }}</span>
+      <el-button type="success" size="small" @click="submitBorrowList">提交借阅</el-button>
+    </div>
 
+  </el-dialog>
 </template>
+
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
@@ -125,8 +130,6 @@ import {
   deleteFromBookListing,
   getBookDetail, getBookListing,
   getBooksPage,
-  getBorrowRecords,
-  preOrderBooks
 } from '@/api/life/book_api'
 import type { Book } from '@/api/life/book_api'
 import {useUserInfoStore} from "@/stores/useUserInfoStore.ts";
@@ -161,8 +164,28 @@ const fetchBookPage = async () => {
   bookList.value = res.booksList
   total.value = res.total
 }
+const initBorrowList = async () => {
+  const res = await getBookListing(userInfo.id)
+  const list = res.booksList || []
 
-onMounted(fetchBookPage)
+  // 1. 存入完整数据用于弹窗显示
+  borrowListData.value = list
+
+  // 2. 提取 id 数组用于控制按钮禁用
+  borrowList.value = list.map(book => book.id)
+}
+
+onMounted(async () => {
+  await fetchBookPage()     // 获取当前页面图书
+  await initBorrowList()    // 初始化借阅清单
+})
+
+const totalEstimatedCost = computed(() => {
+  return borrowListData.value.reduce((sum, book) => {
+    const price = Number(book.price)
+    return sum + (isNaN(price) ? 0 : price)
+  }, 0).toFixed(2)
+})
 
 const handleCategoryChange = (id: string) => {
   activeCategory.value = Number(id)
@@ -195,46 +218,69 @@ const addToList = async (bookId: number) => {
     ElMessage.warning('已在借阅清单中')
     return
   }
+
   const res = await addToBookListing(bookId, userId)
+  if(res.code===500){
+    ElMessage.error(res.msg?res.msg:'该书已被借出')
+    return
+  }
   ElMessage.success(res || '添加成功')
+
   borrowList.value.push(bookId)
 }
+
+
 
 const removeFromList = async (bookId: number) => {
   const res = await deleteFromBookListing(bookId, userId)
   ElMessage.success(res || '删除成功')
   borrowList.value = borrowList.value.filter(id => id !== bookId)
+  // 🔴 ✅ 不再手动修改 borrowListData
 }
+
+
+
 
 const submitBorrowList = async () => {
   if (borrowList.value.length === 0) {
     ElMessage.warning('请先选择要借阅的图书')
     return
   }
-  const res=await preOrderBooks(userId)
-
-  await ElMessageBox.alert(`成功提交 ${borrowList.value.length} 本图书的借阅请求`,res?res: '借阅成功')
+  await ElMessageBox.alert(`成功提交 ${borrowList.value.length} 本图书的借阅请求`,'预借阅成功，请支付费用')
   borrowList.value = []
+  await router.push(`/book/pay/${userId}`)
 }
 const borrowListDialogVisible = ref(false)
 const borrowListData = ref<Book[]>([])
+watch(borrowListDialogVisible, async (visible) => {
+  if (visible) {
+    const res = await getBookListing(userId)
+    borrowListData.value = res.booksList || []
+  }
+})
 
-const viewPreBookList = async () => {
-
-  const res = await getBookListing(userId)
-  console.log("预览借阅项",res)
-  borrowListData.value = res || []
+const viewPreBookList = () => {
   borrowListDialogVisible.value = true
 }
+
+
 
 </script>
 
 <style scoped lang="scss">
 .borrow-center {
-  height: 100vh;
+  height: 98vh;
   display: flex;
   flex-direction: column;
   overflow-y: hidden;
+}
+.borrow-item {
+  display: flex;
+  justify-content: space-between; // 添加
+  gap: 12px;
+  align-items: flex-start;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
 }
 
 .borrow-list-dialog {

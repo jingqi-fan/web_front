@@ -94,7 +94,7 @@
 
       <!-- 个人服务 -->
       <div class="personal-services animate__animated animate__fadeIn">
-        <div class="mini-option orders-option" @click="router.push('/life/orders')">
+        <div class="mini-option orders-option" @click="getBacklogDetail">
           <div class="option-content">
             <div class="icon-badge">
               <el-icon class="option-icon"><List /></el-icon>
@@ -144,7 +144,6 @@ import {
   Headset,
   List,
   Lock,
-  PictureFilled,
   Refresh,
   SwitchButton,
   UserFilled
@@ -161,7 +160,10 @@ const pendingCount = ref(0);
 const userInfoStore=useUserInfoStore()
 const getPendingCount=async ()=>{
   const id=userInfoStore.user.id
-  pendingCount.value=await countBacklog(id)
+  console.log("home id:",id)
+  const res=await countBacklog(id)
+  console.log("home res:",res)
+  pendingCount.value=res
 }
 getPendingCount()
 
@@ -182,6 +184,9 @@ const handleEditRealInfo = () => router.push('/credit-life/real-info');
 const handleChangeAvatar = () => alert('更换头像功能开发中');
 const logout = () => alert('退出登录');
 const contactSupport = () => alert('联系客服功能开发中');
+const getBacklogDetail=async ()=>{
+  
+}
 </script>
 
 <style scoped lang="scss">

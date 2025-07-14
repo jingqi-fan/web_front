@@ -64,6 +64,8 @@ import ParkingSpace from "../views/credit_life/parking/ParkingSpace.vue";
 import ConfirmPreorder from "../views/credit_life/parking/ConfirmPreorder.vue";
 import ParkingMyOrder from "../views/credit_life/parking/ParkingMyOrder.vue";
 import FeeDetail from "../views/credit_life/parking/FeeDetail.vue";
+import PayBorrowBooks from "../views/credit_life/library/PayBorrowBooks.vue";
+import MyBooksOrder from "../views/credit_life/library/MyBooksOrder.vue";
 
 
 const router = createRouter({
@@ -139,9 +141,19 @@ const router = createRouter({
             component: DrugListSystem
         },
         {
+            path:'/book/my_order',
+            name:'BooksOrder',
+            component:MyBooksOrder
+        },
+        {
             path:'/life/book/list',
             name:'BorrowBook',
             component: BorrowBookList
+        },
+        {
+            path:'/book/pay/:id',
+            name:'PayBorrowBook',
+            component: PayBorrowBooks
         },
         {
             path: '/life/hospital_order_home',
