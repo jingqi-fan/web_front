@@ -64,7 +64,9 @@ import {useUserCreditScoreStore} from "@/stores/useUserCreditScore.ts";
 import {getRecommendParking} from "@/api/life/parking_api.ts";
 import type {ParkingLotsSimpleInfoRes} from "@/api/life/parking_type.ts";
 
-const goHome = () => router.back()
+const goHome = () => {
+  router.push('/life')
+}
 
 const userInfoStore=useUserInfoStore()
 const userInfo=userInfoStore.user

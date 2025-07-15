@@ -453,7 +453,7 @@
         :http-request="uploadAvatar"
         :show-file-list="false"
     >
-      <img v-if="previewAvatarUrl" :src="previewAvatarUrl" class="avatar-preview" />
+      <img v-if="previewAvatarUrl" :src="previewAvatarUrl" class="avatar-preview"  alt=""/>
       <div v-else class="upload-placeholder">点击上传头像</div>
     </el-upload>
     <template #footer>
@@ -482,14 +482,13 @@ import NotPassPng from "@/assets/not_pass.png"
 import {useTokenStore} from "@/stores";
 import {
   updateUserInfo,
-  getTopCreditUsers,
   userLogout,
   updateUserCreditScore,
   updateAvatar,
   loadRankWithCounty
 } from "@/api/user.ts";
-const userInfo=ref(null)
-const creditScore=ref(null)
+const userInfo=ref<User>(null)
+const creditScore=ref<UserCreditScore>(null)
 const shoppingContainer = ref(null)
 const lifeContainer=ref(null)
 const creditManagerContainer=ref(null)
@@ -725,8 +724,8 @@ const submitForm = () => {
       });
 
       ElMessage.success('更新成功,刷新页面');
-      await getUserInfo(uuid);
-      await getUserCreditScoreInfo(userInfoStore.user.id)
+      userInfo.value=await getUserInfo(uuid);
+      creditScore.value=await getUserCreditScoreInfo(userInfoStore.user.id)
       dialogFormVisible.value = false;
     } catch (e) {
       ElMessage.error('更新失败，请重试');
@@ -790,6 +789,8 @@ import {PictureFilled, SwitchButton, UserFilled} from "@element-plus/icons-vue";
 import {useDeviceStore} from "@/stores/useDeviceStore.ts";
 import axiosInstance from "@/plugins/axios.ts";
 import { getUserCreditScoreInfo, getUserInfo } from "@/api/user.ts";
+import type {User} from "@/entity/user.ts";
+import {UserCreditScore} from "@/entity/user_credit_score.ts";
 
 const activeChart = ref('credit'); // 默认选中信用分折线图
 const chartRef = ref<HTMLElement | null>(null);

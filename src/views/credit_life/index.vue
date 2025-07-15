@@ -153,6 +153,9 @@ import router from "@/router";
 import {countBacklog} from "@/api/life/home.ts";
 import {useUserInfoStore} from "@/stores/useUserInfoStore.ts";
 import {useUserCreditScoreStore} from "@/stores/useUserCreditScore.ts";
+import {userLogout} from "@/api/user.ts";
+import {useTokenStore} from "@/stores";
+import {useDeviceStore} from "@/stores/useDeviceStore.ts";
 
 const avatarUrl = ref('https://q8.itc.cn/q_70/images03/20250521/eac16c7d96884de3bd0cb499554c205a.jpeg');
 const pendingCount = ref(0);
@@ -180,9 +183,15 @@ const notices = ref([
 
 const progressWidth = computed(() => `${Math.min((creditScore.value / 1000) * 100, 100)}%`);
 const backHome = () => router.push('/home');
-const handleEditRealInfo = () => router.push('/credit-life/real-info');
+const handleEditRealInfo = () => router.push('/personal');
 const handleChangeAvatar = () => alert('更换头像功能开发中');
-const logout = () => alert('退出登录');
+const logout =async  () => {
+  const userInfoStore=useUserInfoStore()
+  const uuid=userInfoStore.user.uuid
+  const deviceStore=useDeviceStore()
+  await userLogout(uuid,deviceStore.device)
+  await router.push('/login')
+}
 const contactSupport = () => alert('联系客服功能开发中');
 const getBacklogDetail=async ()=>{
 

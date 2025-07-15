@@ -3,7 +3,7 @@ import {defineStore} from "pinia";
 //双Token设计
 export const useDeviceStore=defineStore('device',{
     state:()=>({
-        device:'' as string
+        device:'123456' as string
     }),
     persist: true,
     actions:{
@@ -12,7 +12,7 @@ export const useDeviceStore=defineStore('device',{
             console.log(device)
         },
         removeDevice(){
-            this.device='';
+            this.device='123456';
         }
     }
 })
