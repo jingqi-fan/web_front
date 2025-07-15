@@ -33,11 +33,11 @@
               <span>分数详情</span>
             </el-menu-item>
             <el-menu-item index="/CreditTask">
-            <el-icon>
-              <PieChart />
-            </el-icon>
-            <span>提分任务</span>
-          </el-menu-item>
+              <el-icon>
+                <PieChart />
+              </el-icon>
+              <span>提分任务</span>
+            </el-menu-item>
           </el-menu>
         </el-aside>
 
@@ -65,9 +65,10 @@
                   <div class="total-label">总信用分</div>
                 </div>
               </div>
-              
-              <!-- 追加到信用评分构成卡片内，放在雷达图下方 -->
-              <div class="score-trend-chart" ref="trendChart" style="width: 100%; height: 240px; margin-top: 30px;"></div>
+
+              <!-- 折线图 -->
+              <div class="score-trend-chart" ref="trendChart" style="width: 100%; height: 240px; margin-top: 30px;">
+              </div>
             </el-card>
 
             <!-- 信用排行榜 -->
@@ -75,8 +76,14 @@
               <div class="rank-header">信用排行榜</div>
               <div class="rank-scrollbar">
                 <el-scrollbar>
-                  <div v-for="(user, index) in rankList" :key="user.id" class="rank-item">
-                    <span class="rank-index">{{ index + 1 }}</span>
+                  <div v-for="(user, index) in rankList" :key="user.id" class="rank-item"
+                    :class="{ gold: index === 0, silver: index === 1, bronze: index === 2 }">
+                    <span class="rank-index">
+                      <template v-if="index === 0">🥇</template>
+                      <template v-else-if="index === 1">🥈</template>
+                      <template v-else-if="index === 2">🥉</template>
+                      <template v-else>{{ index + 1 >= 100 ? '99+' : index + 1 }}</template>
+                    </span>
                     <el-avatar :size="36" :src="user.profilePicture" />
                     <span class="rank-name">{{ user.nickName }}</span>
                     <span class="rank-score">{{ user.score }}</span>
@@ -259,8 +266,8 @@ watch(scoreTrend, () => {
 const fetchScoreTrend = async () => {
   try {
     const res = await axios.get(`http://localhost:8086/record/${userId}/10`)
-  
-     if (!res.data.data || res.data.data.length === 0) {
+
+    if (!res.data.data || res.data.data.length === 0) {
       scoreTrend.value = []
       if (chartInstance) {
         chartInstance.clear()
@@ -509,10 +516,10 @@ body {
 }
 
 .rank-index {
-  width: 24px;
+  width: 40px;
   font-weight: bold;
-  color: #409EFF;
   text-align: center;
+  font-size: 16px;
 }
 
 .rank-name {
@@ -583,5 +590,4 @@ body {
 .user-rank-score span {
   font-weight: bold;
 }
-
 </style>
