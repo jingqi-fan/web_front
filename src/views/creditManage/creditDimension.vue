@@ -65,6 +65,9 @@
                   <div class="total-label">总信用分</div>
                 </div>
               </div>
+              
+              <!-- 追加到信用评分构成卡片内，放在雷达图下方 -->
+              <div class="score-trend-chart" ref="trendChart" style="width: 100%; height: 240px; margin-top: 30px;"></div>
             </el-card>
 
             <!-- 信用排行榜 -->
@@ -102,12 +105,14 @@
   </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted, ref, watch, nextTick } from 'vue'
+import * as echarts from 'echarts'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { useUserInfoStore } from '@/stores/useUserInfoStore'
 import { useUserCreditScoreStore } from '@/stores/useUserCreditScore'
 import { House, PieChart } from '@element-plus/icons-vue'
+
 
 const userInfoStore = useUserInfoStore()
 const userCreditScoreStore = useUserCreditScoreStore()
@@ -177,6 +182,120 @@ const fetchUserRank = async () => {
   }
 }
 
+// 近十次信用分变化数据，格式：[{ date: '2025-07-01', score: 85 }, ...]
+const scoreTrend = ref([])
+
+// echarts 实例
+const trendChart = ref(null)
+let chartInstance = null
+
+// 初始化折线图
+const initTrendChart = () => {
+  if (!trendChart.value) return
+  chartInstance = echarts.init(trendChart.value)
+
+  // 计算score的最大最小值，给Y轴留出10%空间
+  const scores = scoreTrend.value.map(item => item.score)
+  const maxScore = Math.max(...scores)
+  const minScore = Math.min(...scores)
+  const range = maxScore - minScore || 10 // 防止为0
+  const yMax = maxScore + range * 0.1
+  const yMin = Math.max(minScore - range * 0.1, 0) // 最小不低于0
+
+  const option = {
+    title: {
+      text: '近十次信用分变化',
+      left: 'center',
+      textStyle: {
+        fontSize: 16,
+        color: '#303133',
+      }
+    },
+    tooltip: {
+      trigger: 'axis'
+    },
+    xAxis: {
+      type: 'category',
+      data: scoreTrend.value.map(item => item.date),
+      boundaryGap: false,
+      axisLine: { lineStyle: { color: '#909399' } },
+      axisLabel: { rotate: 45 }
+    },
+    yAxis: {
+      type: 'value',
+      min: yMin,
+      max: yMax,
+      axisLine: { lineStyle: { color: '#909399' } },
+      splitNumber: 5,  //分成5段
+      minInterval: 1, // 保证刻度间隔不小于1
+    },
+    series: [{
+      data: scores,
+      type: 'line',
+      smooth: true,
+      lineStyle: { color: '#409EFF' },
+      itemStyle: { color: '#409EFF' },
+      areaStyle: {
+        color: 'rgba(64, 158, 255, 0.2)'
+      }
+    }]
+  }
+  chartInstance.setOption(option)
+}
+
+// 监听 scoreTrend 变化重新渲染图表
+watch(scoreTrend, () => {
+  if (chartInstance) {
+    chartInstance.dispose()
+  }
+  nextTick(() => {
+    initTrendChart()
+  })
+})
+
+// 请求近十次信用分变化数据
+const fetchScoreTrend = async () => {
+  try {
+    const res = await axios.get(`http://localhost:8086/record/${userId}/10`)
+  
+     if (!res.data.data || res.data.data.length === 0) {
+      scoreTrend.value = []
+      if (chartInstance) {
+        chartInstance.clear()
+        chartInstance.setOption({
+          title: {
+            text: '暂无信用分变化数据',
+            left: 'center',
+            top: 'middle',
+            textStyle: { fontSize: 16, color: '#999' }
+          }
+        })
+      }
+      return
+    }
+    if (res.data.code === 1 && Array.isArray(res.data.data)) {
+      // 按时间降序（最新到最早）
+      const sortedRecordsDesc = res.data.data.sort((a, b) => new Date(b.finishTime) - new Date(a.finishTime))
+      const scores = []
+      let cumulativeScore = totalScore.value // 从当前总分开始
+      // 从最新往最早计算每次的总分
+      for (const record of sortedRecordsDesc) {
+        scores.push({
+          date: record.finishTime.split('T')[0],
+          score: cumulativeScore
+        })
+        cumulativeScore -= record.changeCredit // 减去这次变动，得到上一时刻的分数
+      }
+      // 反转顺序，保证时间升序（从最早到最新）
+      scoreTrend.value = scores.reverse()
+    } else {
+      console.error('获取信用分变化数据失败:', res.data.msg)
+    }
+  } catch (error) {
+    console.error('请求信用分变化接口失败:', error)
+  }
+}
+
 onMounted(async () => {
   try {
     const res = await axios.get(`http://localhost:8086/credit/dimensions/${userId}`)
@@ -200,6 +319,8 @@ onMounted(async () => {
   //加载排行榜数据
   fetchRankList()
   fetchUserRank()
+  //折线图数据
+  fetchScoreTrend()
 })
 </script>
 
@@ -460,4 +581,5 @@ body {
 .user-rank-score span {
   font-weight: bold;
 }
+
 </style>
