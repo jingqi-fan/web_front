@@ -1,30 +1,38 @@
+<!-- src/views/CreditBusinessHome.vue -->
 <template>
   <div class="credit-home">
     <div class="header-row">
       <div class="mail-container2">
-        <el-button round="true" color="#626aef" @click="logout">退出登录</el-button>
+        <el-button round color="#626aef" @click="logout">退出登录</el-button>
       </div>
       <h2 style="font-size: 30px;">信用商业中心</h2>
       <div class="mail-container">
-        <router-link to="/creditbusiness/records" class="mail-button">
-          <el-icon style="font-size: 40px;"><Message /></el-icon>
-        </router-link>
+        <!-- 未完成订单徽章 -->
+        <el-badge :value="totalUnpaid" class="order-notify">
+          <router-link to="/creditbusiness/records" class="mail-button">
+            <el-icon style="font-size: 40px;"><Message /></el-icon>
+          </router-link>
+        </el-badge>
         <div class="mail-desc">预订记录与还款</div>
       </div>
     </div>
 
-    <div class="user-info-bar" v-if="userName" @click="fetchCredit">
+    <div
+      class="user-info-bar"
+      v-if="userName"
+      @click="fetchCredit"
+    >
       <span>欢迎 <b>{{ userName }}</b> 使用信用商业服务</span>
       <span>
-    当前信用分：
-    <template v-if="isLoading">
-      <el-icon class="loading-icon"><Loading /></el-icon>
-      <b>信用分获取中...</b>
-    </template>
-    <template v-else>
-      <b>{{ creditScore }}</b>
-    </template>
-  </span>
+        当前信用分：
+        <template v-if="isLoading">
+          <el-icon class="loading-icon"><Loading /></el-icon>
+          <b>信用分获取中…</b>
+        </template>
+        <template v-else>
+          <b>{{ creditScore }}</b>
+        </template>
+      </span>
       <span>信用等级：<b>{{ creditLevel }}</b></span>
     </div>
 
@@ -52,10 +60,7 @@
           @mouseenter="onCardHover(idx)"
           @mouseleave="onCardLeave"
         >
-          <el-card
-            class="feature-card"
-            shadow="hover"
-          >
+          <el-card class="feature-card" shadow="hover">
             <el-icon class="icon">
               <component :is="item.icon" />
             </el-icon>
@@ -66,7 +71,7 @@
       </el-carousel-item>
     </el-carousel>
 
-    <!-- 推荐区域，插槽式灵活组件（主卡片hover时显示） -->
+    <!-- 推荐区域 -->
     <transition name="fade">
       <div
         class="recommend-area"
@@ -78,7 +83,6 @@
           :is="features[activeIndex].recommendComponent"
           :title="features[activeIndex].title"
         >
-          <!-- 如果没有传入专属组件，可默认降级为简单提示 -->
           <template #default>
             智能推荐：{{ features[activeIndex].title }}
           </template>
@@ -106,77 +110,79 @@ import RecommendShopping from './RecommendShopping.vue'
 import RecommendRent from './RecommendRent.vue'
 import RecommendHotel from './RecommendHotel.vue'
 import router from "@/router"
-
+import { checkRecoveryEligibility } from '../../api/ban'
+// 用户信息与信用分
 const userName = ref('')
 const creditScore = ref(0)
 const creditLevel = ref('')
 const isLoading = ref(true)
 
+// 未完成订单统计
+const unpaidCommodityOrders = ref(0)
+const unpaidHouseOrders = ref(0)
+const unpaidHotelOrders = ref(0)
+const totalUnpaid = computed(() =>
+  unpaidCommodityOrders.value +
+  unpaidHouseOrders.value +
+  unpaidHotelOrders.value
+)
 
-
-
-const logout=async ()=>{
-  const userInfo2 = useUserInfoStore()
-  const id=userInfo2.user?.id
-  const deviceStore=useDeviceStore()
-  const device=deviceStore.device
-  const res=await userLogout(id,device)
-  if(res.status===200){
+// 登出方法
+const logout = async () => {
+  const { id } = useUserInfoStore().user
+  const device = useDeviceStore().device
+  const res = await userLogout(id, device)
+  if (res.status === 200) {
+    ElMessage.success('退出成功')
     await router.push('/home')
-    ElMessage.success("退出成功")
-  }
-  else{
-    ElMessage.error("退出失败")
+  } else {
+    ElMessage.error('退出失败')
     await router.push('/home')
   }
 }
+
+// 走马灯与推荐
 const features = reactive([
   {
     title: '信用购物',
     desc: '在线选购，快速结算；凭信用分可享免押金或分期优惠。',
     icon: ShoppingCart,
-    recommendComponent: RecommendShopping // 这里填自定义的组件
+    recommendComponent: RecommendShopping,
   },
   {
     title: '信用租房',
     desc: '租房无忧，押金减免；信用分越高，可选房源越丰富。',
     icon: House,
-    recommendComponent: RecommendRent
+    recommendComponent: RecommendRent,
   },
   {
     title: '酒店预订',
     desc: '实时查看酒店列表，根据信用分享受押金豁免及折扣。',
     icon: OfficeBuilding,
-    recommendComponent: RecommendHotel
+    recommendComponent: RecommendHotel,
   }
 ])
-
-// 引用 el-carousel 实例
-const carouselRef = ref<CarouselRef|null> (null)
+const carouselRef = ref<CarouselRef|null>(null)
 const autoplayEnabled = ref(true)
-const pauseCarousel = () => autoplayEnabled.value = false
-const playCarousel = () => autoplayEnabled.value = true
-const showRecommend = ref(false)
+const pauseCarousel = () => (autoplayEnabled.value = false)
+const playCarousel = () => (autoplayEnabled.value = true)
 const activeIndex = ref(0)
-
-const onCarouselChange = (index: number) => {
-  activeIndex.value = index
-}
+const onCarouselChange = (idx: number) => (activeIndex.value = idx)
 const onCardHover = (idx: number) => {
-  if (idx === activeIndex.value) showRecommend.value = true
+  if (idx === activeIndex.value) pauseCarousel()
 }
-const onCardLeave = () => showRecommend.value = false
+const onCardLeave = () => playCarousel()
 
-
-
+// 拉取信用分与未完成订单数
 async function fetchCredit() {
   try {
     isLoading.value = true
-    const userInfo = useUserInfoStore().user
-    userName.value = userInfo.nickName || '未登录'
-    const uc = await getUserCreditScoreInfo(userInfo.id)
-    creditScore.value = uc.creditScore ?? 0
+    const { id, nickName } = useUserInfoStore().user
+    userName.value = nickName || '未登录'
 
+    // 信用分与等级
+    const uc = await getUserCreditScoreInfo(id)
+    creditScore.value = uc.creditScore ?? 0
     if (creditScore.value > 700) {
       creditLevel.value = '钻石级'
     } else if (creditScore.value >= 651) {
@@ -188,9 +194,15 @@ async function fetchCredit() {
     } else {
       creditLevel.value = '青铜级'
     }
+
+    // 未完成订单数
+    const rec = await checkRecoveryEligibility(id)
+    unpaidCommodityOrders.value = rec.unpaidCommodityOrders??0
+    unpaidHouseOrders.value = rec.unpaidHouseOrders
+    unpaidHotelOrders.value = rec.unpaidHotelOrders
+
   } catch (err: any) {
-    creditScore.value = 0
-    creditLevel.value = '未知'
+    ElMessage.error('获取数据失败，请稍后重试')
   } finally {
     isLoading.value = false
   }
@@ -224,6 +236,15 @@ onMounted(fetchCredit)
     top:14px;
     right:0;
     text-align: center;
+
+     /* 徽章微调 */
+     .order-notify {
+      .el-badge__content {
+        top: -4px;
+        right: -4px;
+      }
+    
+  }
   }
   .mail-button .el-icon {
     color: var(--primary-color);
