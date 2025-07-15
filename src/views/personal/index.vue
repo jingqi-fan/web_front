@@ -246,13 +246,13 @@
 
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="省份" prop="province" disabled="">
-            <el-input v-model="form.province"/>
+          <el-form-item label="省份" prop="province" >
+            <el-input v-model="form.province" disabled/>
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="城市" prop="city" disabled="">
-            <el-input v-model="form.city"/>
+          <el-form-item label="城市" prop="city" >
+            <el-input v-model="form.city" disabled/>
           </el-form-item>
         </el-col>
       </el-row>
@@ -635,8 +635,8 @@ onMounted(async () => {
   form.email=userInfoStore.user.email
   form.phone=userInfoStore.user.phone
   form.gender=userInfoStore.user.gender
-  form.province=userInfoStore.user.province
-  form.city=userInfoStore.user.city
+  form.province=userInfoStore.user.province || '浙江省'
+  form.city=userInfoStore.user.city || '杭州市'
   form.country=userInfoStore.user.county
   form.township=userInfoStore.user.township
   creditScoreValue.value=creditScore.value.creditScore
@@ -775,10 +775,10 @@ const backHome = () => {
   router.push('/home')
 }
 const goToCreditManagerPage = () => {
-  ElMessage.info('功能暂未开放');
+  ElMessage.info('/manageHouse');
 }
 const goToCreditLife = () => {
-  ElMessage.info('功能暂未开放');
+  ElMessage.info('/life');
 }
 const goToCreditBusiness = () => {
   router.push('/creditbusiness')
@@ -790,7 +790,6 @@ import {PictureFilled, SwitchButton, UserFilled} from "@element-plus/icons-vue";
 import {useDeviceStore} from "@/stores/useDeviceStore.ts";
 import axiosInstance from "@/plugins/axios.ts";
 import { getUserCreditScoreInfo, getUserInfo } from "@/api/user.ts";
-import axios from "axios";
 
 const activeChart = ref('credit'); // 默认选中信用分折线图
 const chartRef = ref<HTMLElement | null>(null);
@@ -893,8 +892,11 @@ const allServices = [
 const getRecentUsedServices = async () => {
   return new Promise<{ name: string; icon: string }[]>(resolve => {
     setTimeout(() => {
-      // 模拟返回最近使用的3个服务
       const shuffled = allServices.sort(() => 0.5 - Math.random());
+      if(userInfoStore.user.updated===0 || userCreditScoreStore.score.status!==3){
+        resolve(shuffled.slice(0, 0));
+        return
+      }
       resolve(shuffled.slice(0, 3));
     }, 500);
   });

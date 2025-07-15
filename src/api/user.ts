@@ -298,5 +298,5 @@ export const loadRankWithCounty = async () => {
         area: idToCounty[u.userId].county || '未知',
         avatar:idToCounty[u.userId].avatar || "https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png",
     }))
-    return rankList.value
+    return rankList.value.splice(0,5)
 }

@@ -269,6 +269,7 @@ const serverList = ref([
 const tableData = [
 ]
 import VChart from 'vue-echarts'
+import {fetchCreditCategoryStats, fetchUserCount, getIncomeByCounty} from "@/api/data_dashboard/data.ts";
 
 /**
  *
@@ -302,16 +303,15 @@ const openUserOption = ref({
     },
   ],
 })
-
-// 各项服务授信额度 - 横向柱状图
+// 各项服务授信额度
 const creditOption = ref({
   title: {
     text: '各项服务授信额度',
     left: 'center'
   },
   grid: {
-    left: '2%',   // 增加左侧边距，避免纵坐标文字被遮挡
-    containLabel: true // 确保标签也在grid区域内（可选）
+    left: '2%',
+    containLabel: true
   },
   tooltip: {},
   xAxis: {
@@ -320,25 +320,82 @@ const creditOption = ref({
   },
   yAxis: {
     type: 'category',
-    data: ['信用租赁', '便捷租房', '酒店预定', '便捷泊车', '舒心就医'],
-    // 可考虑增加y轴标签的样式，如字体大小、边距等，确保完整显示
+    data: [],
     axisLabel: {
-      margin: 2 // 增加标签与坐标轴的距离，可选
+      margin: 2
     }
   },
   series: [
     {
       type: 'bar',
-      data: [50000, 75000, 62000, 38000, 46000],
+      data: [],
       label: {
         show: true,
         position: 'right'
       },
       itemStyle: {
-        color: '#3b82f6' // 原图为多种颜色，但代码中统一为蓝色。如需按区间区分颜色，需修改此处。
+        color: '#3b82f6'
       }
     },
   ],
+})
+const loadCreditData = async () => {
+  try {
+    const res = await fetchCreditCategoryStats()
+    const stats = res.data.data
+
+    creditOption.value.yAxis.data = stats.map(item => item.category)
+    creditOption.value.series[0].data = stats.map(item => item.totalAmount)
+  } catch (e) {
+    console.error('加载信用服务统计失败：', e)
+  }
+}
+
+// 开通人数
+const userCount = ref(0)
+const loadUserCount = async () => {
+  try {
+    const res = await fetchUserCount()
+    userCount.value = res.data.data
+  } catch (e) {
+    console.error('获取用户数失败：', e)
+  }
+}
+// 收入情况
+const incomeOption = ref({
+  xAxis: {
+    type: 'category',
+    data: [],
+  },
+  yAxis: {
+    type: 'value',
+    max: 100000,
+  },
+  series: [
+    {
+      data: [],
+      type: 'bar',
+      itemStyle: {
+        color: '#67c23a'
+      }
+    },
+  ],
+})
+const loadIncomeByCounty = async () => {
+  try {
+    const res = await getIncomeByCounty()
+    const data = res.data.data
+
+    incomeOption.value.xAxis.data = data.map(d => d.county.replace('区', ''))
+    incomeOption.value.series[0].data = data.map(d => d.totalIncome)
+  } catch (err) {
+    console.error('获取收入统计失败:', err)
+  }
+}
+onMounted(() => {
+  loadCreditData()
+  loadUserCount()
+  loadIncomeByCounty()
 })
 
 const scoreOption = ref({
@@ -443,26 +500,7 @@ watch(value, (newVal) => {
 const fetchTargetData=async (target:string)=>{
 
 }
-// 各地区收入情况 - 柱状图
-const incomeOption = ref({
-  xAxis: {
-    type: 'category',
-    data: ['上城', '下城', '拱墅', '西湖', '滨江', '钱塘', '萧山', '余杭', '富阳', '临安'],
-  },
-  yAxis: {
-    type: 'value',
-    max: 100000,
-  },
-  series: [
-    {
-      data: [65000, 70000, 78000, 83000, 72000, 68000, 60000, 75000, 67000, 62000],
-      type: 'bar',
-      itemStyle: {
-        color: '#67c23a'
-      }
-    },
-  ],
-})
+
 const backUp=()=>{
   router.push('/manager')
 }

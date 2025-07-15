@@ -100,7 +100,7 @@ const filteredPatients = computed(() => {
 
 
 const handleOpen =async  (user: any) => {
-  await startCheck(user.id)
+  await startCheck(user.id,doctorId)
   await router.push(`/doctor/check_list/${user.id}`)
 }
 </script>
