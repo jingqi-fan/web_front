@@ -51,7 +51,7 @@ export const getDoctorDetail = async (doctorId: number) => {
 export const getPreOrderInfo = async (req: HospitalPreOrderReq, id: number) => {
     const res = await axiosInstance.post(`/hospital/pre/order?id=${id}`, req)
     console.log("预下单预约",res)
-    return res.data.data
+    return res.data
 }
 
 // 确认预约
@@ -60,7 +60,7 @@ export const confirmOrder = async (appointmentId: number) => {
         params: { appointmentId }
     })
     console.log("确认预约",res)
-    return res.data.data
+    return res.data
 }
 
 // 我的预约列表

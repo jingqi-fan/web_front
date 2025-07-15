@@ -102,7 +102,7 @@
                   </el-tag>
                 </div>
                 <div style="align-items: center;">
-                  <el-button v-if="book.borrowingStatus===1" style="margin-top: 15px" type="primary" @click="returnBooks(book.bookId,book.borrowingId)">归还</el-button>
+                  <el-button v-if="book.borrowingStatus===1 || book.borrowingStatus===3" style="margin-top: 15px" type="primary" @click="returnBooks(book.bookId,book.borrowingId)">归还</el-button>
                   <el-button v-else-if="book.borrowingStatus===0" style="margin-top: 15px" type="success" @click="confirmBorrowBook">确认借阅</el-button>
                   <el-button v-else style="margin-top: 15px" type="info" disabled>已完成</el-button>
                 </div>
@@ -203,7 +203,8 @@ const staticStatuses = [
   { id: null, label: '全部' },
   { id: 0, label: '预借阅' },
   { id: 1, label: '借阅中' },
-  { id: 2, label: '已归还' }
+  { id: 2, label: '已归还' },
+  {id: 3, label: '逾期' }
 ]
 
 
@@ -250,6 +251,8 @@ const getBookStatus=(status: number) =>{
       return '借阅中'
     case 2:
       return '已归还'
+    case 3:
+      return '逾期'
     default:
       return '错误的状态'
   }

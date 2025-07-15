@@ -41,7 +41,11 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted } from "vue";
-import lottie from "lottie-web"; // 引入 lottie-web
+import lottie from "lottie-web";
+import {getTopUsersByDimension} from "@/api/data_dashboard/data.ts";
+import {ElMessage} from "element-plus"; // 引入 lottie-web
+
+
 
 // 模拟数据
 const items = ref([
@@ -51,6 +55,16 @@ const items = ref([
   { id: 4, name: "亲社会行为", value: 793,title:"公益先锋",nickname:"God" },  //亲社会行为得分最高
   { id: 5, name: "基本信息", value: 692,title: "信用磐石",nickname:"Bolulu" }         //基本信息评估信用分得分最高
 ]);
+
+const loadData=async ()=>{
+  const res=await getTopUsersByDimension()
+  if(res.code!==1){
+    ElMessage.error("数据加载失败")
+    return
+  }
+  items.value=res.data
+}
+loadData()
 
 const activeIndex = ref(0); // 当前激活的索引
 const totalItems = computed(() => items.value.length);

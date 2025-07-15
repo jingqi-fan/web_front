@@ -111,31 +111,37 @@
                 <area-info />
               </div>
               <div class="Message">
-                <h3>API调用日志</h3>
-                <el-table :data="tableData" height="230px" style="width: 100%">
-                  <el-table-column prop="date" label="日期" />
-                  <el-table-column prop="time" label="时间" />
-                  <el-table-column prop="name" label="API名称" />
-                  <el-table-column prop="user" label="用户" />
-                  <el-table-column prop="area" label="地区" />
+                <h3>用户服务日志</h3>
+                <el-table :data="latestRecords" height="230px" style="width: 100%">
+                  <el-table-column prop="userId" label="用户" />
+                  <el-table-column prop="recordType" label="类型" />
+                  <el-table-column prop="amount" label="金额" />
+                  <el-table-column prop="status" label="状态" />
                 </el-table>
               </div>
             </div>
           </div>
 
           <div class="DataCard">
-            <div class="progress-card1"></div>
-            <div class="progress-card2">
-              <p>各项服务授信额度</p>
+            <div class="progress-card1">
+              <p>总开通量</p>
+              <div class="card-value">{{ userCount }}</div>
             </div>
-            <div class="progress-card3"></div>
+            <div class="progress-card2">
+              <p>总使用量</p>
+              <div class="card-value">{{ usingCount }}</div>
+            </div>
+            <div class="progress-card3">
+              <p>服务授信总额度</p>
+              <div class="card-value">{{ totalAmountSum.toLocaleString() }} 元</div>
+            </div>
             <div class="progress-card4">
-              <p>各地区收入情况</p>
+              <p>城市守约率</p>
+              <div class="card-value">{{ (completionRate * 100).toFixed(2) }}%</div>
             </div>
           </div>
         </div>
       </div>
-
     </el-main>
   </el-container>
 </template>
@@ -184,17 +190,6 @@ const goToExamineAndApprove=()=>{
 const goToRelease=()=>{
   router.push("/manager/manager");
 }
-
-
-const AvatarUrl="https://img2.baidu.com/it/u=2886770170,3832974539&fm=253&fmt=auto&app=138&f=JPEG?w=377&h=377";
-//const standard=rankingData.value[0]
-const rankingData=ref([
-  {id:1,url:AvatarUrl,apiNumber:89543},
-  {id:2,url:AvatarUrl,apiNumber: 48712},
-  {id:3,url:AvatarUrl,apiNumber:8943},
-  {id:4,url:AvatarUrl,apiNumber:8343},
-])
-
 const value = ref('请选择地区')
 const main_city = [
   {
@@ -242,8 +237,6 @@ const main_city = [
     label: '临安区',
   }
 ]
-
-
 const serverList = ref([
   { longitude: 120.20, latitude: 30.23, label: '上城区', value: '杭州市·上城区' },
     //,
@@ -266,14 +259,15 @@ const serverList = ref([
   { longitude: 119.72, latitude: 30.23, label: '临安区', value: '杭州市·临安区' },
 ]);
 
-const tableData = [
-]
 import VChart from 'vue-echarts'
-import {fetchCreditCategoryStats, fetchUserCount, getIncomeByCounty} from "@/api/data_dashboard/data.ts";
+import {
+  type CreditRecordSimpleDTO, fetchCompletionRate,
+  fetchCreditCategoryStats, fetchLatestCreditRecords,
+  fetchScoreBoxPlot,
+  fetchUserCount, fetchUsingCount,
+  getIncomeByCounty
+} from "@/api/data_dashboard/data.ts";
 
-/**
- *
- */
 // 服务开通人数 - 折线图
 const openUserOption = ref({
   title: {
@@ -339,6 +333,8 @@ const creditOption = ref({
     },
   ],
 })
+//总授信额度
+const totalAmountSum = ref(0) // 用于保存总和
 const loadCreditData = async () => {
   try {
     const res = await fetchCreditCategoryStats()
@@ -346,22 +342,45 @@ const loadCreditData = async () => {
 
     creditOption.value.yAxis.data = stats.map(item => item.category)
     creditOption.value.series[0].data = stats.map(item => item.totalAmount)
+
+    totalAmountSum.value = stats.reduce((sum, item) => sum + item.totalAmount, 0)
+    console.log('总授信金额总和：', totalAmountSum.value)
   } catch (e) {
     console.error('加载信用服务统计失败：', e)
   }
 }
-
 // 开通人数
 const userCount = ref(0)
 const loadUserCount = async () => {
   try {
     const res = await fetchUserCount()
     userCount.value = res.data.data
+    console.log('开通量：',userCount.value)
   } catch (e) {
     console.error('获取用户数失败：', e)
   }
 }
-// 收入情况
+// 总使用量
+const usingCount = ref(0)
+const loadUsingCount = async () => {
+    try {
+      const res = await fetchUsingCount()
+      usingCount.value = res.data.data
+
+      console.log('使用量：',usingCount.value)
+    } catch (e) {
+      console.error('获取使用量失败：', e)
+    }
+}
+
+//城市守约率
+const completionRate = ref(0)
+const loadCompletionRate = async () => {
+  const res = await fetchCompletionRate()
+  completionRate.value = res.data.data
+  console.log('守约率：',completionRate.value)
+}
+// 收入情况（暂不支持展示）
 const incomeOption = ref({
   xAxis: {
     type: 'category',
@@ -392,12 +411,7 @@ const loadIncomeByCounty = async () => {
     console.error('获取收入统计失败:', err)
   }
 }
-onMounted(() => {
-  loadCreditData()
-  loadUserCount()
-  loadIncomeByCounty()
-})
-
+// 信用分分布情况
 const scoreOption = ref({
   title: {
     text: '杭州市各区信用分分布',
@@ -439,34 +453,15 @@ const scoreOption = ref({
     {
       type: 'boxplot',
       data: [
-        // 上城区：中心城区，信用分整体较高
         [580, 645, 720, 780, 830],
-
-        // 拱墅区：老城区，分布较均衡
         [490, 590, 670, 740, 800],
-
-        // 西湖区：高科技企业聚集，信用表现优异
         [600, 680, 735, 800, 845],
-
-        // 滨江区：高新区，高分集中
         [610, 695, 745, 810, 840],
-
-        // 萧山区：城乡结合，分布范围较大
         [480, 560, 650, 720, 780],
-
-        // 余杭区：新兴科技区，中位数高
         [550, 630, 710, 770, 820],
-
-        // 临平区：发展一般，信用分中等
         [450, 530, 620, 690, 760],
-
-        // 钱塘区：新设立区域，数据波动大
         [410, 500, 585, 680, 750],
-
-        // 富阳区：郊区，整体偏低
         [400, 480, 570, 650, 710],
-
-        // 临安区：偏远区域，信用分最低
         [350, 450, 540, 610, 690]
       ],
       itemStyle: {
@@ -483,6 +478,50 @@ const scoreOption = ref({
     }
   ]
 });
+const loadBoxPlotData = async () => {
+  const res = await fetchScoreBoxPlot()
+  console.log('箱线图返回数据：', res)
+
+  if (res && res.data && res.data.data) {
+    const data = res.data.data
+    scoreOption.value = {
+      ...scoreOption.value,
+      xAxis: {
+        ...scoreOption.value.xAxis,
+        data: data.map(d => d.county)
+      },
+      series: [
+        {
+          ...scoreOption.value.series[0],
+          data: data.map(d => [d.min, d.q1, d.median, d.q3, d.max])
+        }
+      ]
+    }
+  }
+}
+// 服务日志
+const latestRecords = ref<CreditRecordSimpleDTO[]>([])
+const loadLatestRecords = async () => {
+  try {
+    const res = await fetchLatestCreditRecords()
+    if (res.data?.code === 1) {
+      latestRecords.value = res.data.data
+    }
+  } catch (e) {
+    console.error('获取服务日志失败', e)
+  }
+}
+
+
+onMounted(() => {
+  loadCreditData()
+  loadUserCount()
+  loadBoxPlotData()
+  loadLatestRecords()
+  loadUsingCount()
+  loadCompletionRate()
+})
+
 
 watch(value, (newVal) => {
   if (newVal === '全部' && myMap.value?.initializeMap) {
@@ -510,20 +549,19 @@ const personalCenter=()=>{
 const OverdueMessage = (data) => {
   ElNotification({
     title: '逾期还款消息更新',
-    message: `用户逾期还款--${data}`,
+    message: `用户还款--${data}`,
     duration: 0,
   })
 }
 onMounted(() => {
   const uuid=uuidv4()
-  const clientId = 'data_screen-'+uuid; // 每个客户端唯一ID
+  const clientId = 'data_screen-'+uuid;
   const eventSource = new EventSource(`/api/overdue/stream/subscribe?clientId=${clientId}`)
 
   eventSource.addEventListener('overdue-update', (event) => {
     const data = JSON.parse(event.data)
     console.log('收到逾期更新推送：', data)
 
-    // TODO：更新数据大屏的展示内容
     OverdueMessage(data)
   })
 
@@ -600,7 +638,7 @@ onMounted(() => {
   border-radius: 4px;
 }
 .el-radio-button {
-  border: none !important; /* 使用important确保覆盖原有样式 */
+  border: none !important;
 }
 
 .custom-button {
@@ -636,7 +674,6 @@ onMounted(() => {
   font-weight: 500;
   opacity: 0.9;
 }
-/* 响应式调整 */
 @media (max-width: 768px) {
   .main-title {
     font-size: 20px;
@@ -646,7 +683,6 @@ onMounted(() => {
     font-size: 11px;
   }
 }
-/* 悬停动画效果 */
 .main-title {
   transition: all 0.3s ease;
 }
@@ -662,8 +698,6 @@ onMounted(() => {
   transform: scale(1.03);
   text-shadow: 0 4px 8px rgba(26, 86, 219, 0.2);
 }
-
-/* 响应式调整 */
 @media (max-width: 768px) {
   .main-title {
     font-size: 20px;
@@ -690,22 +724,6 @@ onMounted(() => {
   background: linear-gradient(90deg, transparent, #3b82f6, transparent);
   border-radius: 2px;
   opacity: 0.7;
-}
-
-.header-title {
-  font-size: 20px;
-  font-weight: bold;
-  color: #1a56db;
-  flex-grow: 1;
-  text-align: center;
-  margin-left: -40px; /* 平衡左右图标宽度 */
-  letter-spacing: 1px;
-}
-.logo {
-  width: 64px;
-  height: 64px;
-  margin-left: -5px;
-  cursor: pointer;
 }
 h2 {
   color: black;
@@ -795,10 +813,6 @@ h2 {
   border-radius: 8px;
   margin-right: 10px;
 }
-.log{
-  overflow-y: auto;
-  overflow-x: hidden;
-}
 .title{
   margin-top: 5px;
 }
@@ -822,9 +836,5 @@ h2 {
   text-align: center;
   position: relative;
   pointer-events: none;
-}
-.apiNum{
-  display: grid;
-  grid-template-rows: auto auto;
 }
 </style>

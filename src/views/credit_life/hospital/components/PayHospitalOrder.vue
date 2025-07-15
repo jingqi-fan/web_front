@@ -62,10 +62,11 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import {getPrePayFee, payFee} from "@/api/life/hospital_api.ts";
+import {getPrePayFee, getResultDetail, payFee} from "@/api/life/hospital_api.ts";
 import {useRoute} from "vue-router";
 import {ElMessage} from "element-plus";
 import router from "@/router";
+import {useUserInfoStore} from "@/stores/useUserInfoStore.ts";
 
 
 
@@ -93,7 +94,8 @@ const paymentOptions = [
 ]
 const route = useRoute()
 const appointmentId=route.params.id;
-
+const userInfoStore=useUserInfoStore()
+const userId=userInfoStore.user.id
 // 金额数据
 const discount = ref(0)
 const deduction = ref(0)
@@ -101,16 +103,18 @@ const totalAmount = ref(0)
 const feeId=ref(0)
 const priceTotal=ref("")
 const loadPaymentInfo=async ()=>{
-  const res= await getPrePayFee(appointmentId)
-  feeId.value=res.feeId
-  priceTotal.value=Number(res.priceTotal)
-  discount.value=priceTotal.value*0.1
-  deduction.value=priceTotal.value*0.01
-  totalAmount.value=priceTotal.value-discount.value-deduction.value
+  const res= await getResultDetail(appointmentId,userId)
+
+  feeId.value=res.fees.id
+  priceTotal.value=Number(res.fees.totalFee)
+  discount.value=Number(res.fees.discount)
+  deduction.value=0
+  totalAmount.value=Number(res.fees.actualPayment)
 }
 loadPaymentInfo()
 
 const payForThis=async ()=>{
+  console.log(feeId.value)
   const res=await payFee(feeId.value)
   ElMessage.success(res?res:"支付成功")
   await router.push("/life/hospital_order_home/myorder")

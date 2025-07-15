@@ -42,7 +42,9 @@ import {getDoctorDetail, getDrugs, getExamList, getPatientsList, startCheck} fro
 import {useDoctorIdStore} from "@/stores/useDoctorIdStore.ts"; // 使用你提供的组件
 import {ElLoading} from "element-plus";
 
-const goBack = () => history.back()
+const goBack = () => {
+  router.back()
+}
 
 const doctor = {
   name: '李医生',

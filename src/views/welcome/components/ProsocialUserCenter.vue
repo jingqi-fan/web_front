@@ -27,7 +27,6 @@
           >
             <el-menu-item index="all">全部活动</el-menu-item>
             <el-menu-item index="mine">我参与的活动</el-menu-item>
-            <el-menu-item index="personal">个人中心</el-menu-item>
           </el-menu>
         </el-aside>
 
@@ -89,14 +88,15 @@
 
               <el-table-column label="是否完成">
                 <template #default="{ row }">
-                  {{ row.status === 'FINISHED' ? '是' : '否' }}
+                  {{ row.finished === true ? '是' : '否' }}
                 </template>
               </el-table-column>
 
               <el-table-column label="操作" width="220">
                 <template #default="{ row }">
-                  <el-button type="danger" size="small" @click="exit(row.id)">退出活动</el-button>
-                  <el-button type="success" size="small" @click="finish(row.id)">完成活动</el-button>
+                  <el-button type="danger" size="small" v-if="!row.finished" @click="exit(row.id)">退出活动</el-button>
+                  <el-button type="success" size="small" v-if="!row.finished" @click="finish(row.id)">完成活动</el-button>
+                  <el-tag type="success" v-if="row.finished" size="small">已完成</el-tag>
                 </template>
               </el-table-column>
             </el-table>
@@ -164,7 +164,7 @@ const allActivities = ref<ActivitiesDTO[]>([])
 const allItems = ref<ActivityItemWithCategoryDTO[]>([])
 const userActivities = ref<UserJoinActivityDTO[]>([])
 const finishedActivityCount = computed(() =>
-    userActivities.value.filter(a => a.status === 'FINISHED').length
+    userActivities.value.filter(a => a.status === true).length
 )
 
 const loadAll = async () => {
@@ -176,6 +176,9 @@ const loadAll = async () => {
   allActivities.value = activitiesRes.data
   allItems.value = itemsRes.data
   userActivities.value = userRes.data
+  console.log(allActivities.value)
+  console.log(allItems.value)
+  console.log(userActivities.value)
 
 }
 const getItemById = (id: number) => allItems.value.find(i => i.itemId === id)

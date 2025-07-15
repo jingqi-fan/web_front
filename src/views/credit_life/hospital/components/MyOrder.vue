@@ -51,7 +51,7 @@
             </el-button>
 
             <el-button
-                v-else-if="item.status === 2"
+                v-else-if="item.status === 2 || item.status === 6"
                 type="primary"
                 size="small"
                 @click="goToPay(item.appointmentId)"

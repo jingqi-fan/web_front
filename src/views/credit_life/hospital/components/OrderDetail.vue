@@ -100,6 +100,9 @@ const checkItems=ref<ExaminationOrders[]>([])
 const drugItems=ref<Prescriptions[]>([])
 const AllFees=ref<Fees|null>(null)
 const loading = ref(true)
+
+
+
 const loadOrderDetailForPay = async () => {
   resultDetail.value = null
   checkItems.value = []
@@ -108,6 +111,7 @@ const loadOrderDetailForPay = async () => {
 
   loading.value = true
   try {
+    console.log("获取详情 appointmentId = ",appointmentId)
     const res: ResultDetailResType = await getResultDetail(appointmentId, userInfo.id)
     console.log("结果")
     console.log(res)
@@ -125,7 +129,9 @@ const loadOrderDetailForPay = async () => {
 
 loadOrderDetailForPay()
 
-const goBack = () => router.back()
+const goBack = () => {
+  router.back()
+}
 
 const pay = () => {
   router.push(`/doctor/order/pay/${appointmentId}`)

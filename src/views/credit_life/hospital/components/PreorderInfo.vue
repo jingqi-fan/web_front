@@ -162,10 +162,16 @@ const confirmAppointment =async () => {
     doctorId: doctor.id,
     reason: form.value.description
   },userInfo.id)
+  console.log(res)
+  if(res.code===500){
+    ElMessage.error(res.msg?res.msg:'预约失败')
+    router.back()
+    return
+  }
 
   console.log("res=",res)
   const willConfirmPreorderStore=useWillConfirmPreorderStore()
-  willConfirmPreorderStore.setThis(res)
+  willConfirmPreorderStore.setThis(res.data)
   ElMessage.success('预约成功')
   await router.push('/life/hospital_order_home/preorder_confirm')
 }

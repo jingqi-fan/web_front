@@ -3,7 +3,7 @@ export interface UserJoinActivityDTO {
     itemId: number
     title: string
     joinTime: string
-    status: string
+    finished: boolean
 }
 export interface ActivityItemWithCategoryDTO {
     itemId: number

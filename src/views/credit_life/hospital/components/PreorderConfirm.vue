@@ -10,7 +10,7 @@
       <div class="info-line"><span class="label">医生姓名：</span>{{ willConfirmPreorder.doctorName }}（{{ getDoctorLevel(willConfirmPreorder.doctorTitle) }}）</div>
       <div class="info-line"><span class="label">医生简介：</span>{{ doctorInfo.doctorSpecialty }}</div>
       <div class="info-line"><span class="label">预约时间：</span>{{ willConfirmPreorder.creatTimeStr }}</div>
-      <div class="info-line"><span class="label">就诊人：</span>{{ willConfirmPreorder.userInfo.nickName }}（{{ creditScore.idNumber }}）</div>
+      <div class="info-line"><span class="label">就诊人：</span>{{ willConfirmPreorder.userInfo?.nickName }}（{{ creditScore?.idNumber }}）</div>
     </el-card>
 
     <!-- 费用信息 -->
@@ -43,7 +43,7 @@ import {confirmOrder} from "@/api/life/hospital_api.ts";
 
 const willConfirmPreorderStore=useWillConfirmPreorderStore()
 const willConfirmPreorder=willConfirmPreorderStore.confirmPreorder
-
+console.log("msg",willConfirmPreorder)
 const userCreditScore=useUserCreditScoreStore()
 const creditScore=userCreditScore.score
 
@@ -51,7 +51,6 @@ const preorderDoctorStore=useHospitalHomePreorderDoctor()
 const doctorInfo=preorderDoctorStore.doctor
 
 const getDoctorLevel=(title:string)=>{
-  console.log(title)
   switch(title){
     case '0': return '普通医生'
     case '1': return '副主任'
@@ -63,9 +62,11 @@ const getDoctorLevel=(title:string)=>{
 const goBack = () => router.back()
 
 const confirm =async () => {
-  const res=await confirmOrder(willConfirmPreorder.appointmentId).then(()=>{
-    ElMessage.success('预约成功')
-  })
+  const res=await confirmOrder(willConfirmPreorder.appointmentId)
+  if(res.code===500){
+    ElMessage.error(res.msg?res.msg:'预约失败')
+    return
+  }
   ElMessage.success(res)
   await router.push('/life/hospital_order_home/myorder')
 }
