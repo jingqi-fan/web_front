@@ -92,7 +92,8 @@ const statusMap: Record<number, string> = {
   2: '已就诊',
   3: '已过期',
   4: '已取消',
-  5: '已完成'
+  5: '已完成',
+  6: '已逾期'
 }
 
 const userInfoStore=useUserInfoStore()

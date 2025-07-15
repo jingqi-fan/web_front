@@ -99,9 +99,9 @@ export const startCheck = async (patientId: number,doctorId:number) => {
 }
 
 // 结束接诊
-export const finishCheck = async (patientId: number) => {
+export const finishCheck = async (patientId: number,doctorId:number) => {
     const res = await axiosInstance.get<{ data: string }>('/hospital/finish/check', {
-        params: { patientId }
+        params: { patientId ,doctorId}
     })
     return res.data.data
 }

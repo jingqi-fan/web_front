@@ -98,7 +98,9 @@ import {useDoctorIdStore} from "@/stores/useDoctorIdStore.ts";
 import {ElLoading, ElMessage} from "element-plus";
 import router from "@/router";
 
-const goBack = () => history.back()
+const goBack = () => {
+  router.back()
+}
 
 const deptOptions = [
   { label: '内科', value: 0 },
@@ -234,13 +236,11 @@ const handleSubmitDiagnosis = async () => {
 
 
 
-
-
       ElMessage.success(res1 ? res1 : '处方单生成成功')
       const res2=await saveDiagnosis(userId,diagnosisForm.value.diagnosis)
       ElMessage.success(res2?res2:'诊断结果保存成功')
       diagnosisDialogVisible.value = false
-      const res3=await finishCheck(userId)
+      const res3=await finishCheck(userId,doctorId)
       ElMessage.success(res3?res3:'患者检查结果保存完成')
       await router.push('/doctor/check')
     }
