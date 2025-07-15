@@ -153,12 +153,14 @@ const fetchRankList = async () => {
   try {
     const res = await axios.get('http://localhost:8086/credit/rank')
     if (res.data.code === 1 && Array.isArray(res.data.data)) {
-      rankList.value = res.data.data.map(item => ({
-        userId: item.userId,
-        nickName: item.nickName,
-        profilePicture: item.profilePicture || 'https://i.pravatar.cc/150?img=10', // 若无头像默认头像
-        score: item.score
-      }))
+      rankList.value = res.data.data
+        .filter(item => item.score > 0)  // 过滤分数为0的用户
+        .map(item => ({
+          userId: item.userId,
+          nickName: item.nickName,
+          profilePicture: item.profilePicture || 'https://i.pravatar.cc/150?img=10',
+          score: item.score
+        }))
     } else {
       console.error('排行榜接口返回错误:', res.data.msg)
     }
