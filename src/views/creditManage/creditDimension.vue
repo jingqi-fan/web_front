@@ -60,10 +60,20 @@
                 </div>
 
                 <!-- 中心总分 -->
-                <div class="center-circle">
+                <div class="center-circle" @click="showDescDialog = true" style="cursor:pointer;">
                   <div class="total-score">{{ totalScore }}</div>
                   <div class="total-label">总信用分</div>
                 </div>
+
+                <!-- 弹窗 -->
+                <el-dialog title="信用总分说明" v-model="showDescDialog" width="400px">
+                  <div>{{ totalDesc }}</div>
+                  <template #footer>
+                    <el-button @click="showDescDialog = false">关闭</el-button>
+                  </template>
+                </el-dialog>
+
+
               </div>
 
               <!-- 折线图 -->
@@ -90,7 +100,7 @@
                   </div>
                 </el-scrollbar>
               </div>
-
+              
               <!-- 悬浮信用信息块 -->
               <div class="user-credit-info">
                 <el-avatar :size="48" :src="userBasicInfo.profilePicture || 'https://i.pravatar.cc/150?img=15'" />
@@ -139,6 +149,8 @@ const handleMenuSelect = (index) => {
 // 维度数据
 const dimensionItems = ref([]) // 四个维度
 const totalScore = ref(0)      // 总信用分
+const showDescDialog = ref(false) // 是否显示总信用分描述弹窗
+const totalDesc = ref('')  // 用来存放总信用分的描述文本
 
 // 图标映射
 const iconMap = {
@@ -305,6 +317,7 @@ const fetchScoreTrend = async () => {
   }
 }
 
+
 onMounted(async () => {
   try {
     const res = await axios.get(`http://localhost:8086/credit/dimensions/${userId}`)
@@ -313,13 +326,19 @@ onMounted(async () => {
       const dims = data.filter(d => d.dimensionType !== '总信用分')
       const total = data.find(d => d.dimensionType === '总信用分')
 
+      // 分配维度图标 + 坐标
       dimensionItems.value = dims.map((item, index) => ({
         ...item,
         icon: iconMap[item.dimensionType] || '',
         position: positions[index] || 'top-left',
       }))
 
+      // 设置总分数
       totalScore.value = total?.dimensionScore ?? 0
+
+      // 设置总分描述
+      totalDesc.value = total?.dimensionDesc ?? '暂无描述，过段时间再来看看吧~'
+
     }
   } catch (err) {
     console.error('获取维度数据失败', err)
