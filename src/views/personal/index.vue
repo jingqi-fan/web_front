@@ -246,12 +246,12 @@
 
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="省份" prop="province">
+          <el-form-item label="省份" prop="province" disabled="">
             <el-input v-model="form.province"/>
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="城市" prop="city">
+          <el-form-item label="城市" prop="city" disabled="">
             <el-input v-model="form.city"/>
           </el-form-item>
         </el-col>
@@ -260,9 +260,17 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="县/市区" prop="country">
-            <el-input v-model="form.country" />
+            <el-select v-model="form.country" placeholder="请选择县/市区">
+              <el-option
+                  v-for="district in hangzhouDistricts"
+                  :key="district"
+                  :label="district"
+                  :value="district"
+              />
+            </el-select>
           </el-form-item>
         </el-col>
+
         <el-col :span="12">
           <el-form-item label="乡/镇/街道" prop="township">
             <el-input v-model="form.township" />
@@ -472,7 +480,14 @@ import UnregisterIdNumberPng from "@/assets/unregister_id_number.png";
 import CheckingPng from "@/assets/checking.png"
 import NotPassPng from "@/assets/not_pass.png"
 import {useTokenStore} from "@/stores";
-import {updateUserInfo, getTopCreditUsers, userLogout, updateUserCreditScore, updateAvatar} from "@/api/user.ts";
+import {
+  updateUserInfo,
+  getTopCreditUsers,
+  userLogout,
+  updateUserCreditScore,
+  updateAvatar,
+  loadRankWithCounty
+} from "@/api/user.ts";
 const userInfo=ref(null)
 const creditScore=ref(null)
 const shoppingContainer = ref(null)
@@ -496,6 +511,18 @@ const getStatusPng = () => {
       return UnregisterIdNumberPng;
   }
 }
+const hangzhouDistricts = [
+  '上城区',
+  '下城区',
+  '拱墅区',
+  '西湖区',
+  '滨江区',
+  '萧山区',
+  '余杭区',
+  '临平区',
+  '钱塘区',
+  '富阳区'
+];
 
 // 动画加载
 const avatarUrl=ref('')
@@ -522,11 +549,12 @@ onMounted(() => {
     path: new URL('@/assets/personal.json', import.meta.url).href,
   });
 });
-//
-const creditRankList = ref<{ avatar: string; score: number; area: string }[]>([])
+
+const creditRankList=ref([])
 
 onMounted(async () => {
-  creditRankList.value = await getTopCreditUsers()
+  creditRankList.value = await loadRankWithCounty()
+
 })
 
 
@@ -696,7 +724,7 @@ const submitForm = () => {
         ...form
       });
 
-      ElMessage.success('更新成功,请重新登录');
+      ElMessage.success('更新成功,刷新页面');
       await getUserInfo(uuid);
       await getUserCreditScoreInfo(userInfoStore.user.id)
       dialogFormVisible.value = false;
@@ -761,7 +789,8 @@ import { nextTick, watch } from 'vue';
 import {PictureFilled, SwitchButton, UserFilled} from "@element-plus/icons-vue";
 import {useDeviceStore} from "@/stores/useDeviceStore.ts";
 import axiosInstance from "@/plugins/axios.ts";
-import { getUserCreditScoreInfo, getUserInfo } from "../../api/user";
+import { getUserCreditScoreInfo, getUserInfo } from "@/api/user.ts";
+import axios from "axios";
 
 const activeChart = ref('credit'); // 默认选中信用分折线图
 const chartRef = ref<HTMLElement | null>(null);
@@ -987,9 +1016,8 @@ const submitUcsForm = async () => {
     const res = await updateUserCreditScore(userId, ucForm)
     ElMessage.success("更新成功,请重新登录",res)
     ucsDialogVisible.value = false
-    const tokenStore=useTokenStore()
-    await getUserInfo(tokenStore.uuid);
-    await getUserCreditScoreInfo(userInfoStore.user.id)
+    await userLogout(userId)
+    await router.push('/login')
   } catch (error) {
     ElMessage.error("请求异常")
     console.error(error)
@@ -1007,6 +1035,7 @@ const qualifications=[
 const jobTypes=[
     '公务员',
     '自由职业',
+    '退休人员',
     '私营个体',
     '其他'
 ]

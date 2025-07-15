@@ -24,9 +24,24 @@
     </div>
 
     <div class="header-button">
-      <!-- 登录/注册按钮 -->
+      <!-- 登录状态：头像 + 下拉菜单 -->
+      <t-dropdown
+          v-if="isLoggedIn"
+          :options="userOptions"
+          trigger="click"
+          @click="handleUserOptionClick"
+      >
+        <t-avatar
+            :image="user?.avatar || defaultAvatar"
+            size="medium"
+            style="cursor: pointer"
+        />
+      </t-dropdown>
+
+      <!-- 未登录状态：登录/注册按钮 -->
       <t-button
-          style="height: 40px;  color: #FFFFFF"
+          v-else
+          style="height: 40px; color: #FFFFFF"
           theme="primary"
           shape="rectangle"
           variant="base"
@@ -35,6 +50,8 @@
         登录 / 注册
       </t-button>
     </div>
+
+
 
     <div class="operations-container">
       <!-- 政府 按钮 -->
@@ -66,6 +83,56 @@ import router from "../../../router";
 
 import {useUserInfoStore} from "@/stores/useUserInfoStore.ts";
 
+
+import { computed } from 'vue';
+import type { DropdownOption, DropdownProps } from 'tdesign-vue-next';
+import {userLogout} from "@/api/user.ts";
+import {useDeviceStore} from "@/stores/useDeviceStore.ts";
+
+const userStore = useUserInfoStore();
+const user = computed(() => userStore.user);
+const isLoggedIn = computed(() => user.value !== null);
+
+// 下拉菜单项
+const userOptions: DropdownOption[] = [
+  { content: '个人中心', value: 'personal' },
+  { content: '首页', value: 'home' },
+  { content: '退出登录', value: 'logout' },
+];
+
+// 下拉点击处理
+const handleUserOptionClick: DropdownProps['onClick'] =async (data) => {
+  switch (data.value) {
+    case 'personal':
+      await router.push('/personal');
+      break;
+    case 'home':
+      await router.push('/welcome');
+      break;
+    case 'logout':
+      const userInfoStore=useUserInfoStore();
+      const deviceStore=useDeviceStore()
+      await userLogout(userInfoStore.user.uuid,deviceStore.device)
+      ElMessage.success('已退出登录');
+      await router.push('/home');
+      break;
+  }
+};
+
+const Login = () => {
+  router.push('/login');
+};
+
+const defaultAvatar=ref('')
+defaultAvatar.value=userStore.user?.profilePicture || "https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+
+
+// 退出登录方法
+const logout = () => {
+  userStore.removeUserInfo();
+  ElMessage.success("已退出登录");
+  router.push("/login");
+};
 
 const routerStore = useRouterStore();
 // 用于语言切换
@@ -111,24 +178,22 @@ const goToCreditBusiness = () => {
 };
 
 const goToCreditLife = () => {
-  ElMessage.success('信用生活即将上线，敬请期待!')
-  // if(!isUserLogged()){
-  //   routerStore.setRouter('/life')
-  //   ElMessage.warning('请先登录')
-  //   router.push('/login')
-  //   return
-  // }
-  // // 跳转到应用中心页面
+  if(!isUserLogged()){
+    routerStore.setRouter('/life')
+    ElMessage.warning('请先登录')
+    router.push('/login')
+    return
+  }
+  // 跳转到应用中心页面
   router.push('/life');
 };
 const goToCreditManage = () => {
-  ElMessage.success('信用管理即将上线，敬请期待!')
-  // if(!isUserLogged()){
-  //   routerStore.setRouter('/manage')
-  //   ElMessage.warning('请先登录')
-  //   router.push('/login')
-  //   return
-  // }
+  if(!isUserLogged()){
+    routerStore.setRouter('/manage')
+    ElMessage.warning('请先登录')
+    router.push('/login')
+    return
+  }
   router.push('/manageHouse');
 }
 
@@ -140,9 +205,6 @@ const navToHelper = () => {
   window.open('https://www.chinasofti.com/');
 };
 
-const Login = () => {
-  router.push('/login');
-};
 </script>
 
 <style lang="less" scoped>
