@@ -27,8 +27,8 @@ export interface ParkingSpaces {
     spaceId: number
     parkingLotId: number
     spaceNumber: string
-    spaceType: number // 0 普通 1 残疾人 2 充电
-    spaceStatus: number // 0 空闲 1 占用 2 维护 3 已预约
+    spaceType: number
+    spaceStatus: number
     createdAt: string
     updatedAt: string
 }

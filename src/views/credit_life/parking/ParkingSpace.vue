@@ -114,35 +114,56 @@ const mapStatus = (status: number): string => {
 const findSpace = (number: string) => {
   return spaceList.value.find((s) => s.spaceNumber.endsWith(number))
 }
-
 const generateLayout = () => {
   const styleBase = (row: number, col: number, rowSpan = 1, colSpan = 1) => ({
     gridRow: `${row} / span ${rowSpan}`,
     gridColumn: `${col} / span ${colSpan}`
+  });
+
+  const carSlots = spaceList.value.slice(0, 12) // 车位是固定12个
+  const layoutTemplate = [
+    { label: 'A01', style: styleBase(2, 2) },
+    { label: 'A02', style: styleBase(2, 4) },
+    { label: 'A03', style: styleBase(3, 3) },
+    { label: 'A04', style: styleBase(3, 4) },
+    { label: 'A05', style: styleBase(3, 5) },
+    { label: 'B01', style: styleBase(4, 3) },
+    { label: 'B02', style: styleBase(4, 5) },
+    { label: 'B03', style: styleBase(5, 2) },
+    { label: 'B04', style: styleBase(5, 3) },
+    { label: 'B05', style: styleBase(5, 5) },
+    { label: 'B06', style: styleBase(6, 2) },
+    { label: 'B07', style: styleBase(6, 3) }
+  ]
+
+  const carSlotItems = layoutTemplate.map((tpl, i) => {
+    const space = carSlots[i]
+    return {
+      key: space?.spaceNumber || `unknown-${i}`,
+      label:  tpl.label,
+      style: tpl.style,
+      ...space,
+      status: mapStatus(space?.spaceStatus ?? 0)
+    }
   })
+
+  // 加上通道
   layout.value = [
     { key: 'channel-1', label: '通道', style: styleBase(2, 1, 3), status: 'maintenance' },
-    { key: 'A01', label: 'A01', style: styleBase(2, 2), ...findSpace('2-01') },
-    { key: 'B03', label: 'B03', style: styleBase(5, 2), ...findSpace('2-06') },
-    { key: 'B06', label: 'B06', style: styleBase(6, 2), ...findSpace('2-09') },
+    ...carSlotItems.slice(0, 1), // A01
     { key: '通道-2', label: '通道', style: styleBase(2, 3), status: 'maintenance' },
-    { key: 'A03', label: 'A03', style: styleBase(3, 3), ...findSpace('2-03') },
-    { key: 'B01', label: 'B01', style: styleBase(4, 3), ...findSpace('2-05') },
-    { key: 'B04', label: 'B04', style: styleBase(5, 3), ...findSpace('2-07') },
-    { key: 'B07', label: 'B07', style: styleBase(6, 3), ...findSpace('2-10') },
-    { key: 'A02', label: 'A02', style: styleBase(2, 4), ...findSpace('2-02') },
-    { key: 'A04', label: 'A04', style: styleBase(3, 4), ...findSpace('2-04') },
+    ...carSlotItems.slice(1, 5), // A02 ~ A05
     { key: '通道-3', label: '通道', style: styleBase(4, 4, 3), status: 'maintenance' },
     { key: '通道-4', label: '通道', style: styleBase(2, 5), status: 'maintenance' },
-    { key: 'A05', label: 'A05', style: styleBase(3, 5), ...findSpace('2-08') },
-    { key: 'B02', label: 'B02', style: styleBase(4, 5), ...findSpace('2-11') },
-    { key: 'B05', label: 'B05', style: styleBase(5, 5), ...findSpace('2-12') },
-    { key: '通道-5', label: '通道', style: styleBase(6, 5), status: 'maintenance' },
-  ].map(item => ({
-    ...item,
-    status: item.status || mapStatus(item.spaceStatus || 0)
-  }))
+    ...carSlotItems.slice(5), // B01 ~ B07
+    { key: '通道-5', label: '通道', style: styleBase(6, 5), status: 'maintenance' }
+  ]
 }
+
+
+
+
+
 const userInfoStore = useUserInfoStore()
 const userInfo = userInfoStore.user
 
