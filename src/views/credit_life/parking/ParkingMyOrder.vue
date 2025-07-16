@@ -70,7 +70,7 @@
             >离开停车场</el-button>
 
             <el-button
-                v-if="Number(item.tag) === 2 || 4"
+                v-if="Number(item.tag) === 2 || Number(item.tag) === 4"
                 size="small"
                 type="primary"
                 @click="pay(item)"
