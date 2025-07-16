@@ -3,7 +3,7 @@
     <login-header  @click="goToHome" />
     <div class="login-container" >
       <div class="title-container">
-        <h1 class="title margin-no">登录到 :</h1>
+        <h1 class="title margin-no">{{type==='register'?'注册：':'登录到 :'}}</h1>
         <h1 class="title">
           &nbsp;&nbsp;&nbsp;&nbsp;
           <span style="color: deepskyblue">西湖分</span>

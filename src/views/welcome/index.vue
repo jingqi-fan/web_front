@@ -14,6 +14,7 @@
         <div class="title-right">
           <el-button @click="goToTraining" class="custom-button">信用商业</el-button>
           <el-button @click="goToCreditLife" class="custom-button">信用生活</el-button>
+          <el-button @click="goToCreditMan" class="custom-button">信用管理</el-button>
           <el-button
               class="ai-button custom-button"
               :class="{ 'pulse': hasNewMessage, 'active': isActive }"
@@ -68,6 +69,9 @@ const messagesList = ref([
 const currentIndex = ref(0); // 当前显示的消息索引
 let intervalId: ReturnType<typeof setInterval> | null = null;
 
+const goToCreditMan=()=>{
+  router.push('/manageHouse')
+}
 
 onBeforeUnmount(() => {
   if (intervalId) clearInterval(intervalId);
