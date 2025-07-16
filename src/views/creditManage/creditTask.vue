@@ -4,16 +4,8 @@
     <el-header>
       <div class="header-wrapper">
         <span class="header-title">信用管理</span>
-        <el-menu
-          mode="horizontal"
-          :default-active="activeMenu"
-          class="header-menu"
-          @select="handleMenuSelect"
-          background-color="#b3c0d1"
-          text-color="#333"
-          active-text-color="#409EFF"
-          router
-          >
+        <el-menu mode="horizontal" :default-active="activeMenu" class="header-menu" @select="handleMenuSelect"
+          background-color="#b3c0d1" text-color="#333" active-text-color="#409EFF" router>
           <el-menu-item index="/home">首页</el-menu-item>
           <el-menu-item index="/personal">个人中心</el-menu-item>
           <el-menu-item index="/creditbusiness">信用商业</el-menu-item>
@@ -29,15 +21,21 @@
         <el-menu default-active="overview" class="el-menu-vertical-demo" background-color="#d3dce6" text-color="#333"
           active-text-color="#409EFF" router>
           <el-menu-item index="/manageHouse">
-            <el-icon><House /></el-icon>
+            <el-icon>
+              <House />
+            </el-icon>
             <span>信用总览</span>
           </el-menu-item>
           <el-menu-item index="/CreditDimension">
-            <el-icon><PieChart /></el-icon>
+            <el-icon>
+              <PieChart />
+            </el-icon>
             <span>分数详情</span>
           </el-menu-item>
           <el-menu-item index="/CreditTask">
-            <el-icon><PieChart /></el-icon>
+            <el-icon>
+              <PieChart />
+            </el-icon>
             <span>提分任务</span>
           </el-menu-item>
         </el-menu>
@@ -53,20 +51,19 @@
                 <el-radio-button label="mine">我参与的活动</el-radio-button>
                 <el-radio-button label="personal">个人中心</el-radio-button>
               </el-radio-group>
-              <el-button type="primary" @click="loadAll">刷新</el-button>
             </div>
 
-            <div v-if="activeMenu === 'all'">
+            <div v-if="activeMenu === 'all'" class="activity-wrapper">
               <el-input v-model="searchKeyword" placeholder="搜索活动类型 / 简介" class="search-input" clearable />
-              <el-table :data="filteredActivityItems" height="530" border stripe>
+              <el-button class="refresh-button" @click="refreshRandomFive" type="success" plain>换一批</el-button>
+
+
+              <el-table :data="randomFiveActivities" height="530" border stripe>
                 <el-table-column type="index" label="#" width="50" />
                 <el-table-column label="活动类 LOGO" width="100">
                   <template #default="{ row }">
-                    <el-image
-                      :src="getActivityByTitle(row.activityTitle)?.logo"
-                      fit="contain"
-                      style="width: 60px; height: 60px"
-                    />
+                    <el-image :src="getActivityByTitle(row.activityTitle)?.logo" fit="contain"
+                      style="width: 60px; height: 60px" />
                   </template>
                 </el-table-column>
                 <el-table-column label="活动类型" prop="activityTitle" width="150" />
@@ -137,15 +134,30 @@
             </div>
           </div>
         </el-card>
+        <div class="fixed-more-link" @click="goToMore">想查看更多？</div>
       </el-main>
     </el-container>
+
+    <!-- 活动详情弹窗 -->
+    <el-dialog title="活动详情" v-model="detailDialogVisible" width="600px" :before-close="handleDialogClose">
+      <div class="detail-content">
+        <h3>{{ detailData.activityTitle }}</h3>
+        <p class="detail-introduce">{{ detailData.introduce || '暂无详情' }}</p>
+        <p><strong>内容：</strong>{{ detailData.content || '无内容' }}</p>
+        <p><strong>地址：</strong>{{ detailData.address || '未知' }}</p>
+        <p><strong>发布时间：</strong>{{ detailData.publishDate || '-' }}</p>
+      </div>
+      <template #footer>
+        <el-button @click="detailDialogVisible = false">关闭</el-button>
+      </template>
+    </el-dialog>
   </el-container>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import {
   joinActivity,
   exitActivity,
@@ -162,6 +174,8 @@ import type {
 import { useUserInfoStore } from '@/stores/useUserInfoStore.ts'
 import { House, PieChart } from '@element-plus/icons-vue'
 import axios from 'axios'
+
+
 
 const router = useRouter()
 const userInfoStore = useUserInfoStore()
@@ -186,7 +200,7 @@ const loadCredit = async () => {
   }
 }
 
-const recordType =  "亲社会行为"
+const recordType = "亲社会行为"
 const encodedRecordType = encodeURIComponent(recordType)
 const finishedSocialCount = ref<number | null>(null)
 const loadFinishedSocialCount = async () => {
@@ -202,9 +216,26 @@ const loadFinishedSocialCount = async () => {
   }
 }
 
+
+const randomFiveActivities = ref<ActivityItemWithCategoryDTO[]>([])
+function refreshRandomFive() {
+  const source = filteredActivityItems.value
+  if (source.length <= 5) {
+    randomFiveActivities.value = [...source]
+  } else {
+    // 随机抽取5条
+    const shuffled = [...source].sort(() => 0.5 - Math.random())
+    randomFiveActivities.value = shuffled.slice(0, 5)
+  }
+}
+
 const allActivities = ref<ActivitiesDTO[]>([])
 const allItems = ref<ActivityItemWithCategoryDTO[]>([])
 const userActivities = ref<UserJoinActivityDTO[]>([])
+
+const goToMore = () => {
+  router.push('/prosocial_user')
+}
 
 const loadAll = async () => {
   const [activitiesRes, itemsRes, userRes] = await Promise.all([
@@ -217,10 +248,13 @@ const loadAll = async () => {
   userActivities.value = userRes.data
 }
 
+
+
 onMounted(() => {
   loadCredit()
   loadFinishedSocialCount()
   loadAll()
+  refreshRandomFive()
 })
 
 const handleMenuSelect = (key: string) => {
@@ -242,6 +276,10 @@ const filteredActivityItems = computed(() => {
     i.activityTitle?.includes(searchKeyword.value) ||
     getActivityByType(i.activityTitle)?.introduce?.includes(searchKeyword.value)
   )
+})
+
+watch(filteredActivityItems, () => {
+  refreshRandomFive()
 })
 
 const filteredUserActivities = computed(() =>
@@ -285,20 +323,35 @@ const finish = async (itemId: number) => {
   }
 }
 
+// 新增弹窗相关响应式变量和方法
+const detailDialogVisible = ref(false)
+const detailData = reactive({
+  activityTitle: '',
+  introduce: '',
+  content: '',
+  address: '',
+  publishDate: ''
+})
+
 const viewDetail = (row: ActivityItemWithCategoryDTO) => {
-  ElMessageBox.alert(`
-    <strong>${row.activityTitle}</strong><br/>
-    ${getActivityByType(row.activityTitle)?.content || '暂无详情'}<br/>
-    地址：${getActivityByType(row.activityTitle)?.address || '未知'}
-  `, '活动详情', {
-    dangerouslyUseHTMLString: true
-  })
+  const activity = getActivityByTitle(row.activityTitle)
+  detailData.activityTitle = row.activityTitle
+  detailData.introduce = activity?.introduce || ''
+  detailData.content = activity?.content || ''
+  detailData.address = activity?.address || ''
+  detailData.publishDate = row.publishDate || ''
+  detailDialogVisible.value = true
+}
+
+const handleDialogClose = () => {
+  detailDialogVisible.value = false
 }
 </script>
 
 <style scoped>
 /* 设置基础HTML和Body的高度 */
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -324,7 +377,7 @@ html, body {
 }
 
 .el-main {
-  background-color: #f5f7fa;
+  background-color: #c9d7e8;
   padding: 20px;
   height: calc(100vh - 60px);
   overflow-y: auto;
@@ -460,4 +513,42 @@ html, body {
   color: #409EFF;
   font-weight: bold;
 }
+
+/* 新增活动详情弹窗样式 */
+.detail-content h3 {
+  margin: 0 0 10px;
+  font-weight: bold;
+  color: #409EFF;
+}
+
+.detail-content p {
+  margin: 6px 0;
+  line-height: 1.5;
+  color: #333;
+}
+
+.detail-content p strong {
+  color: #606266;
+}
+
+.fixed-more-link {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: #409EFF;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: all 0.3s;
+  z-index: 999;
+}
+
+.fixed-more-link:hover {
+  background-color: #66b1ff;
+  transform: scale(1.05);
+}
+
 </style>

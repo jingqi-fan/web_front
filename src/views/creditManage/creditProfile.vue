@@ -337,7 +337,7 @@ html, body {
 }
 
 .el-main {
-  background-color: #f5f7fa;
+  background-color: #c9d7e8;
   padding: 20px;
   /* 主内容区高度设置 */
   height: calc(100vh - 60px);
