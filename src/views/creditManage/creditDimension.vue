@@ -225,7 +225,7 @@ const initTrendChart = () => {
 
   const option = {
     title: {
-      text: '近十次信用分变化',
+      text: '近期信用分变化',
       left: 'center',
       textStyle: {
         fontSize: 16,

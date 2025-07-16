@@ -12,7 +12,8 @@
           background-color="#b3c0d1"
           text-color="#333"
           active-text-color="#409EFF"
-        >
+          router
+          >
           <el-menu-item index="/home">首页</el-menu-item>
           <el-menu-item index="/personal">个人中心</el-menu-item>
           <el-menu-item index="/creditbusiness">信用商业</el-menu-item>
@@ -24,58 +25,47 @@
 
     <!-- 主体区域：侧边 + 主内容 -->
     <el-container>
-      <el-aside width="200px" class="aside-menu">
+      <el-aside width="200px">
         <el-menu default-active="overview" class="el-menu-vertical-demo" background-color="#d3dce6" text-color="#333"
           active-text-color="#409EFF" router>
           <el-menu-item index="/manageHouse">
-            <el-icon>
-              <House />
-            </el-icon>
+            <el-icon><House /></el-icon>
             <span>信用总览</span>
           </el-menu-item>
           <el-menu-item index="/CreditDimension">
-            <el-icon>
-              <PieChart />
-            </el-icon>
+            <el-icon><PieChart /></el-icon>
             <span>分数详情</span>
           </el-menu-item>
           <el-menu-item index="/CreditTask">
-            <el-icon>
-              <PieChart />
-            </el-icon>
+            <el-icon><PieChart /></el-icon>
             <span>提分任务</span>
           </el-menu-item>
         </el-menu>
       </el-aside>
 
-      <el-main class="custom-main">
-        <el-container style="border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,139,0.2)">
-          <!-- 左侧导航 -->
-          <el-aside width="200px" class="aside-menu">
-            <el-menu
-                :default-active="activeMenuInner"
-                class="el-menu-vertical-demo"
-                @select="handleMenuSelectInner"
-            >
-              <el-menu-item index="all">全部活动</el-menu-item>
-              <el-menu-item index="mine">我参与的活动</el-menu-item>
-              <el-menu-item index="personal">个人中心</el-menu-item>
-            </el-menu>
-          </el-aside>
+      <!-- 主内容 -->
+      <el-main>
+        <el-card class="box-card">
+          <div class="activity-center">
+            <div class="title-bar">
+              <el-radio-group v-model="activeMenu" @change="handleMenuSelect">
+                <el-radio-button label="all">全部活动</el-radio-button>
+                <el-radio-button label="mine">我参与的活动</el-radio-button>
+                <el-radio-button label="personal">个人中心</el-radio-button>
+              </el-radio-group>
+              <el-button type="primary" @click="loadAll">刷新</el-button>
+            </div>
 
-          <!-- 主体内容 -->
-          <el-main class="main-content">
-            <template v-if="activeMenuInner === 'all'">
-              <!-- 全部活动内容 -->
+            <div v-if="activeMenu === 'all'">
               <el-input v-model="searchKeyword" placeholder="搜索活动类型 / 简介" class="search-input" clearable />
               <el-table :data="filteredActivityItems" height="530" border stripe>
                 <el-table-column type="index" label="#" width="50" />
                 <el-table-column label="活动类 LOGO" width="100">
                   <template #default="{ row }">
                     <el-image
-                        :src="getActivityByTitle(row.activityTitle)?.logo"
-                        fit="contain"
-                        style="width: 60px; height: 60px"
+                      :src="getActivityByTitle(row.activityTitle)?.logo"
+                      fit="contain"
+                      style="width: 60px; height: 60px"
                     />
                   </template>
                 </el-table-column>
@@ -94,9 +84,9 @@
                   </template>
                 </el-table-column>
               </el-table>
-            </template>
-            <template v-if="activeMenuInner === 'mine'">
-              <!-- 我参与的活动内容 -->
+            </div>
+
+            <div v-if="activeMenu === 'mine'">
               <el-input v-model="searchMineKeyword" placeholder="搜索活动类型 / 主办方" class="search-input" clearable />
               <el-table height="530" :data="filteredUserActivities" border stripe>
                 <el-table-column type="index" label="#" width="50" />
@@ -106,55 +96,47 @@
                     {{ getActivityByTitle(getItemById(row.id)?.activityTitle)?.sponsor || '未知' }}
                   </template>
                 </el-table-column>
-
                 <el-table-column label="开始时间">
                   <template #default="{ row }">
                     {{ getItemById(row.id)?.startDate || '-' }}
                   </template>
                 </el-table-column>
-
                 <el-table-column label="结束时间">
                   <template #default="{ row }">
                     {{ getItemById(row.id)?.endDate || '-' }}
                   </template>
                 </el-table-column>
-
                 <el-table-column label="是否完成">
                   <template #default="{ row }">
-                    {{ row.status === 'FINISHED' ? '是' : '否' }}
+                    {{ row.finished ? '是' : '否' }}
                   </template>
                 </el-table-column>
-
                 <el-table-column label="操作" width="220">
                   <template #default="{ row }">
-                    <el-button type="danger" size="small" @click="exit(row.id)">退出活动</el-button>
-                    <el-button type="success" size="small" @click="finish(row.id)">完成活动</el-button>
+                    <el-button type="danger" size="small" v-if="!row.finished" @click="exit(row.id)">退出活动</el-button>
+                    <el-button type="success" size="small" v-if="!row.finished" @click="finish(row.id)">完成活动</el-button>
+                    <el-tag type="success" v-if="row.finished" size="small">已完成</el-tag>
                   </template>
                 </el-table-column>
               </el-table>
-            </template>
-            <template v-if="activeMenuInner === 'personal'">
-              <div class="personal-center">
-                <div class="avatar-box">
-                  <el-avatar :size="100" :src="userInfoStore.user.profilePicture" />
-                  <div class="user-name">{{ userInfoStore.user.username || '用户' }}</div>
-                </div>
+            </div>
 
-                <el-card class="credit-card">
-                  <div class="card-title">信用分</div>
-                  <div class="credit-score">{{ userInfoStore.user.credit || 0 }} 分</div>
-                </el-card>
+            <div v-if="activeMenu === 'personal'" class="personal-center">
+              <el-avatar :size="100" :src="userInfoStore.user.profilePicture" />
+              <div class="user-name">{{ userInfoStore.user.username || '用户' }}</div>
 
-                <el-card class="activity-stat-card">
-                  <div class="card-title">已完成的亲社会活动</div>
-                  <div class="activity-count">
-                    {{ finishedActivityCount }} 个
-                  </div>
-                </el-card>
-              </div>
-            </template>
-          </el-main>
-        </el-container>
+              <el-card class="credit-card">
+                <div class="card-title">信用分</div>
+                <div class="credit-score">{{ userInfoStore.user.credit || 0 }} 分</div>
+              </el-card>
+
+              <el-card class="activity-stat-card">
+                <div class="card-title">已完成的亲社会活动</div>
+                <div class="activity-count">{{ finishedSocialCount !== null ? finishedSocialCount : '加载中...' }} 个</div>
+              </el-card>
+            </div>
+          </div>
+        </el-card>
       </el-main>
     </el-container>
   </el-container>
@@ -163,6 +145,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   joinActivity,
   exitActivity,
@@ -171,38 +154,57 @@ import {
   loadAllActivities,
   loadAllActivityItems
 } from '@/api/prosocail_behavior/user_activity.ts'
-import type { ActivityItemWithCategoryDTO, ActivitiesDTO, UserJoinActivityDTO } from '@/api/prosocail_behavior/user_activity_type.ts'
-import {ElMessage, ElMessageBox} from "element-plus";
-import {useUserInfoStore} from "@/stores/useUserInfoStore.ts";
+import type {
+  ActivityItemWithCategoryDTO,
+  ActivitiesDTO,
+  UserJoinActivityDTO
+} from '@/api/prosocail_behavior/user_activity_type.ts'
+import { useUserInfoStore } from '@/stores/useUserInfoStore.ts'
 import { House, PieChart } from '@element-plus/icons-vue'
+import axios from 'axios'
 
 const router = useRouter()
-
-// 顶部菜单
-const activeMenu = ref('/manageHouse')
-const handleMenuSelect = (key: string) => {
-  activeMenu.value = key
-  router.push(key)
-}
-
-// 主体内侧菜单（全部活动/我参与/个人中心）
-const activeMenuInner = ref('all')
-const handleMenuSelectInner = (key: string) => {
-  activeMenuInner.value = key
-}
-
-const searchKeyword = ref('')
-const searchMineKeyword = ref('')
-
 const userInfoStore = useUserInfoStore()
 
 const userId = userInfoStore.user.id
+const activeMenu = ref('all')
+const searchKeyword = ref('')
+const searchMineKeyword = ref('')
+
+const creditScore = ref<number | null>(null)
+const loadCredit = async () => {
+  try {
+    const res = await axios.get(`/api/credit/${userId}`)
+    if (res.data?.code === 1) {
+      creditScore.value = res.data.data
+      userInfoStore.user.credit = creditScore.value
+    } else {
+      ElMessage.error(res.data?.msg || '获取信用分失败')
+    }
+  } catch (error) {
+    ElMessage.error('请求异常，获取信用分失败')
+  }
+}
+
+const recordType =  "亲社会行为"
+const encodedRecordType = encodeURIComponent(recordType)
+const finishedSocialCount = ref<number | null>(null)
+const loadFinishedSocialCount = async () => {
+  try {
+    const res = await axios.get(`/api/record/user/${userId}/${encodedRecordType}`)
+    if (res.data?.code === 1) {
+      finishedSocialCount.value = res.data.data
+    } else {
+      ElMessage.error(res.data?.msg || '获取亲社会活动数量失败')
+    }
+  } catch (error) {
+    ElMessage.error('请求异常，获取亲社会活动数量失败')
+  }
+}
+
 const allActivities = ref<ActivitiesDTO[]>([])
 const allItems = ref<ActivityItemWithCategoryDTO[]>([])
 const userActivities = ref<UserJoinActivityDTO[]>([])
-const finishedActivityCount = computed(() =>
-    userActivities.value.filter(a => a.status === 'FINISHED').length
-)
 
 const loadAll = async () => {
   const [activitiesRes, itemsRes, userRes] = await Promise.all([
@@ -214,60 +216,73 @@ const loadAll = async () => {
   allItems.value = itemsRes.data
   userActivities.value = userRes.data
 }
-const getItemById = (id: number) => allItems.value.find(i => i.itemId === id)
 
-onMounted(loadAll)
+onMounted(() => {
+  loadCredit()
+  loadFinishedSocialCount()
+  loadAll()
+})
 
-const getActivityByType = (type: string) => allActivities.value.find(a => a.title === type)
+const handleMenuSelect = (key: string) => {
+  activeMenu.value = key
+}
+
+const getActivityByType = (type: string) =>
+  allActivities.value.find(a => a.title === type)
+
 const getActivityByTitle = (title: string) =>
-    allActivities.value.find(a => a.title === title)
+  allActivities.value.find(a => a.title === title)
+
+const getItemById = (id: number) =>
+  allItems.value.find(i => i.itemId === id)
 
 const filteredActivityItems = computed(() => {
   if (!searchKeyword.value) return allItems.value
   return allItems.value.filter(i =>
-      (i.activityTitle?.includes(searchKeyword.value) ?? false) ||
-      (getActivityByType(i.activityTitle)?.introduce?.includes(searchKeyword.value) ?? false)
+    i.activityTitle?.includes(searchKeyword.value) ||
+    getActivityByType(i.activityTitle)?.introduce?.includes(searchKeyword.value)
   )
 })
 
 const filteredUserActivities = computed(() =>
-    userActivities.value.filter(i =>
-        (i.title?.includes(searchMineKeyword.value) ?? false) ||
-        (getActivityByTitle(i.title)?.sponsor?.includes(searchMineKeyword.value) ?? false)
-    )
+  userActivities.value.filter(i =>
+    i.title?.includes(searchMineKeyword.value) ||
+    getActivityByTitle(i.title)?.sponsor?.includes(searchMineKeyword.value)
+  )
+)
+
+const finishedActivityCount = computed(() =>
+  userActivities.value.filter(a => a.status === true).length
 )
 
 const join = async (itemId: number) => {
-  const res=await joinActivity({ userId, itemId })
-  if(res.status==='SUCCESS'){
+  const res = await joinActivity({ userId, itemId })
+  if (res.status === 'SUCCESS') {
     ElMessage.success('参与成功')
-  }else{
-    ElMessage.error(res.message===''?'活动参与失败':res.message)
-    return
+    await loadAll()
+  } else {
+    ElMessage.error(res.message || '活动参与失败')
   }
-  await loadAll()
 }
 
 const exit = async (itemId: number) => {
-  const res=await exitActivity({ userId, itemId })
-  if(res.status==='SUCCESS'){
+  const res = await exitActivity({ userId, itemId })
+  if (res.status === 'SUCCESS') {
     ElMessage.success('退出成功')
-  }else {
-    ElMessage.error(res.message===''?'活动退出失败':res.message)
-    return
+    await loadAll()
+  } else {
+    ElMessage.error(res.message || '活动退出失败')
   }
-  await loadAll()
 }
 
 const finish = async (itemId: number) => {
-  const res=await finishActivityItem({ userId, itemId })
-  if(res.status==='SUCCESS'){
+  const res = await finishActivityItem({ userId, itemId })
+  if (res.status === 'SUCCESS') {
     ElMessage.success('已完成该活动')
-  }else{
-    ElMessage.error(res.message===''?'活动完成失败':res.message)
-    return
+    await loadAll()
+  } else {
+    ElMessage.error(res.message || '活动完成失败')
   }
-  await loadAll()
 }
 
 const viewDetail = (row: ActivityItemWithCategoryDTO) => {
@@ -281,8 +296,8 @@ const viewDetail = (row: ActivityItemWithCategoryDTO) => {
 }
 </script>
 
-<style scoped lang="scss">
-/* 基础布局和样式 */
+<style scoped>
+/* 设置基础HTML和Body的高度 */
 html, body {
   height: 100%;
   margin: 0;
@@ -296,12 +311,14 @@ html, body {
 .el-header {
   background-color: #b3c0d1;
   color: #333;
+  text-align: center;
   line-height: 60px;
 }
 
 .el-aside {
   background-color: #d3dce6;
   color: #333;
+  text-align: center;
   height: calc(100vh - 60px);
   overflow-y: auto;
 }
@@ -313,7 +330,62 @@ html, body {
   overflow-y: auto;
 }
 
-/* 顶部样式 */
+.text-orange-500 {
+  color: #f59e0b;
+}
+
+.text-blue-500 {
+  color: #3b82f6;
+}
+
+.text-gray-500 {
+  color: #6b7280;
+}
+
+.text-gray-400 {
+  color: #9ca3af;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+}
+
+.font-bold {
+  font-weight: bold;
+}
+
+.ml-4 {
+  margin-left: 1rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mt-4 {
+  margin-top: 1rem;
+}
+
 .header-wrapper {
   display: flex;
   align-items: center;
@@ -328,7 +400,11 @@ html, body {
   color: #333;
 }
 
-/* 侧边菜单激活项样式 */
+.header-menu {
+  flex-grow: 1;
+  margin-left: 40px;
+}
+
 .el-aside .el-menu-item.is-active {
   background-color: #a0b0c0 !important;
   color: #1f2d3d !important;
@@ -336,20 +412,8 @@ html, body {
   border-right: 4px solid #409EFF;
 }
 
-/* 替换后的主体样式 */
-.aside-menu {
-  background: #f0f4f9;
-  padding-top: 20px;
-  border-right: 1px solid #e0e0e0;
-  height: 630px;
-
-  .el-menu-item {
-    font-size: 16px;
-  }
-}
-
-.main-content {
-  padding: 20px;
+.activity-center {
+  padding: 10px;
 }
 
 .search-input {
@@ -357,11 +421,11 @@ html, body {
   margin: 10px 0;
 }
 
-.custom-main {
-  margin-top: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 139, 0.2);
-  border-radius: 8px;
-  background-color: #fff;
+.title-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
 }
 
 .personal-center {
@@ -372,79 +436,28 @@ html, body {
   padding: 40px 20px;
 }
 
-.avatar-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-
-  .user-name {
-    font-size: 20px;
-    font-weight: bold;
-    color: #333;
-  }
+.user-name {
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: bold;
 }
 
-.credit-card, .activity-stat-card {
+.credit-card,
+.activity-stat-card {
   width: 300px;
   text-align: center;
-
-  .card-title {
-    font-size: 16px;
-    font-weight: 500;
-    margin-bottom: 10px;
-    color: #666;
-  }
-
-  .credit-score, .activity-count {
-    font-size: 36px;
-    font-weight: bold;
-    color: #1a56db;
-  }
 }
 
-.title-decoration {
-  position: absolute;
-  bottom: -6px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60%;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, #3b82f6, transparent);
-  border-radius: 2px;
-  opacity: 0.7;
+.card-title {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 10px;
 }
 
-.subtitle {
-  font-size: 12px;
-  color: #6b7280;
-  margin-top: 4px;
-  letter-spacing: 2px;
-  font-weight: 500;
-  opacity: 0.9;
-}
-
-.title-left {
-  display: flex;
-  align-items: center;
-}
-
-.title-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.custom-button {
-  background-image: linear-gradient(to right, #6dd5ed, #2193b0);
-  color: white;
-  border: none;
-  border-radius: 20px;
-  padding: 10px 20px;
-  font-size: 14px;
-}
-
-.custom-button:hover {
-  opacity: 0.8;
+.credit-score,
+.activity-count {
+  font-size: 32px;
+  color: #409EFF;
+  font-weight: bold;
 }
 </style>
