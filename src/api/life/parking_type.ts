@@ -77,6 +77,7 @@ export interface AppointmentListRes {
 export interface ParkingFeeRes {
     parkingTime: string
     startTime: string
+    mag:string
     price: number
 }
 

@@ -75,7 +75,7 @@ export const getParkingFee = async (appointId: number): Promise<ParkingFeeRes> =
 //开始使用
 export const startParkingUse = async (appointmentId: number): Promise<string> => {
     const res = await axiosInstance.get(`/park/startUse?appointmentId=${appointmentId}`)
-    return res.data.data
+    return res.data
 }
 //离开停车场
 export const leaveParking = async (appointId: number): Promise<string> => {

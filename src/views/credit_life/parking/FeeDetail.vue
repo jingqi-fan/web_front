@@ -14,6 +14,7 @@
       <div class="label">当前费用</div>
       <div class="value fee">￥{{ feeDetail?.totalFee }}</div>
       <div class="rules">计费规则：首小时￥10，之后每小时￥12</div>
+      <div class="rules">{{feeSimple?.msg}}</div>
     </div>
 
     <!-- 底部操作按钮 -->

@@ -70,7 +70,7 @@
             >离开停车场</el-button>
 
             <el-button
-                v-if="Number(item.tag) === 2"
+                v-if="Number(item.tag) === 2 || 4"
                 size="small"
                 type="primary"
                 @click="pay(item)"
@@ -81,6 +81,11 @@
                 type="info"
                 size="small"
             >已完成</el-tag>
+            <el-tag
+                v-if="Number(item.tag) === 4"
+                type="info"
+                size="small"
+            >已过期</el-tag>
           </div>
         </div>
       </el-card>
@@ -128,9 +133,9 @@ const filter = ref({
 })
 
 
-const statusMap = ['待使用', '使用中', '已使用', '已完成']
+const statusMap = ['待使用', '使用中', '已使用', '已完成', '已过期']
 const statusTagType = (status: string) =>
-    ['warning', 'success', 'primary', 'info'][Number(status)]
+    ['warning', 'success', 'primary', 'info','info'][Number(status)]
 
 // 筛选后的列表
 const filteredList = computed(() =>
@@ -146,6 +151,10 @@ const filteredList = computed(() =>
 // 操作按钮事件
 const startUse =async (id: number) => {
   const res=await startParkingUse(id)
+  if(res.code!==200){
+    ElMessage.error(res.msg)
+    return
+  }
   ElMessage.success("开始使用成功")
   await loadAppointmentList()
 }

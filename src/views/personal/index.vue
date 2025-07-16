@@ -774,10 +774,10 @@ const backHome = () => {
   router.push('/home')
 }
 const goToCreditManagerPage = () => {
-  ElMessage.info('/manageHouse');
+  router.push('/manageHouse');
 }
 const goToCreditLife = () => {
-  ElMessage.info('/life');
+  router.push('/life');
 }
 const goToCreditBusiness = () => {
   router.push('/creditbusiness')
