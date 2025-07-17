@@ -58,7 +58,7 @@
         <div class="avatar-options">
           <div class="option-item" @click="handleEditRealInfo">
             <el-icon class="icon info"><UserFilled /></el-icon>
-            信用信息
+            返回欢迎页
           </div>
           <div class="option-item" @click="handleChangeAvatar">
             <el-icon class="icon primary"><PictureFilled /></el-icon>
@@ -565,7 +565,9 @@ const handleChangeAvatar = () => {
   previewAvatarUrl.value = avatarUrl.value;
   avatarDialogVisible.value = true;
 };
-
+const handleEditRealInfo=()=>{
+  router.push('/welcome')
+}
 // 上传头像逻辑
 const uploadAvatar = async ({ file }: { file: File }) => {
   const formData = new FormData();

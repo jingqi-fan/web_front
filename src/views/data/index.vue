@@ -754,42 +754,47 @@ h2 {
   grid-template-rows: 4fr 1fr;
 }
 
-
 .DataCard {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  margin-top: 2px;
-  gap: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  padding: 20px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 255, 255, 0.2);
 }
-.progress-card1 {
-  background-color: #FFFFFF;
+
+.DataCard > div[class^="progress-card"] {
+  flex: 1;
+  margin: 0 10px;
+  padding: 16px;
+  background: linear-gradient(135deg, #001F3F, #003b6f);
+  border-radius: 12px;
   text-align: center;
-  border-radius: 8px;
-  margin-bottom: 8px;
+  box-shadow: 0 0 12px rgba(0, 238, 255, 0.2);
+  transition: transform 0.3s ease;
 }
 
-.progress-card2 {
-  background-color: #FFFFFF;
-  text-align: center;
-  border-radius: 8px;
-  margin-bottom: 8px;
+.DataCard > div[class^="progress-card"]:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
 }
 
-.progress-card3 {
-  background-color: #FFFFFF;
-  text-align: center;
-  border-radius: 8px;
-  margin-bottom: 8px;
+.DataCard p {
+  font-size: 14px;
+  color: #aaa;
+  margin-bottom: 10px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
 }
 
-.progress-card4 {
-  background-color: #FFFFFF;
-  text-align: center;
-  border-radius: 8px;
-  margin-bottom: 8px;
+.card-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: #00eaff;
+  text-shadow: 0 0 4px #00eaff;
 }
-
-
 .MapCardButtonMessage {
   display: grid;
   grid-template-columns: 2fr 1fr;

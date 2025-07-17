@@ -43,7 +43,7 @@ import {useDoctorIdStore} from "@/stores/useDoctorIdStore.ts"; // 使用你提�
 import {ElLoading} from "element-plus";
 
 const goBack = () => {
-  router.back()
+  router.push('/doctor/login')
 }
 
 const doctor = {
