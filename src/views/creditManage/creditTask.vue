@@ -47,8 +47,8 @@
           <div class="activity-center">
             <div class="title-bar">
               <el-radio-group v-model="activeMenu" @change="handleMenuSelect">
-                <el-radio-button label="all">全部活动</el-radio-button>
-                <el-radio-button label="mine">我参与的活动</el-radio-button>
+                <el-radio-button label="all">推荐活动</el-radio-button>
+                <el-radio-button label="mine">我的活动</el-radio-button>
                 <el-radio-button label="personal">个人中心</el-radio-button>
               </el-radio-group>
             </div>
@@ -128,7 +128,7 @@
               </el-card>
 
               <el-card class="activity-stat-card">
-                <div class="card-title">已完成的亲社会活动</div>
+                <div class="card-title">已完成的活动</div>
                 <div class="activity-count">{{ finishedSocialCount !== null ? finishedSocialCount : '加载中...' }} 个</div>
               </el-card>
             </div>
