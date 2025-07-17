@@ -64,7 +64,7 @@ const submitLogin =async  () => {
 }
 
 const goBack = () => {
-  router.back()
+  router.push('/home')
 }
 </script>
 

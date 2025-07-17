@@ -93,7 +93,7 @@
 
         <div class="form-buttons">
           <el-button style="margin-bottom: 20px" @click="goBack">上一步</el-button>
-          <el-button style="margin-bottom: 20px;margin-right: 20px" type="primary" @click="confirmAppointment">确认预约</el-button>
+          <el-button style="margin-bottom: 20px;margin-right: 20px" type="primary" @click="confirmAppointment">确认预约信息</el-button>
         </div>
       </div>
 
@@ -160,7 +160,8 @@ const confirmAppointment =async () => {
   }
   const res=await getPreOrderInfo({
     doctorId: doctor.id,
-    reason: form.value.description
+    reason: form.value.description,
+    date:selectedDate.value
   },userInfo.id)
   console.log(res)
   if(res.code===500){

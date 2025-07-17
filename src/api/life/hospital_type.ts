@@ -43,6 +43,7 @@ export interface DoctorListInfoRes {
 export interface HospitalPreOrderReq {
     doctorId: number
     reason: string
+    date:string
 }
 
 // 预下单响应体

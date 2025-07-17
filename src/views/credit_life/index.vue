@@ -17,8 +17,7 @@
               <el-icon><UserFilled /></el-icon>
               信用信息
             </el-dropdown-item>
-
-            <el-dropdown-item divided @click="logout">
+            <el-dropdown-item @click="lifeLogout">
               <el-icon><SwitchButton /></el-icon>
               退出登录
             </el-dropdown-item>
@@ -149,13 +148,13 @@ import {
   UserFilled
 } from '@element-plus/icons-vue';
 import CreditModuleCard from '@/views/credit_life/CreditModuleCard.vue';
-import router from "@/router";
 import {countBacklog} from "@/api/life/home.ts";
 import {useUserInfoStore} from "@/stores/useUserInfoStore.ts";
 import {useUserCreditScoreStore} from "@/stores/useUserCreditScore.ts";
 import {userLogout} from "@/api/user.ts";
-import {useTokenStore} from "@/stores";
 import {useDeviceStore} from "@/stores/useDeviceStore.ts";
+import {ElMessage} from "element-plus";
+import router from "@/router";
 
 const avatarUrl = ref('https://q8.itc.cn/q_70/images03/20250521/eac16c7d96884de3bd0cb499554c205a.jpeg');
 const pendingCount = ref(0);
@@ -184,15 +183,15 @@ const notices = ref([
 const progressWidth = computed(() => `${Math.min((creditScore.value / 1000) * 100, 100)}%`);
 const backHome = () => router.push('/home');
 const handleEditRealInfo = () => router.push('/personal');
-const handleChangeAvatar = () => alert('更换头像功能开发中');
-const logout =async  () => {
+const lifeLogout =async  () => {
+  ElMessage.success('退出登录成功')
   const userInfoStore=useUserInfoStore()
   const uuid=userInfoStore.user.uuid
   const deviceStore=useDeviceStore()
-  await userLogout(uuid,deviceStore.device)
+  const res=await userLogout(uuid,deviceStore.device)
+  console.log("res:",res)
   await router.push('/login')
 }
-const contactSupport = () => alert('联系客服功能开发中');
 const getBacklogDetail=async ()=>{
 
 }

@@ -39,7 +39,6 @@ const props = defineProps({
   cardClass: String
 });
 
-// 创建计算属性将图标名称映射为 Emoji
 const emojiIcon = computed(() => {
   const iconMap = {
     parking: "🚗",      // 停车服务图标

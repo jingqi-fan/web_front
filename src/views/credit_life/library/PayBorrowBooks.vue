@@ -89,7 +89,7 @@ const creditScore = ucs.creditScore
 
 const discount = computed(() => {
   console.log("用户信用分：",creditScore)
-  return creditScore >= 600 ? ((creditScore - 600) / 25) : 0
+  return creditScore >= 600 ? ((creditScore - 600) / 250) : 0
 })
 
 const totalCost = computed(() => {

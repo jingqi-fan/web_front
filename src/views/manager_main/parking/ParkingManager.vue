@@ -100,7 +100,7 @@ const dialogVisible = ref(false)
 const isEdit = ref(false)
 const formRef = ref()
 const form = reactive<ParkingLots>({
-  id:null,
+  id:0,
   parkingLotName: '',
   parkingLotLocation: '',
   parkingLotType: 0,
@@ -121,17 +121,7 @@ const rules = {
   leftCount: [{ required: true, message: '请输入剩余车位数', trigger: 'change' }],
   price: [{ required: true, message: '请输入价格', trigger: 'change' }]
 }
-// id?: number
-// parkingLotName: string
-// parkingLotLocation: string
-// parkingLotType: number
-// totalSpaces: number
-// leftCount: number
-// image?: string
-// price: number
-// deleted?: number
-// createdAt?: string
-// updatedAt?: string
+
 const resetForm = () => {
   formRef.value?.resetFields()
   Object.assign(form, {
@@ -165,6 +155,7 @@ const submitForm = async () => {
   await formRef.value.validate()
 
   const action = isEdit.value ? updateParkingLot : saveParkingLots
+  console.log(form)
   const res = await action({ ...form })
   if (res.code === 200) {
     ElMessage.success(isEdit.value ? '编辑成功' : '添加成功')

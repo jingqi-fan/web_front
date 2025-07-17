@@ -6,7 +6,7 @@
       <div class="title">智慧图书馆</div>
       <div class="user-info">
         <span class="score">信用分：{{ creditScore }}</span>
-        <el-avatar :size="30" src="/images/avatar.jpg" />
+        <el-avatar :size="30" :src="avatar" />
       </div>
     </el-header>
 
@@ -76,9 +76,20 @@ import {addToBookListing, type Book, getRecommendBooks} from "@/api/life/book_ap
 import {ref} from "vue";
 import {ElMessage} from "element-plus";
 import {useUserInfoStore} from "@/stores/useUserInfoStore.ts";
+import {useUserCreditScoreStore} from "@/stores/useUserCreditScore.ts";
 
 
-const creditScore = 87
+const creditScore = ref(0)
+const userInfoStore=useUserInfoStore()
+const userInfo=userInfoStore.user
+const userCreditScore=useUserCreditScoreStore()
+const score=userCreditScore.score
+const avatar = ref('')
+const loadBasicInfo= ()=>{
+  creditScore.value=score.creditScore
+  avatar.value=userInfo.profilePicture
+}
+loadBasicInfo()
 
 const goHome = () => {
   router.back()
@@ -91,8 +102,7 @@ const getRecommendBookList=async ()=>{
 }
 getRecommendBookList()
 
-const userInfoStore=useUserInfoStore()
-const userInfo=userInfoStore.user
+
 const borrow = async (book: Book) => {
   const res = await addToBookListing(book.id, userInfo.id)
   ElMessage.success(res || '已添加到借阅清单')

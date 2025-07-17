@@ -124,6 +124,7 @@ export const deletedParkLot = async (parkingLotId: number) => {
 
 // 管理员更新停车场信息
 export const updateParkingLot = async (data: ParkingLots) => {
+    console.log("管理员更新停车场信息,data=", data)
     const res = await axiosInstance.post<{ code: number; data: string }>(`/park/admin/update/parkingLot`, data)
     if (res.data.code !== 200) {
         ElMessage.error('编辑停车场信息失败')

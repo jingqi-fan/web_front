@@ -11,7 +11,9 @@ router.beforeEach((to, from, next) => {
     const path = to.path;
 
     const staticWhiteList = [
-        '/personal', '/home', '/login', '/register', '/doctor/login', '/doctor/check','/manager','/manager/dataCenter'
+        '/personal', '/home', '/login', '/register', '/doctor/login', '/doctor/check','/manager','/manager/dataCenter','/publish/manager/overview','/publish/manager/prosocial/type',
+        '/publish/manager/prosocial/item','/publish/manager/book/manager','/publish/manager/parking/manager','/publish/manager/hospital/department',
+        '/publish/manager/hospital/doctor','/manager/examine'
     ];
 
     const dynamicWhiteList = [

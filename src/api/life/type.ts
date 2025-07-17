@@ -4,7 +4,7 @@ export interface ParkingLotsInfoRes{
 }
 
 export interface ParkingLots {
-    id?: number
+    id: number
     parkingLotName: string
     parkingLotLocation: string
     parkingLotType: number
