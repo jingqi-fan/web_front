@@ -223,9 +223,10 @@ const availableCategories = computed(() => {
   }))
 })
 
-
 const formatDate = (date: string) => dayjs(date).format('YYYY-MM-DD')
-const goBack = () => router.back()
+const goBack = () => {
+  router.push('/life/library')
+}
 const logout =async  () => {
   const deviceStore=useDeviceStore()
   const res=await userLogout(userInfo.uuid,deviceStore.device)
