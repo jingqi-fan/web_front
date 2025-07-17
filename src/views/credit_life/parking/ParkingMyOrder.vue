@@ -85,7 +85,7 @@
                 v-if="Number(item.tag) === 4"
                 type="info"
                 size="small"
-            >已过期</el-tag>
+            >已逾期</el-tag>
           </div>
         </div>
       </el-card>
@@ -133,7 +133,7 @@ const filter = ref({
 })
 
 
-const statusMap = ['待使用', '使用中', '已使用', '已完成', '已过期']
+const statusMap = ['待使用', '使用中', '已使用', '已完成', '已逾期']
 const statusTagType = (status: string) =>
     ['warning', 'success', 'primary', 'info','info'][Number(status)]
 

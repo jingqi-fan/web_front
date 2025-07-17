@@ -99,7 +99,7 @@ import {ElLoading, ElMessage} from "element-plus";
 import router from "@/router";
 
 const goBack = () => {
-  router.back()
+  router.push('/doctor/check')
 }
 
 const deptOptions = [
@@ -219,10 +219,6 @@ const handleSubmitDiagnosis = async () => {
   if (!diagnosisFormRef.value) return
   await diagnosisFormRef.value.validate(async (valid: boolean) => {
 
-    console.log("提交逻辑")
-
-    console.log(userId)
-    console.log(diagnosisForm.value.diagnosis)
 
     if (valid) {
       const dto = generateDrugDTO()

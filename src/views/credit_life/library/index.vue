@@ -106,7 +106,7 @@ getRecommendBookList()
 const borrow = async (book: Book) => {
   const res = await addToBookListing(book.id, userInfo.id)
   ElMessage.success(res || '已添加到借阅清单')
-  
+
   await router.push('/life/book/list')
 }
 

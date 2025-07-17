@@ -104,17 +104,7 @@ const pricePerHour = ref(5)
 const durationHours = ref(0)
 const appointmentId=ref(0)
 const totalFee = ref(0.0)
-// export interface ParkingPreOrderInfoRes {
-//   ParkingLotName: string
-//   spaceNum: string
-//   appointTimeStr: string
-//   currentCreditScore: number
-//   needCreditScore: number
-//   spendTimeCount: number
-//   price: number
-//   totalPrice: number
-//   appointmentId: number
-// }
+
 const userCreditScoreStore=useUserCreditScoreStore()
 const ucsStore=userCreditScoreStore.score
 const loadPreorderInfo= ()=>{
