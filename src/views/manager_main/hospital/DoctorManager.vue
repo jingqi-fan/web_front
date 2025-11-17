@@ -5,7 +5,7 @@
       <span class="title">医生管理</span>
     </div>
 
-    <el-button type="primary" @click="openAddDialog">添加医生</el-button>
+    <el-button type="success" @click="openAddDialog">添加医生</el-button>
     <el-input
         v-model="queryParams.doctorName"
         placeholder="搜索医生姓名"
@@ -39,7 +39,7 @@
       />
     </el-select>
 
-    <el-button type="primary" @click="resetFilters">重置</el-button>
+    <el-button type="success" @click="resetFilters">重置</el-button>
 
     <el-table v-loading="loading" height="500" :data="doctors" border style="margin-top: 20px">
       <el-table-column prop="id" label="ID" width="60" />
@@ -99,7 +99,7 @@
               :http-request="uploadImage"
               :show-file-list="false"
           >
-            <el-button type="primary">上传头像</el-button>
+            <el-button type="success">上传头像</el-button>
           </el-upload>
           <div v-if="form.image" style="margin-top: 10px;">
             <img :src="form.image" alt="头像" style="width: 100px; border: 1px solid #eee;" />
@@ -115,7 +115,7 @@
 
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitForm">确定</el-button>
+        <el-button type="success" @click="submitForm">确定</el-button>
       </template>
     </el-dialog>
   </div>

@@ -26,7 +26,7 @@
             <div class="doctor-title">{{ getDoctorLevel(doctor.doctorTitle) }} | {{getDoctorDepartment(doctor.departmentId)}}</div>
             <div class="doctor-desc">{{ doctor.doctorSpecialty }}</div>
           </div>
-          <el-button type="primary" size="small" @click="selectDoctor(doctor)" style="margin-top: 12px;">
+          <el-button type="success" size="small" @click="selectDoctor(doctor)" style="margin-top: 12px;">
             预约
           </el-button>
         </el-card>

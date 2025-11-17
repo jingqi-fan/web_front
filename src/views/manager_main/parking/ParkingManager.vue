@@ -17,7 +17,7 @@
       <el-select v-model="query.type" placeholder="停车场类型" clearable style="width: 180px; margin-right: 10px">
         <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value" />
       </el-select>
-      <el-button type="primary" icon="Search" @click="fetchData">查询</el-button>
+      <el-button type="success" icon="Search" @click="fetchData">查询</el-button>
       <el-button type="success" icon="Plus" @click="handleAdd" style="margin-left: auto">添加停车场</el-button>
     </div>
 
@@ -75,7 +75,7 @@
     </el-form>
     <template #footer>
       <el-button @click="dialogVisible = false">取消</el-button>
-      <el-button type="primary" @click="submitForm">确认</el-button>
+      <el-button type="success" @click="submitForm">确认</el-button>
     </template>
   </el-dialog>
 

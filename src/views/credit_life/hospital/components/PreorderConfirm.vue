@@ -27,7 +27,7 @@
     <!-- 按钮区域 -->
     <div class="button-area">
       <el-button @click="goBack">返回修改</el-button>
-      <el-button type="primary" @click="confirm">确认预约</el-button>
+      <el-button type="success" @click="confirm">确认预约</el-button>
     </div>
   </div>
 </template>

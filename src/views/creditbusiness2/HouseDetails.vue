@@ -169,7 +169,7 @@
               <p>如果您对这套房源感兴趣，可以联系我们获取更多信息</p>
             </div>
             <div class="contact-actions">
-              <el-button type="primary" size="large" round @click="showContactInfo">
+              <el-button type="success" size="large" round @click="showContactInfo">
                 <el-icon><Phone /></el-icon>
                 立即联系
               </el-button>

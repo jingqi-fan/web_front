@@ -47,7 +47,7 @@
             <el-option label="价格升序" value="asc" />
             <el-option label="价格降序" value="desc" />
           </el-select>
-          <el-button type="primary" @click="applyFilters">筛选</el-button>
+          <el-button type="success" @click="applyFilters">筛选</el-button>
         </div>
 
         <el-row :gutter="20" style="height: 600px;overflow-y: auto">
@@ -79,7 +79,7 @@
               </div>
               <div class="card-actions">
                 <el-button type="info" size="small" @click="detailOfParkingLot">详情</el-button>
-                <el-button type="primary" size="small" @click="preorderParkingLot(lot.id)">预约</el-button>
+                <el-button type="success" size="small" @click="preorderParkingLot(lot.id)">预约</el-button>
               </div>
             </el-card>
           </el-col>

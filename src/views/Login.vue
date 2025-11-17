@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>vue3-setup模板</h1>
-    <el-button type="primary" @click="handlerLogin">登录</el-button>
+    <el-button type="success" @click="handlerLogin">登录</el-button>
     <el-text >{{text}}</el-text>
    <el-button @click="getText">获取用户信息</el-button>
     <el-button v-if="visible" @click="updateInfo">更新用户信息</el-button>

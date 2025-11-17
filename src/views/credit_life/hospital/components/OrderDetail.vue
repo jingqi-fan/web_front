@@ -62,7 +62,7 @@
       </div>
       <div class="footer-buttons">
         <el-button @click="goBack">返回</el-button>
-        <el-button type="primary" @click="pay">支付</el-button>
+        <el-button type="success" @click="pay">支付</el-button>
       </div>
     </div>
 

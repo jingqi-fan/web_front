@@ -17,7 +17,7 @@
       <p><strong>分组:</strong> {{ task.group || '未分组' }}</p>
     </div>
     <div class="task-actions">
-      <el-button type="primary" plain @click="$emit('view', task)">查看</el-button>
+      <el-button type="success" plain @click="$emit('view', task)">查看</el-button>
       <el-button type="success" plain @click="$emit('details', task)">详情</el-button>
     </div>
   </el-card>

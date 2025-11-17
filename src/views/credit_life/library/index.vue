@@ -18,7 +18,7 @@
         <el-icon class="card-icon" :style="{ color: '#409EFF' }"><Reading /></el-icon>
         <div class="card-title">快速借阅</div>
         <div class="card-subtitle">便捷扫码，自助借书</div>
-        <el-button type="primary" size="small">立即借阅</el-button>
+        <el-button type="success" size="small">立即借阅</el-button>
       </el-card>
 
       <el-card class="quick-card" shadow="hover">

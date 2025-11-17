@@ -83,7 +83,7 @@
 
         <div class="filter-row">
           <div class="filter-buttons">
-            <el-button type="primary" @click="applyFilters">应用筛选</el-button>
+            <el-button type="success" @click="applyFilters">应用筛选</el-button>
             <el-button @click="clearFilters" class="clear-btn">清空筛选</el-button>
           </div>
         </div>

@@ -68,7 +68,7 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="visible = false">取消</el-button>
-        <el-button type="primary" @click="submit">确认</el-button>
+        <el-button type="success" @click="submit">确认</el-button>
       </div>
     </template>
   </el-dialog>

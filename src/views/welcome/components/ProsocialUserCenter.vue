@@ -56,7 +56,7 @@
               <el-table-column label="人数" prop="number" width="100" />
               <el-table-column label="操作" width="180">
                 <template #default="{ row }">
-                  <el-button type="primary" size="small" @click="join(row.itemId)">参与</el-button>
+                  <el-button type="success" size="small" @click="join(row.itemId)">参与</el-button>
                   <el-button size="small" @click="viewDetail(row)">详情</el-button>
                 </template>
               </el-table-column>

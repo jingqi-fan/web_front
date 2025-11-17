@@ -1,6 +1,7 @@
 <template>
   <header class="login-header">
-    <auto-monitor-logo class="logo" />
+    <!-- 只保留 PNG logo -->
+    <img src="@/assets/logo_small.png" class="logo" />
 
     <div class="operations-container">
       <t-button theme="default" shape="square" variant="text" @click="navToGovernment">
@@ -17,17 +18,18 @@
 </template>
 
 <script setup lang="ts">
-import AutoMonitorLogo from '@/assets/logo.svg';
-import {ref} from "vue";
+// SVG 已经不用了，这里就不导入了
+// import AutoMonitorLogo from '@/assets/logo.svg';
+import { ref } from "vue";
 
 const slotChecked = ref(true);
 
 const navToGovernment = () => {
-  window.open('https://www.hangzhou.gov.cn/');
+  window.open("https://www.hangzhou.gov.cn/");
 };
 
 const navToHelper = () => {
-  window.open('https://www.chinasofti.com/');
+  window.open("https://www.chinasofti.com/");
 };
 </script>
 
@@ -35,22 +37,26 @@ const navToHelper = () => {
 .login-header {
   padding: 0 24px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  align-items: center;      // 改成从左往右排
   backdrop-filter: blur(5px);
   color: var(--td-text-color-primary);
+
   &:hover {
-    background-color: rgba(255, 255, 255, 0.1); // 鼠标悬停时改变背景颜色
-    cursor: pointer; // 鼠标悬停时改变光标样式
+    background-color: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
   }
 
   .logo {
-    width: 330px;
+    width: 80px;
+    cursor: pointer;
+    padding: 6px;
   }
 
   .operations-container {
+    margin-left: auto;      // 把右边按钮整体推到最右侧
     display: flex;
     align-items: center;
+
     .t-button {
       margin-left: 16px;
     }

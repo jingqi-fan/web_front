@@ -30,7 +30,7 @@
                 <el-icon><Search /></el-icon>
               </template>
             </el-input>
-            <el-button type="primary" @click="handleSearch" class="search-btn" size="large">
+            <el-button type="success" @click="handleSearch" class="search-btn" size="large">
               <el-icon><Search /></el-icon>
               搜索
             </el-button>
@@ -132,7 +132,7 @@
                   @error="handleImageError"
                 />
                 <div class="product-overlay">
-                  <el-button type="primary" circle @click="viewProduct(product)" size="large">
+                  <el-button type="success" circle @click="viewProduct(product)" size="large">
                     <el-icon><View /></el-icon>
                   </el-button>
                 </div>
@@ -156,7 +156,7 @@
                 </div>
 
                 <div class="product-actions">
-                  <el-button type="primary" @click="viewProduct(product)" class="view-btn">
+                  <el-button type="success" @click="viewProduct(product)" class="view-btn">
                     <el-icon><View /></el-icon>
                     查看详情
                   </el-button>
@@ -172,7 +172,7 @@
             <el-icon class="empty-icon"><Box /></el-icon>
             <h3 class="empty-title">暂无商品</h3>
             <p class="empty-description">没有找到符合条件的商品，试试调整筛选条件</p>
-            <el-button type="primary" @click="resetFilters" class="empty-btn">
+            <el-button type="success" @click="resetFilters" class="empty-btn">
               重新搜索
             </el-button>
           </div>

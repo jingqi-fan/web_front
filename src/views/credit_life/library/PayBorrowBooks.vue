@@ -55,7 +55,7 @@
       </el-radio-group>
     </div>
     <div class="bottom-bar">
-      <el-button type="primary" size="large" class="pay-btn" @click="confirmPay">
+      <el-button type="success" size="large" class="pay-btn" @click="confirmPay">
         确认支付 ¥{{ finalAmount.toFixed(2) }}
       </el-button>
     </div>

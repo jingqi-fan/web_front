@@ -5,14 +5,14 @@
       <span class="title">科室管理</span>
     </div>
 
-    <el-button type="primary" @click="openAddDialog">添加科室</el-button>
+    <el-button type="success" @click="openAddDialog">添加科室</el-button>
     <el-input
         v-model="queryParams.departmentName"
         placeholder="搜索科室名称"
         style="width: 200px; margin: 0 10px"
         clearable
     />
-    <el-button type="primary" @click="resetFilters">重置</el-button>
+    <el-button type="success" @click="resetFilters">重置</el-button>
 
     <el-table v-loading="loading" height="500" :data="departments" border style="margin-top: 20px">
       <el-table-column prop="id" label="ID" width="60" />
@@ -53,7 +53,7 @@
 
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitForm">确定</el-button>
+        <el-button type="success" @click="submitForm">确定</el-button>
       </template>
     </el-dialog>
   </div>

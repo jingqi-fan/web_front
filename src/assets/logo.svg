@@ -1,12 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 100" width="300" height="100">
     <defs>
-        <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#3498db" />
-            <stop offset="50%" stop-color="#9b59b6" />
-            <stop offset="100%" stop-color="#e74c3c" />
+        <linearGradient id="greenGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#0f4d32" />      <!-- 深医疗绿 -->
+            <stop offset="50%" stop-color="#157f52" />     <!-- 标准医院绿 -->
+            <stop offset="100%" stop-color="#36c08f" />    <!-- 清新薄荷绿 -->
         </linearGradient>
     </defs>
-    <text x="100" y="60" fill="url(#textGradient)" font-family="Arial, sans-serif" font-size="40" font-weight="bold" text-anchor="middle" dominant-baseline="middle">
-        西湖分
+    <text x="150" y="60" fill="url(#greenGradient)"
+          font-family="Arial, sans-serif"
+          font-size="40"
+          font-weight="bold"
+          text-anchor="middle"
+          dominant-baseline="middle">
+        第21人民医院
     </text>
 </svg>

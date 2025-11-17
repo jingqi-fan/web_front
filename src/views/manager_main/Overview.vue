@@ -8,7 +8,7 @@
 
     <!-- 工具栏 -->
     <div class="toolbar">
-      <el-button type="primary" :icon="Plus" @click="openAddDialog">添加新闻</el-button>
+      <el-button type="success" :icon="Plus" @click="openAddDialog">添加新闻</el-button>
       <el-input v-model="searchTitle" placeholder="搜索标题" clearable style="width: 200px" />
       <el-select
           v-model="searchAuthor"
@@ -51,7 +51,7 @@
       <el-table-column prop="views" label="浏览量" width="100" />
       <el-table-column label="操作" width="180">
         <template #default="{ row }">
-          <el-button type="primary" size="small" @click="openEditDialog(row)">编辑</el-button>
+          <el-button type="success" size="small" @click="openEditDialog(row)">编辑</el-button>
           <el-button type="danger" size="small" @click="deleteNews(row.id)">删除</el-button>
         </template>
       </el-table-column>
@@ -135,7 +135,7 @@
 
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSubmit">提交</el-button>
+        <el-button type="success" @click="handleSubmit">提交</el-button>
       </template>
     </el-dialog>
 

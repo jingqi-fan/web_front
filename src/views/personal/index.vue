@@ -78,7 +78,7 @@
           <div style="display: flex;justify-content: space-between;align-items: center">
             <h2 style="margin-left: 20px">个人信息</h2>
             <el-button type="success" @click="editCreditScore" style="margin-left: 660px;margin-top: 14px" plain>完善/上传 实名资产信息</el-button>
-            <el-button type="primary" @click="editInfo" style="margin-right: 20px;margin-top: 14px" plain>编辑基本信息</el-button>
+            <el-button type="success" @click="editInfo" style="margin-right: 20px;margin-top: 14px" plain>编辑基本信息</el-button>
           </div>
 
           <div class="info-row">
@@ -170,7 +170,7 @@
           <div class="greeting-section">
             <p class="greeting-text">{{ getGood() }} 👋</p>
             <p class="greeting-subtext">
-              这是你加入 <strong>西湖分</strong> 的第 <strong>{{ daysSince(joinedDays) }}</strong> 天！
+              这是你加入 <strong>第21人民医院智能平台</strong> 的第 <strong>{{ daysSince(joinedDays) }}</strong> 天！
             </p>
           </div>
         </div>
@@ -281,7 +281,7 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitForm">确认</el-button>
+        <el-button type="success" @click="submitForm">确认</el-button>
       </div>
     </template>
   </el-dialog>
@@ -441,7 +441,7 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button @click=" ucsDialogVisible= false">取消</el-button>
-        <el-button type="primary" @click="submitUcsForm">确认</el-button>
+        <el-button type="success" @click="submitUcsForm">确认</el-button>
       </div>
     </template>
   </el-dialog>
@@ -459,7 +459,7 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="avatarDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitAvatar">确认修改</el-button>
+        <el-button type="success" @click="submitAvatar">确认修改</el-button>
       </div>
     </template>
   </el-dialog>

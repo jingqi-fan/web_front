@@ -5,7 +5,7 @@
       <span class="title">图书管理</span>
     </div>
 
-    <el-button type="primary" @click="openAddDialog">添加图书</el-button>
+    <el-button type="success" @click="openAddDialog">添加图书</el-button>
     <el-input
         v-model="queryParams.title"
         placeholder="搜索书名"
@@ -26,7 +26,7 @@
           :value="index + 1"
       />
     </el-select>
-    <el-button type="primary" @click="resetFilters">重置</el-button>
+    <el-button type="success" @click="resetFilters">重置</el-button>
 
     <el-table v-loading="loading" :data="books" height="500" style="margin-top: 20px;max-height:500px;overflow-y: auto" border>
       <el-table-column prop="id" label="ID" width="60" />
@@ -101,7 +101,7 @@
             :http-request="uploadImage"
             :show-file-list="false"
         >
-          <el-button type="primary">点击上传图片</el-button>
+          <el-button type="success">点击上传图片</el-button>
         </el-upload>
         <div v-if="form.image" class="preview-img">
           <img :src="form.image" alt="封面" style="margin-top: 10px; width: 100px; border: 1px solid #eee;" />
@@ -118,7 +118,7 @@
 
     <template #footer>
       <el-button @click="dialogVisible = false">取消</el-button>
-      <el-button type="primary" @click="submitForm">确定</el-button>
+      <el-button type="success" @click="submitForm">确定</el-button>
     </template>
   </el-dialog>
 </template>

@@ -20,7 +20,7 @@
 
         <div class="login-actions">
           <el-button @click="goBack">返回</el-button>
-          <el-button type="primary" @click="submitLogin">登录</el-button>
+          <el-button type="success" @click="submitLogin">登录</el-button>
         </div>
       </el-form>
     </el-card>

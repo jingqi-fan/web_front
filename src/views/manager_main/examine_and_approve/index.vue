@@ -151,7 +151,7 @@
         <template #footer>
           <div class="dialog-footer">
             <el-button @click="approvalDialogVisible = false">取消</el-button>
-            <el-button type="primary" @click="nextStep">提交</el-button>
+            <el-button type="success" @click="nextStep">提交</el-button>
           </div>
         </template>
       </el-dialog>

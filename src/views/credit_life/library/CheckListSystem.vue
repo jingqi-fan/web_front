@@ -36,7 +36,7 @@
               <el-card class="exam-card">
                 <div class="card-header">
                   <span class="item-title">{{ item.itemName }}</span>
-                  <el-button type="primary" size="small" @click="addItem(item)">添加</el-button>
+                  <el-button type="success" size="small" @click="addItem(item)">添加</el-button>
                 </div>
                 <div class="card-meta">
                   <el-tag type="info" size="small">{{ getDeptLabel(item.departmentId) }}</el-tag>

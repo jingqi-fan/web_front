@@ -71,7 +71,7 @@
 
     <template #footer>
       <el-button @click="handleClose">取消</el-button>
-      <el-button type="primary" @click="handleConfirm">预订确认</el-button>
+      <el-button type="success" @click="handleConfirm">预订确认</el-button>
     </template>
   </el-dialog>
 </template>

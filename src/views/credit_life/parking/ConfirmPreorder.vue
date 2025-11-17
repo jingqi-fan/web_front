@@ -71,7 +71,7 @@
     <!-- 底部按钮 -->
     <div class="button-group">
       <el-button @click="goBack">返回修改</el-button>
-      <el-button type="primary" @click="confirmOrder">确认预约</el-button>
+      <el-button type="success" @click="confirmOrder">确认预约</el-button>
     </div>
   </div>
 </template>

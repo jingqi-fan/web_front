@@ -33,7 +33,7 @@
           placeholder="价格上限"
           class="input-inline"
         />
-        <el-button type="primary" @click="onFilter">筛 选</el-button>
+        <el-button type="success" @click="onFilter">筛 选</el-button>
         <el-button @click="onReset">重 置</el-button>
       </el-col>
       <!-- 搜 索 -->
@@ -44,7 +44,7 @@
           clearable
           class="search-input"
         />
-        <el-button type="primary" @click="onSearch">搜 索</el-button>
+        <el-button type="success" @click="onSearch">搜 索</el-button>
       </el-col>
     </el-row>
 

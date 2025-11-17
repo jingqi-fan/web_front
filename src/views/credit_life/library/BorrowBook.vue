@@ -5,7 +5,7 @@
       <el-button type="text" :icon="Back" @click="router.back()" />
       <div class="title">图书借阅中心</div>
       <div class="right-area">
-        <el-button type="primary" size="small" @click="goToMyBorrowings">我的借阅</el-button>
+        <el-button type="success" size="small" @click="goToMyBorrowings">我的借阅</el-button>
         <el-avatar :size="30" :src="userInfo.profilePicture" />
       </div>
     </el-header>
@@ -87,7 +87,7 @@
       <div class="footer-content">
         <span>当前借阅书籍：<strong>{{ borrowList.length }}</strong> 本</span>
         <span style="margin-left: 20px">预计费用：<strong style="color: red">¥{{ totalEstimatedCost }}</strong></span>
-        <el-button type="primary" style="margin-left: auto" size="small" @click="viewPreBookList">查看清单</el-button>
+        <el-button type="success" style="margin-left: auto" size="small" @click="viewPreBookList">查看清单</el-button>
         <el-button type="success" size="small" @click="submitBorrowList">提交借阅</el-button>
       </div>
     </el-footer>

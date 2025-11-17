@@ -20,7 +20,7 @@
     <!-- 底部操作按钮 -->
     <div class="button-area">
       <el-button @click="goBack">返回</el-button>
-      <el-button type="primary" @click="payFee">支付</el-button>
+      <el-button type="success" @click="payFee">支付</el-button>
     </div>
   </div>
 </template>

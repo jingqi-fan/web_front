@@ -175,7 +175,7 @@ creditScore.value=userCreditScore.score.creditScore
 
 const notices = ref([
   '信用积分规则更新：借阅图书按时归还可获双倍积分',
-  '西湖医院本月推出积分优惠活动',
+  '第21人民医院本月推出积分优惠活动',
   '图书馆新到500册畅销书籍，欢迎信用免押借阅',
   '停车服务升级：信用分650+享每日首小时免费'
 ]);

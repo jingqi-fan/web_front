@@ -22,7 +22,7 @@
           clearable
       />
 
-      <el-button type="primary" @click="emitSend">发送</el-button>
+      <el-button type="success" @click="emitSend">发送</el-button>
       <el-button type="danger" @click="$emit('clear')">清除上下文</el-button>
     </div>
   </div>

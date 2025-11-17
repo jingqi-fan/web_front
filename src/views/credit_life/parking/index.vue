@@ -17,7 +17,7 @@
         <el-icon class="card-icon" :style="{ color: '#409EFF' }"><Location /></el-icon>
         <div class="card-title">快速预约</div>
         <div class="card-subtitle">一键预约停车位</div>
-        <el-button type="primary" size="small" @click="goToPreorder">立即预约</el-button>
+        <el-button type="success" size="small" @click="goToPreorder">立即预约</el-button>
       </el-card>
 
       <el-card class="quick-card" shadow="hover">
@@ -48,7 +48,7 @@
             <div class="lot-available">剩余：{{ lot.leftCount }}位</div>
           </div>
           <div class="lot-location"><el-icon><Location /></el-icon> &nbsp;{{ lot.location }}</div>
-          <el-button type="primary" size="small" plain @click="homePreorder(lot.id)">预约</el-button>
+          <el-button type="success" size="small" plain @click="homePreorder(lot.id)">预约</el-button>
         </div>
       </div>
     </div>

@@ -8,7 +8,7 @@
 
     <!-- 工具栏 -->
     <div class="toolbar">
-      <el-button type="primary" icon="Plus" @click="openAddDialog">添加活动</el-button>
+      <el-button type="success" icon="Plus" @click="openAddDialog">添加活动</el-button>
 
       <el-input v-model="searchKeyword" placeholder="搜索标题..." class="toolbar-input" clearable @input="handleSearch">
         <template #prefix><el-icon><Search /></el-icon></template>
@@ -39,7 +39,7 @@
       <el-table-column prop="content" label="内容" />
       <el-table-column label="操作" width="160">
         <template #default="{ row }">
-          <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
+          <el-button type="success" size="small" @click="handleEdit(row)">编辑</el-button>
           <el-button type="danger" size="small" @click="handleDelete(row.id,row.logo)">删除</el-button>
         </template>
       </el-table-column>
@@ -97,7 +97,7 @@
 
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSubmit">
+        <el-button type="success" @click="handleSubmit">
           {{ isEditMode ? '保存' : '添加' }}
         </el-button>
       </template>

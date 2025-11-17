@@ -54,7 +54,7 @@
     </div>
 
     <!-- 支付按钮 -->
-    <el-button type="primary" class="pay-button" size="large" @click="payForThis">
+    <el-button type="success" class="pay-button" size="large" @click="payForThis">
       立即支付 ￥{{ totalAmount.toFixed(2) }}
     </el-button>
   </el-card>

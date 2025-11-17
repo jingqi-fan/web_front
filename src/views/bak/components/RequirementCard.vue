@@ -25,7 +25,7 @@
       <template #footer>
         <el-tag>{{ data.people }}</el-tag>
         <el-button style="margin-left: 120px" @click="check" type="success" plain>查看</el-button>
-        <el-button type="primary" @click="join" plain>竞标</el-button>
+        <el-button type="success" @click="join" plain>竞标</el-button>
       </template>
     </el-card>
   </div>

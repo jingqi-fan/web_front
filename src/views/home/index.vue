@@ -2,10 +2,11 @@
   <div class="main-container">
     <div class="top-container">
       <div class="video-background">
-        <video id="bg-video" autoplay muted loop>
-          <source src="@/assets/vlog.mp4" type="video/mp4" />
-          Your browser does not support HTML5 video.
-        </video>
+<!--        <video id="bg-video" autoplay muted loop>-->
+<!--          <source src="@/assets/vlog.mp4" type="video/mp4" />-->
+<!--          Your browser does not support HTML5 video.-->
+<!--        </video>-->
+        <img id="bg-image" src="@/assets/home.png" alt="背景图" />
         <div class="video-content">
           <t-form
               ref="form"
@@ -22,94 +23,6 @@
       <div class="login-wrapper">
         <home-header class="animate__animated animate__fadeInDown"/>
       </div>
-    </div>
-    <div class="middle-container">
-      <!-- 新闻资讯区域 -->
-      <div class="news-section">
-        <div class="section-header">
-          <h2 class="section-title">新闻资讯</h2>
-          <div class="section-subtitle">了解最新行业动态和政策信息</div>
-        </div>
-
-        <!-- 新闻分类导航 -->
-        <div class="news-nav">
-          <t-radio-group v-model="activeCategory" variant="default-filled">
-            <t-radio-button value="policy">政策法规</t-radio-button>
-            <t-radio-button value="industry">行业动态</t-radio-button>
-            <t-radio-button value="finance">金融资讯</t-radio-button>
-            <t-radio-button value="tech">科技创新</t-radio-button>
-          </t-radio-group>
-        </div>
-
-        <!-- 新闻卡片展示区 -->
-        <div class="news-container">
-          <!-- 头条新闻 -->
-          <div class="featured-news">
-            <el-card shadow="hover" class="featured-card">
-              <div class="featured-content">
-                <div class="featured-image">
-                  <img :src="featuredNews.image" alt="头条新闻图片">
-                  <div class="featured-tag">头条</div>
-                </div>
-                <div class="featured-text">
-                  <h3>{{ featuredNews.title }}</h3>
-                  <p class="featured-desc">{{ featuredNews.description }}</p>
-                  <div class="featured-meta">
-                    <span class="news-date">{{ featuredNews.date }}</span>
-                    <span class="news-author">{{ featuredNews.author }}</span>
-                  </div>
-                  <t-button theme="primary" variant="text" @click="readMore(featuredNews.id)">
-                    阅读全文 <t-icon name="chevron-right" />
-                  </t-button>
-                </div>
-              </div>
-            </el-card>
-          </div>
-
-          <!-- 新闻列表 -->
-          <div class="news-list">
-            <div class="news-grid">
-              <el-card
-                  v-for="news in newsList"
-                  :key="news.id"
-                  shadow="hover"
-                  class="news-card"
-              >
-                <div class="news-image">
-                  <img :src="news.image" :alt="news.title">
-                </div>
-                <div class="news-content">
-                  <div class="news-tags">
-                    <t-tag v-for="tag in news.tags" :key="tag" theme="primary" variant="light">
-                      {{ tag }}
-                    </t-tag>
-                  </div>
-                  <h4 class="news-title">{{ news.title }}</h4>
-                  <p class="news-desc">{{ news.description }}</p>
-                  <div class="news-meta">
-                    <span class="news-date">{{ news.date }}</span>
-                    <span class="news-views">
-                  <t-icon name="view" /> {{ news.views }}
-                </span>
-                  </div>
-                </div>
-              </el-card>
-            </div>
-          </div>
-        </div>
-
-        <!-- 查看更多按钮 -->
-        <div class="more-news">
-          <t-button variant="outline" theme="primary" @click="loadMoreNews">
-            查看更多资讯
-          </t-button>
-        </div>
-      </div>
-    </div>
-
-
-    <div class="home-news">
-      <footer class="copyright">Copyright @ 2025-2030 中软国际. All Rights Reserved</footer>
     </div>
   </div>
 </template>
@@ -188,11 +101,22 @@ onMounted(() => {
   display: grid;
   grid-template-rows: 2fr auto auto;
 }
-#bg-video {
+//#bg-video {
+//  width: 100%;
+//  height: 100%;
+//  object-fit: cover;
+//}
+#bg-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  //height: 500px;
+  object-fit: cover;   /* 让图片铺满容器 */
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;         /* 保持在最底层 */
 }
+
 
 .video-content {
   position: relative;

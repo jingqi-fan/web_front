@@ -1,10 +1,10 @@
 <template>
   <div class="logo-container">
-    <img src="@/assets/logo-image.png" alt="logo-symbol" class="logo-image" />
+    <img src="@/assets/logo_small.png" alt="logo-symbol" class="logo-image" />
     <div class="logo-text-box">
       <div class="logo-text-wrapper">
-        <div class="logo-text">西湖分</div>
-        <div class="credit">Credit</div>
+        <div class="logo-text">浑南第21人人民医院</div>
+<!--        <div class="credit">Credit</div>-->
       </div>
     </div>
   </div>
@@ -41,7 +41,7 @@
 .logo-text {
   font-size: 36px;
   font-weight: bold;
-  background: linear-gradient(to right, #00d4ff, #0080ff);
+  background: linear-gradient(90deg, #0b6b48, #105e3f, #0a4d34);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   line-height: 1.2;

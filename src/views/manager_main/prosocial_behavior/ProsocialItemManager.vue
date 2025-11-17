@@ -6,7 +6,7 @@
     </div>
 
     <div class="toolbar">
-      <el-button type="primary" icon="Plus" @click="handleAdd">添加条目</el-button>
+      <el-button type="success" icon="Plus" @click="handleAdd">添加条目</el-button>
       <el-input v-model="searchKeyword" placeholder="搜索标题" clearable style="width: 200px" />
       <el-select v-model="selectedCategory" placeholder="全部" clearable style="width: 150px">
         <el-option label="全部" value="" />
@@ -30,7 +30,7 @@
       <el-table-column prop="qrCode" label="二维码" />
       <el-table-column label="操作" width="160">
         <template #default="{ row }">
-          <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
+          <el-button type="success" size="small" @click="handleEdit(row)">编辑</el-button>
           <el-button type="danger" size="small" @click="handleDelete(row.itemId)">删除</el-button>
         </template>
       </el-table-column>
@@ -82,7 +82,7 @@
     </el-form>
     <template #footer>
       <el-button @click="dialogVisible = false">取消</el-button>
-      <el-button type="primary" @click="handleSubmit">提交</el-button>
+      <el-button type="success" @click="handleSubmit">提交</el-button>
     </template>
   </el-dialog>
 </template>

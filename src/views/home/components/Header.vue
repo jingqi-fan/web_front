@@ -1,6 +1,9 @@
 <template>
   <header class="login-header">
-    <auto-monitor-logo class="logo" @click="goToHome" />
+<!--    <auto-monitor-logo class="logo" @click="goToHome" />-->
+
+    <img src="@/assets/logo_small.png" class="logo" @click="goToHome" />
+
 
     <div class="header-option">
       <t-button variant="text" @click="goToManagerPage">
@@ -42,7 +45,7 @@
       <t-button
           v-else
           style="height: 40px; color: #FFFFFF"
-          theme="primary"
+          theme="success"
           shape="rectangle"
           variant="base"
           @click="Login"
@@ -73,7 +76,7 @@
 </template>
 
 <script setup lang="tsx">
-import AutoMonitorLogo from "@/assets/logo.svg";
+// import AutoMonitorLogo from "@/assets/logo.svg";
 
 
 import { ref } from "vue";
@@ -163,7 +166,7 @@ const goToUserCenter = () => {
 };
 
 const goToHome = () => {
-  ElMessage.success('西湖市 欢迎你的加入!')
+  ElMessage.success('第21人民医院 欢迎你的加入!')
 };
 
 
@@ -219,12 +222,20 @@ const navToHelper = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  backdrop-filter: blur(5px);
-  color: RGB(255, 255, 255, 2.0);
+  //backdrop-filter: blur(5px);
+  //color: RGB(255, 255, 255, 2.0);
+  background-color: #ffffff; /* ← 添加这里，变成白色背景 */
+  backdrop-filter: none;     /* ← 建议去掉模糊效果，否则看不出白底 */
+
+  color: RGB(0, 0, 0);  /* header 变白后，文字要改为黑色或深色 */
+  position: relative;
+  z-index: 10;                 /* 确保它在背景图上方 */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); /* （可选）轻阴影让 header 更分层 */
 
   .logo {
-    width: 200px;
+    width: 80px;
     cursor: pointer;
+    padding: 6px;
   }
 
   .operations-container {

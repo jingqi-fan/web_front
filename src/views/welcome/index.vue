@@ -7,7 +7,7 @@
         </div>
 
         <div class="credit-life-title">
-          <div class="main-title">西湖分个人信用评分系统<div class="title-decoration"></div></div>
+          <div class="main-title">个人信用评分系统<div class="title-decoration"></div></div>
           <div class="subtitle">个人信用智能服务平台</div>
         </div>
 
@@ -38,13 +38,13 @@
           />
         </div>
 
-        <!-- 文字显示框 -->
-        <div class="carousel-text">
-          <div class="text-display" v-for="(message, index) in messagesList" :key="index" v-show="currentIndex === index">
-            {{ message }}
-            <el-button size="small" :icon="TopRight" type="primary" @click="goToMessageDetail(index)" plain round>查看详情</el-button>
-          </div>
-        </div>
+<!--        &lt;!&ndash; 文字显示框 &ndash;&gt;-->
+<!--        <div class="carousel-text">-->
+<!--          <div class="text-display" v-for="(message, index) in messagesList" :key="index" v-show="currentIndex === index">-->
+<!--            {{ message }}-->
+<!--            <el-button size="small" :icon="TopRight" type="primary" @click="goToMessageDetail(index)" plain round>查看详情</el-button>-->
+<!--          </div>-->
+<!--        </div>-->
       </el-main>
     </el-container>
   </div>
@@ -91,7 +91,7 @@ onMounted(() => {
   if (messages.value.length === 0) {
     messages.value.push({
       role: 'assistant',
-      content: '欢迎使用 **西湖分信用平台** 🎉\n\n我是您的 AI 助手，有什么可以帮您？'
+      content: '欢迎使用 **第21人民医院智能平台** 🎉\n\n我是您的 AI 助手，有什么可以帮您？'
     });
   }
 });
@@ -193,27 +193,29 @@ const GoHome = () => {
   left: 0;
   right: 0;
   height: 90px;
-  z-index: 3000; /* 提高层级避免遮挡 */
-  background-color: #f5f5f5;
+  z-index: 3000;
+  background-color: #f7faf9;              /* 微微偏绿的浅背景 */
   padding: 0 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 139, 0.5);
+  box-shadow: 0 4px 20px rgba(16, 94, 63, 0.25); /* 绿色阴影 */
   border-radius: 8px;
 }
 
 .send-button-container .el-button {
-  background-image: linear-gradient(to right, #6dd5ed, #2193b0);
+  background-image: linear-gradient(to right, #2ecf91, #105e3f); /* 发送按钮绿色渐变 */
   color: white;
   border: none;
   border-radius: 20px;
   padding: 10px 20px;
 }
 .send-button-container .el-button:hover {
-  background-image: linear-gradient(to right, #6dd5ed, #2193b0);
-  opacity: 0.8;
+  background-image: linear-gradient(to right, #2ecf91, #105e3f);
+  opacity: 0.85;
 }
+
+/* AI 按钮动画区域保持不变，只把颜色换成绿色系 */
 .ai-button {
   position: relative;
   transition: all 0.3s ease;
@@ -231,7 +233,7 @@ const GoHome = () => {
   right: -5px;
   bottom: -5px;
   border-radius: 50%;
-  background-color: rgba(64, 158, 255, 0.3);
+  background-color: rgba(16, 94, 63, 0.3);  /* 绿色呼吸光圈 */
   animation: pulse 1.5s infinite;
   z-index: -1;
 }
@@ -244,7 +246,7 @@ const GoHome = () => {
   right: 0;
   bottom: 0;
   border-radius: 50%;
-  background-color: rgba(64, 158, 255, 0.2);
+  background-color: rgba(16, 94, 63, 0.2);
   animation: ripple 0.6s ease-out;
 }
 
@@ -269,11 +271,13 @@ const GoHome = () => {
     opacity: 0;
   }
 }
+
 .logo {
   width: 50px;
   height: 50px;
   cursor: pointer;
 }
+
 .message-container {
   display: flex;
   justify-content: center;
@@ -296,6 +300,8 @@ const GoHome = () => {
   line-height: 50px;
   border: none;
 }
+
+/* 下面这段 custom-header 是重复的，可以删掉一份，也可以改成和上面一致 */
 .custom-header {
   position: fixed;
   top: 0;
@@ -303,12 +309,12 @@ const GoHome = () => {
   right: 0;
   height: 90px;
   z-index: 1000;
-  background-color: #f5f5f5;
+  background-color: #f7faf9;
   padding: 0 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 139, 0.5);
+  box-shadow: 0 4px 20px rgba(16, 94, 63, 0.25);
   border-radius: 8px;
 }
 
@@ -325,15 +331,15 @@ const GoHome = () => {
   margin-right: 20px;
 }
 
-
 .title-right {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
+/* 顶部右侧功能按钮：统一绿色渐变 */
 .custom-button {
-  background-image: linear-gradient(to right, #6dd5ed, #2193b0);
+  background-image: linear-gradient(to right, #2ecf91, #105e3f);
   color: white;
   border: none;
   border-radius: 20px;
@@ -343,25 +349,27 @@ const GoHome = () => {
 }
 
 .custom-button:hover {
-  background-image: linear-gradient(to right, #6dd5ed, #2193b0);
+  background-image: linear-gradient(to right, #2ecf91, #105e3f);
   opacity: 0.9;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 8px rgba(16, 94, 63, 0.35);
 }
 
 .custom-button:active {
   transform: translateY(0);
 }
 
+/* AI 特殊按钮：边框 & 高亮也换成绿色 */
 .ai-button.custom-button {
   background-color: transparent;
   background-image: none;
-  border: 1px solid #409EFF;
+  border: 1px solid #105e3f;
 }
 
 .ai-button.custom-button:hover {
-  background-color: rgba(64, 158, 255, 0.1);
+  background-color: rgba(16, 94, 63, 0.08);
 }
+
 @keyframes fadeInDown {
   from {
     opacity: 0;
@@ -375,15 +383,16 @@ const GoHome = () => {
 
 @keyframes pulseGlow {
   0% {
-    text-shadow: 0 0 6px rgba(26, 86, 219, 0.5);
+    text-shadow: 0 0 6px rgba(16, 94, 63, 0.4);
   }
   50% {
-    text-shadow: 0 0 12px rgba(26, 86, 219, 0.9);
+    text-shadow: 0 0 12px rgba(16, 94, 63, 0.8);
   }
   100% {
-    text-shadow: 0 0 6px rgba(26, 86, 219, 0.5);
+    text-shadow: 0 0 6px rgba(16, 94, 63, 0.4);
   }
 }
+
 .credit-life-title {
   position: absolute;
   left: 50%;
@@ -398,12 +407,13 @@ const GoHome = () => {
 .main-title {
   font-size: 32px;
   font-weight: 700;
-  color: #1a56db;
+  color: #105e3f;          /* 标题主绿 */
   position: relative;
   letter-spacing: 1px;
-  text-shadow: 0 4px 10px rgba(26, 86, 219, 0);
+  text-shadow: 0 4px 10px rgba(16, 94, 63, 0.15);
 }
 
+/* 标题下方装饰线：改为绿渐变 */
 .title-decoration {
   position: absolute;
   bottom: -6px;
@@ -411,9 +421,9 @@ const GoHome = () => {
   transform: translateX(-50%);
   width: 80%;
   height: 3px;
-  background: linear-gradient(90deg, #93c5fd, #3b82f6);
+  background: linear-gradient(90deg, #6ee7b7, #22c55e, #16a34a);
   border-radius: 2px;
-  opacity: 0.9;
+  opacity: 0.95;
 }
 
 .subtitle {

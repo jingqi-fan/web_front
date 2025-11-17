@@ -101,7 +101,7 @@
     <!--按钮-->
     <div v-if="!isSearch" class="button">
       <el-button style="margin-right: 30px" type="success" plain>查看所有数据集</el-button>
-      <el-button type="primary" plain>查看我的数据集</el-button>
+      <el-button type="success" plain>查看我的数据集</el-button>
     </div>
     <!--搜索结果-->
     <div v-if="isSearch" class="search-result">

@@ -82,7 +82,7 @@
 
     <template #footer>
       <el-button @click="diagnosisDialogVisible = false">取消</el-button>
-      <el-button type="primary" @click="handleSubmitDiagnosis">提交</el-button>
+      <el-button type="success" @click="handleSubmitDiagnosis">提交</el-button>
     </template>
   </el-dialog>
 

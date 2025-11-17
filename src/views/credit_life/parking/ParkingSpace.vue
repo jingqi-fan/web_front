@@ -49,7 +49,7 @@
       </el-form>
 
       <!-- 提交按钮 -->
-      <el-button type="primary" class="submit-btn" @click="submit">提交预约</el-button>
+      <el-button type="success" class="submit-btn" @click="submit">提交预约</el-button>
     </el-main>
   </div>
 </template>

@@ -6,9 +6,9 @@
         <h1 class="title margin-no">{{type==='register'?'注册：':'登录到 :'}}</h1>
         <h1 class="title">
           &nbsp;&nbsp;&nbsp;&nbsp;
-          <span style="color: deepskyblue">西湖分</span>
-          <span style="color: dodgerblue">个人信用</span>
-          <span style="color: lightskyblue">平台</span>
+          <span style="color: #105e3f">第21人民医院智能平台</span>
+<!--          <span style="color: dodgerblue">个人信用</span>-->
+<!--          <span style="color: lightskyblue">平台</span>-->
         </h1>
 
         <div class="sub-title">
@@ -23,7 +23,7 @@
       <register v-else @register-success="switchType('login')" />
     </div>
 
-    <footer class="copyright">Copyright @ 2024-2030 西湖市人民政府. All Rights Reserved</footer>
+<!--    <footer class="copyright">Copyright @ 2024-2030 西湖市人民政府. All Rights Reserved</footer>-->
   </div>
 </template>
 <script lang="tsx">

@@ -28,7 +28,7 @@
       <template #footer>
         <div class="footer-actions">
           <el-button type="info" plain @click="handleDetail">详情</el-button>
-          <el-button type="primary" @click="handleAccept">接诊</el-button>
+          <el-button type="success" @click="handleAccept">接诊</el-button>
         </div>
       </template>
     </el-card>

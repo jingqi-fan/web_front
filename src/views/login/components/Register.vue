@@ -126,7 +126,7 @@ const emit = defineEmits(['registerSuccess']);
 const onSubmit = ({ validateResult }) => {
   if (validateResult === true) {
     if (!formData.value.checked) {
-      MessagePlugin.error("请同意 <西湖分> 服务协议和隐私声明");
+      MessagePlugin.error("请同意 <浑南第21人民医院> 服务协议和隐私声明");
       return;
     }
     registerByPhoneAsync();

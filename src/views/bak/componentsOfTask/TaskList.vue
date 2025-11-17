@@ -128,7 +128,7 @@
             <el-button @click="drawer = false" type="text" style="width: 100%;">取消</el-button>
           </el-col>
           <el-col :span="5">
-            <el-button type="primary" style="width: 100%;">保存</el-button>
+            <el-button type="success" style="width: 100%;">保存</el-button>
           </el-col>
           <el-col :span="10">
             <el-button type="success" style="width: 100%;">开始搜索</el-button>
