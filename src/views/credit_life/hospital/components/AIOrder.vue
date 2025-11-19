@@ -277,39 +277,23 @@ const callRegisterByTool = async (prompt: string) => {
   }
 };
 
-// // 🔍 简单的“挂号意图”识别：你可以按需要再优化
-// const isRegisterIntent = (text: string): boolean => {
-//   // 去掉空格
-//   const t = text.replace(/\s+/g, '');
-//
-//   // 包含“挂号”两个字
-//   if (t.includes('挂号')) return true;
-//
-//   // 例如“挂郑浩医生2025年11月19日09:30-10:00的号”
-//   if (t.includes('挂') && t.includes('号') && t.includes('医生')) return true;
-//
-//   // 包含“预约 + 医生”
-//   if (t.includes('预约') && t.includes('医生')) return true;
-//
-//   // 你可以再加其他规则...
-//   return false;
-// };
+// 🔍 简单的“挂号意图”识别：你可以按需要再优化
 const isRegisterIntent = (text: string): boolean => {
+  // 去掉空格
   const t = text.replace(/\s+/g, '');
 
-  // 1. 必须包含“挂”或“挂号”
-  if (!t.includes('挂')) return false;
+  // 包含“挂号”两个字
+  if (t.includes('挂号')) return true;
 
-  // 2. 必须有“医生”两个字
-  if (!t.includes('医生')) return false;
+  // 例如“挂郑浩医生2025年11月19日09:30-10:00的号”
+  if (t.includes('挂') && t.includes('号') && t.includes('医生')) return true;
 
-  // 3. 必须包含一个日期（简单用 yyyy-MM-dd 检测）
-  const hasDate = /\d{4}-\d{2}-\d{2}/.test(text);
-  if (!hasDate) return false;
+  // 包含“预约 + 医生”
+  if (t.includes('预约') && t.includes('医生')) return true;
 
-  return true;
+  // 你可以再加其他规则...
+  return false;
 };
-
 
 const getAIResponse = (prompt: string, index: number) => {
   const source = new EventSource(
