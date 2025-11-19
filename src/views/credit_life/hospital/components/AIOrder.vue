@@ -10,67 +10,67 @@
           />
         </div>
 
-        <!-- 🩺 推荐科室 & 医生选择面板 -->
-        <div
-            v-if="showDoctorPanel && recommendDept && doctors.length"
-            class="doctor-panel"
-        >
-          <div class="doctor-panel-header">
-            <div class="doctor-panel-title">
-              推荐科室：<span class="dept-name">{{ recommendDept }}</span>
-            </div>
-            <div class="doctor-panel-subtitle">
-              已根据您的症状为您推荐以下出诊医生，请选择其一进行挂号：
-            </div>
-          </div>
+<!--        &lt;!&ndash; 🩺 推荐科室 & 医生选择面板 &ndash;&gt;-->
+<!--        <div-->
+<!--            v-if="showDoctorPanel && recommendDept && doctors.length"-->
+<!--            class="doctor-panel"-->
+<!--        >-->
+<!--          <div class="doctor-panel-header">-->
+<!--            <div class="doctor-panel-title">-->
+<!--              推荐科室：<span class="dept-name">{{ recommendDept }}</span>-->
+<!--            </div>-->
+<!--            <div class="doctor-panel-subtitle">-->
+<!--              已根据您的症状为您推荐以下出诊医生，请选择其一进行挂号：-->
+<!--            </div>-->
+<!--          </div>-->
 
-          <div class="doctor-list">
-            <el-card
-                v-for="doctor in doctors"
-                :key="doctor.id"
-                class="doctor-card"
-                shadow="hover"
-            >
-              <div class="doctor-main">
-                <div class="doctor-name-line">
-                  <span class="doctor-name">{{ doctor.name }}</span>
-                  <span class="doctor-title">{{ doctor.title }}</span>
-                </div>
-                <div class="doctor-goodat" v-if="doctor.goodAt">
-                  擅长：{{ doctor.goodAt }}
-                </div>
-              </div>
+<!--          <div class="doctor-list">-->
+<!--            <el-card-->
+<!--                v-for="doctor in doctors"-->
+<!--                :key="doctor.id"-->
+<!--                class="doctor-card"-->
+<!--                shadow="hover"-->
+<!--            >-->
+<!--              <div class="doctor-main">-->
+<!--                <div class="doctor-name-line">-->
+<!--                  <span class="doctor-name">{{ doctor.name }}</span>-->
+<!--                  <span class="doctor-title">{{ doctor.title }}</span>-->
+<!--                </div>-->
+<!--                <div class="doctor-goodat" v-if="doctor.goodAt">-->
+<!--                  擅长：{{ doctor.goodAt }}-->
+<!--                </div>-->
+<!--              </div>-->
 
-              <div class="doctor-slots" v-if="doctor.timeSlots && doctor.timeSlots.length">
-                <div class="slots-label">可约时间：</div>
-                <div class="slots-buttons">
-                  <el-button
-                      v-for="slot in doctor.timeSlots"
-                      :key="slot"
-                      size="small"
-                      class="slot-button"
-                      @click="handleDoctorSelect(doctor, slot)"
-                  >
-                    {{ slot }}
-                  </el-button>
-                </div>
-              </div>
+<!--              <div class="doctor-slots" v-if="doctor.timeSlots && doctor.timeSlots.length">-->
+<!--                <div class="slots-label">可约时间：</div>-->
+<!--                <div class="slots-buttons">-->
+<!--                  <el-button-->
+<!--                      v-for="slot in doctor.timeSlots"-->
+<!--                      :key="slot"-->
+<!--                      size="small"-->
+<!--                      class="slot-button"-->
+<!--                      @click="handleDoctorSelect(doctor, slot)"-->
+<!--                  >-->
+<!--                    {{ slot }}-->
+<!--                  </el-button>-->
+<!--                </div>-->
+<!--              </div>-->
 
-              <div v-else class="no-slot">当前暂无可预约时间</div>
-            </el-card>
-          </div>
+<!--              <div v-else class="no-slot">当前暂无可预约时间</div>-->
+<!--            </el-card>-->
+<!--          </div>-->
 
-          <div class="doctor-panel-footer">
-            <el-button
-                size="small"
-                plain
-                @click="showDoctorPanel = false"
-            >
-              暂不选择，继续咨询
-            </el-button>
-          </div>
-        </div>
-        <!-- 🩺 推荐科室 & 医生选择面板 END -->
+<!--          <div class="doctor-panel-footer">-->
+<!--            <el-button-->
+<!--                size="small"-->
+<!--                plain-->
+<!--                @click="showDoctorPanel = false"-->
+<!--            >-->
+<!--              暂不选择，继续咨询-->
+<!--            </el-button>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--        &lt;!&ndash; 🩺 推荐科室 & 医生选择面板 END &ndash;&gt;-->
 
       </el-main>
     </el-container>
@@ -149,39 +149,105 @@ onMounted(() => {
 // 数据与状态
 const selectedModel = ref('qwen-plus'); // 默认选择通义千问-plus
 
-// 处理发送消息
+// // 处理发送消息
+// const handleSendMessage = (content: string) => {
+//   if (!content.trim()) return;
+//
+//   // 添加用户消息
+//   messages.value.push({
+//     role: 'user',
+//     content: content.trim()
+//   });
+//
+//   // 关闭医生推荐面板（防止用户已经选过一次，再继续聊）
+//   showDoctorPanel.value = false;
+//
+//   messages.value.push({
+//     role: 'assistant',
+//     content: ''
+//   });
+//
+//   const index = messages.value.length - 1;
+//   getAIResponse(content, index);
+// };
 const handleSendMessage = (content: string) => {
-  if (!content.trim()) return;
+  const text = content.trim();
+  if (!text) return;
 
-  // 添加用户消息
+  // 1. 先往聊天里插入用户消息（无论走哪条路线，这一步都是需要的）
   messages.value.push({
     role: 'user',
-    content: content.trim()
+    content: text
   });
 
-  // 关闭医生推荐面板（防止用户已经选过一次，再继续聊）
+  // 2. 用户一发新消息，就先把医生推荐面板关掉
   showDoctorPanel.value = false;
 
+  // 3. 判断是不是“挂号意图”
+  if (isRegisterIntent(text)) {
+    // ✅ 走 ToolCalling 挂号接口，不再走 SSE 聊天
+    callRegisterByTool(text);
+    return;
+  }
+
+  // 4. 否则，走原来的 SSE 普通对话逻辑
   messages.value.push({
     role: 'assistant',
     content: ''
   });
 
   const index = messages.value.length - 1;
-  getAIResponse(content, index);
+  getAIResponse(text, index);
 };
 
 // ✅ 调用 ToolCalling 挂号接口
+// const callRegisterByTool = async (prompt: string) => {
+//   if (!prompt.trim()) return;
+//
+//   // 1. 聊天里先插入一条“用户确认挂号”的消息
+//   messages.value.push({
+//     role: 'user',
+//     content: prompt.trim()
+//   });
+//
+//   // 2. 再插入一条占位的 assistant 消息：显示“正在为您挂号…”
+//   messages.value.push({
+//     role: 'assistant',
+//     content: '已收到您的挂号请求，正在为您智能完成挂号，请稍候...'
+//   });
+//   const index = messages.value.length - 1;
+//
+//   try {
+//     const res = await fetch(
+//         `/api/chatOrder/tool/register?prompt=${encodeURIComponent(prompt)}`,
+//         {
+//           method: 'POST',
+//           // 如果你的前后端是不同域名，还需要加上这一行，让 cookie / session 带上：
+//           // credentials: 'include',
+//         }
+//     );
+//
+//     if (!res.ok) {
+//       messages.value[index].content = `挂号失败：${res.status} ${res.statusText}`;
+//       return;
+//     }
+//
+//     const text = await res.text();
+//     // 用后端返回的自然语言结果覆盖占位内容
+//     messages.value[index].content = text || '挂号完成，但未收到详细说明。';
+//   } catch (e) {
+//     console.error('调用挂号接口异常', e);
+//     messages.value[index].content = '挂号过程出现异常，请稍后重试或改为人工挂号。';
+//   }
+// };
+
+// ✅ 调用 ToolCalling 挂号接口（纯对话版）
+// 注意：用户消息已经在 handleSendMessage 里插入，这里不再 push 用户消息
 const callRegisterByTool = async (prompt: string) => {
-  if (!prompt.trim()) return;
+  const text = prompt.trim();
+  if (!text) return;
 
-  // 1. 聊天里先插入一条“用户确认挂号”的消息
-  messages.value.push({
-    role: 'user',
-    content: prompt.trim()
-  });
-
-  // 2. 再插入一条占位的 assistant 消息：显示“正在为您挂号…”
+  // 插入一条占位 assistant 消息
   messages.value.push({
     role: 'assistant',
     content: '已收到您的挂号请求，正在为您智能完成挂号，请稍候...'
@@ -190,10 +256,10 @@ const callRegisterByTool = async (prompt: string) => {
 
   try {
     const res = await fetch(
-        `/api/chatOrder/tool/register?prompt=${encodeURIComponent(prompt)}`,
+        `/api/chatOrder/tool/register?prompt=${encodeURIComponent(text)}`,
         {
           method: 'POST',
-          // 如果你的前后端是不同域名，还需要加上这一行，让 cookie / session 带上：
+          // 如果有跨域/session 的需求，这里可以加：
           // credentials: 'include',
         }
     );
@@ -203,13 +269,45 @@ const callRegisterByTool = async (prompt: string) => {
       return;
     }
 
-    const text = await res.text();
-    // 用后端返回的自然语言结果覆盖占位内容
-    messages.value[index].content = text || '挂号完成，但未收到详细说明。';
+    const reply = await res.text();
+    messages.value[index].content = reply || '挂号完成，但未收到详细说明。';
   } catch (e) {
     console.error('调用挂号接口异常', e);
     messages.value[index].content = '挂号过程出现异常，请稍后重试或改为人工挂号。';
   }
+};
+
+// // 🔍 简单的“挂号意图”识别：你可以按需要再优化
+// const isRegisterIntent = (text: string): boolean => {
+//   // 去掉空格
+//   const t = text.replace(/\s+/g, '');
+//
+//   // 包含“挂号”两个字
+//   if (t.includes('挂号')) return true;
+//
+//   // 例如“挂郑浩医生2025年11月19日09:30-10:00的号”
+//   if (t.includes('挂') && t.includes('号') && t.includes('医生')) return true;
+//
+//   // 包含“预约 + 医生”
+//   if (t.includes('预约') && t.includes('医生')) return true;
+//
+//   // 你可以再加其他规则...
+//   return false;
+// };
+const isRegisterIntent = (text: string): boolean => {
+  const t = text.replace(/\s+/g, '');
+
+  // 1. 必须包含“挂”或“挂号”
+  if (!t.includes('挂')) return false;
+
+  // 2. 必须有“医生”两个字
+  if (!t.includes('医生')) return false;
+
+  // 3. 必须包含一个日期（简单用 yyyy-MM-dd 检测）
+  const hasDate = /\d{4}-\d{2}-\d{2}/.test(text);
+  if (!hasDate) return false;
+
+  return true;
 };
 
 
