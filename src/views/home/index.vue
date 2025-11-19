@@ -6,7 +6,7 @@
 <!--          <source src="@/assets/vlog.mp4" type="video/mp4" />-->
 <!--          Your browser does not support HTML5 video.-->
 <!--        </video>-->
-        <img id="bg-image" src="@/assets/home.png" alt="背景图" />
+        <img id="bg-image" src="@/assets/home3.png" alt="背景图" />
         <div class="video-content">
           <t-form
               ref="form"
