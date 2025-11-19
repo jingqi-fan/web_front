@@ -3,7 +3,7 @@
     <img src="@/assets/logo_small.png" alt="logo-symbol" class="logo-image" />
     <div class="logo-text-box">
       <div class="logo-text-wrapper">
-        <div class="logo-text">浑南第21人人民医院</div>
+        <div class="logo-text">浑南第21人民医院</div>
 <!--        <div class="credit">Credit</div>-->
       </div>
     </div>

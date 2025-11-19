@@ -54,6 +54,7 @@ import DoctorManager from "../views/manager_main/hospital/DoctorManager.vue"
 import ParkingManager from "../views/manager_main/parking/ParkingManager.vue"
 import ExamineImprove from "../views/manager_main/examine_and_approve/index.vue"
 import MyOrder from "../views/credit_life/hospital/components/MyOrder.vue";
+import AIOrder from "../views/credit_life/hospital/components/AIOrder.vue";
 import PreorderInfo from "../views/credit_life/hospital/components/PreorderInfo.vue";
 import BorrowBookList from "../views/credit_life/library/BorrowBook.vue";
 import DoctorLogin from "../views/credit_life/library/DoctorLogin.vue";
@@ -174,6 +175,11 @@ const router = createRouter({
                     path: '/life/hospital_order_home/myorder',
                     name: 'HospitalMyOrder',
                     component: MyOrder,
+                },
+                {
+                    path: '/life/hospital_order_home/aiorder',
+                    name: 'AIOrder',
+                    component: AIOrder,
                 },
                 {
                     path:'/life/hospital_order_home/preorder_info',

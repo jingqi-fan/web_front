@@ -105,7 +105,7 @@ function formatDate(dt: string) {
 
 /** 刷新二维码：在 URL 后加个时间戳做扰动 **/
 async function refreshQr() {
-  const base = 'https://www.chinasofti.com/'
+  const base = 'http://sc.neu.edu.cn/'
   const url = `${base}?t=${Date.now()}`
   qrCodeUrl.value = await QRCode.toDataURL(url, { width: 200 })
 }

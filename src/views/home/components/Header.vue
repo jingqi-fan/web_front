@@ -6,24 +6,33 @@
 
 
     <div class="header-option">
-      <t-button variant="text" @click="goToManagerPage">
-        管理员入口
-      </t-button>
-      <t-button variant="text" @click="goToUserCenter">
-        个人中心
-      </t-button>
+<!--      <t-button variant="text" @click="goToManagerPage">-->
+<!--        管理员入口-->
+<!--      </t-button>-->
+<!--      <t-button variant="text" @click="goToUserCenter">-->
+<!--        个人中心-->
+<!--      </t-button>-->
 
-      <t-button variant="text" @click="goToCreditBusiness">
-        信用商业
-      </t-button>
+      <router-link to="/life/hospital">
+        <t-button variant="text">
+          预约入口
+        </t-button>
+      </router-link>
 
-      <t-button variant="text" @click="goToCreditLife">
-        信用生活
-      </t-button>
+      <router-link to="/welcome">
+        <t-button variant="text">
+          智慧助手
+        </t-button>
+      </router-link>
 
-      <t-button variant="text" @click="goToCreditManage">
-        信用管理
-      </t-button>
+
+<!--      <t-button variant="text" @click="goToCreditLife">-->
+<!--        信用生活-->
+<!--      </t-button>-->
+
+<!--      <t-button variant="text" @click="goToCreditManage">-->
+<!--        信用管理-->
+<!--      </t-button>-->
     </div>
 
     <div class="header-button">
@@ -67,10 +76,10 @@
         <t-icon name="help-circle" class="icon" />
       </t-button>
 
-      <!-- 语言切换开关 -->
-      <t-switch v-model="slotChecked" size="large" style="margin-left: 15px">
-        <template #label="slotProps">{{ slotProps.value ? '中' : 'En' }}</template>
-      </t-switch>
+<!--      &lt;!&ndash; 语言切换开关 &ndash;&gt;-->
+<!--      <t-switch v-model="slotChecked" size="large" style="margin-left: 15px">-->
+<!--        <template #label="slotProps">{{ slotProps.value ? '中' : 'En' }}</template>-->
+<!--      </t-switch>-->
     </div>
   </header>
 </template>
@@ -99,7 +108,7 @@ const isLoggedIn = computed(() => user.value !== null);
 // 下拉菜单项
 const userOptions: DropdownOption[] = [
   { content: '个人中心', value: 'personal' },
-  { content: '首页', value: 'home' },
+  // { content: '首页', value: 'home' },
   { content: '退出登录', value: 'logout' },
 ];
 
@@ -205,7 +214,7 @@ const navToGovernment = () => {
 };
 
 const navToHelper = () => {
-  window.open('https://www.chinasofti.com/');
+  window.open('http://sc.neu.edu.cn/');
 };
 
 </script>
@@ -260,11 +269,11 @@ const navToHelper = () => {
 }
 
 .header-option .t-button {
-  font-size: 20px;
-  padding: 8px 16px;
+  font-size: 25px;
+  padding: 4px 28px;
 }
 
 .header-button .t-button {
-  font-size: 18px;
+  font-size: 28px;
 }
 </style>

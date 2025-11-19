@@ -25,11 +25,11 @@ import { ref } from "vue";
 const slotChecked = ref(true);
 
 const navToGovernment = () => {
-  window.open("https://www.hangzhou.gov.cn/");
+  window.open("http://sc.neu.edu.cn/");
 };
 
 const navToHelper = () => {
-  window.open("https://www.chinasofti.com/");
+  window.open("http://sc.neu.edu.cn/");
 };
 </script>
 

@@ -4,8 +4,8 @@
     <div class="header-container animate__animated animate__fadeInDown">
       <logo style="margin-left: 20px; cursor: pointer" @click="backHome" />
       <div class="credit-life-title">
-        <div class="main-title">舒心就医平台<div class="title-decoration"></div></div>
-<!--        <div class="subtitle">看病就医更方便、更省心</div>-->
+        <div class="main-title">信用生活<div class="title-decoration"></div></div>
+        <div class="subtitle">让信用创造美好生活价值</div>
       </div>
       <el-dropdown trigger="hover">
         <span class="el-dropdown-link">
@@ -25,94 +25,8 @@
         </template>
       </el-dropdown>
     </div>
-    <div class="main-content">
-      <div class="main-top">
 
 
-        <!-- 三张功能卡片 -->
-        <div class="mini-options">
-          <!-- 快速预约 -->
-          <div class="mini-option orders-option" @click="goToReservation">
-            <div class="option-content">
-              <div class="icon-wrapper">
-                <el-icon class="option-icon"><Clock /></el-icon>
-              </div>
-              <div class="option-text">
-                <h3>快速预约</h3>
-                <p>自主选择医生与科室</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="mini-option orders-option" @click="goToAIReservation">
-            <div class="option-content">
-              <div class="icon-wrapper">
-                <el-icon class="option-icon"><Clock /></el-icon>
-              </div>
-              <div class="option-text">
-                <h3>AI协助预约</h3>
-                <p>AI智能分析病情并匹配医生</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- 信用分查询 -->
-          <div class="mini-option score-option" >
-            <div class="option-content">
-              <div class="icon-wrapper">
-                <el-icon class="option-icon"><Star /></el-icon>
-              </div>
-              <div class="option-text">
-                <h3>用户信用分：{{creditScore}}</h3>
-                <p>{{getUserCreditScoreLevel(creditScore)}}</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- 我的预约 -->
-          <div class="mini-option medical-card" @click="goToMyAppointments">
-            <div class="option-content">
-              <div class="icon-wrapper">
-                <el-icon class="option-icon"><Calendar /></el-icon>
-              </div>
-              <div class="option-text">
-                <h3>我的预约</h3>
-                <p>随时查看预约信息</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="main-bottom">
-        <div class="section-title">医生推荐</div>
-        <el-carousel
-            :interval="5000"
-            arrow="always"
-            height="300px"
-            :indicator-position="'outside'"
-        >
-          <el-carousel-item
-              v-for="(group, index) in doctorGroups"
-              :key="index"
-          >
-            <div class="doctor-cards">
-              <div class="doctor-card" v-for="doc in group"  :key="doc.id" @click="goPreorderDoctor(doc.doctorId)">
-                <img :src="doc.image" class="doctor-avatar"  alt=""/>
-                <div class="doctor-info" >
-                  <h3>{{ doc.doctorName }}</h3>
-                  <p>{{ doc.departmentName }} ｜ {{ getDoctorTitle(doc.doctorTitle) }}</p>
-                  <p class="intro">{{ doc.doctorSpecialty }}</p>
-                </div>
-              </div>
-            </div>
-          </el-carousel-item>
-        </el-carousel>
-
-      </div>
-
-
-    </div>
   </div>
 </template>
 
@@ -120,19 +34,14 @@
 import {computed, ref} from 'vue';
 import Logo from '@/views/personal/component/Logo.vue';
 import {
-  Calendar, Clock, Star,
+
   SwitchButton,
   UserFilled
 } from '@element-plus/icons-vue';
 import router from "@/router";
-import {countBacklog} from "@/api/life/home.ts";
-import {useUserInfoStore} from "@/stores/useUserInfoStore.ts";
-import {useUserCreditScoreStore} from "@/stores/useUserCreditScore.ts";
-import {getRecommendDoctor} from "@/api/life/hospital_api.ts";
-import type {Doctors, RecommendDoctorsRes} from "@/api/life/hospital_type.ts";
-import {ElMessage} from "element-plus";
-import {useHospitalHomePreorderDoctor} from "@/stores/useHospitalHomePreorderDoctor.ts";
-import {getDoctorDetail} from "@/api/life/doctor_api.ts";
+import {countBacklog} from "@/api/life/home.js";
+import {useUserInfoStore} from "@/stores/useUserInfoStore.js";
+import {useUserCreditScoreStore} from "@/stores/useUserCreditScore.js";
 
 const avatarUrl = ref('https://q8.itc.cn/q_70/images03/20250521/eac16c7d96884de3bd0cb499554c205a.jpeg');
 const pendingCount = ref(0);
@@ -148,83 +57,14 @@ const userCreditScore=useUserCreditScoreStore()
 const creditScore = ref(0);
 creditScore.value=userCreditScore.score.creditScore
 
+
 const backHome = () => router.push('/home');
 const handleEditRealInfo = () => router.push('/credit-life/real-info');
 const logout = () => alert('退出登录');
-
-
-const searchKeyword = ref('')
-
-const goToReservation = () => router.push('/life/hospital_order_home')
-const goToAIReservation = () => router.push('/life/hospital_order_home/aiorder')
-const goToCredit = () => router.push('/credit-life/credit-score')
-const goToMyAppointments = () => router.push('/life/hospital_order_home/myorder')
-const doctors = ref<RecommendDoctorsRes[]>([])
-
-const loadRecommendDoctors=async ()=>{
-  const res:RecommendDoctorsRes[]=await getRecommendDoctor()
-  console.log("加载结果：",res)
-  doctors.value=res
-}
-loadRecommendDoctors()
-const getDoctorTitle=(title:string)=>{
-  switch(title){
-    case '0':
-      return '普通医生'
-    case '1':
-      return '副主任'
-    case '2':
-      return '主任'
-    default:
-      return '未知职称'
-  }
-}
-
-
-// 每组3个医生，用于轮播
-const doctorGroups = computed(() => {
-  const result = []
-  for (let i = 0; i < doctors.value.length; i += 3) {
-    result.push(doctors.value.slice(i, i + 3))
-  }
-  return result
-})
-const getUserCreditScoreLevel=(score:number)=>{
-  if(score>=750){
-    return '您的信用分极高👍'
-  }else if(score>=550){
-    return '您的信用分很高⭐'
-  }else if(score>=450){
-    return '您的信用分不太高哦，要注意！'
-  }else{
-    ElMessage.error('您的信用分过低，无法使用！')
-    router.back()
-    return '信用较差'
-  }
-}
-
-const goPreorderDoctor=async (id:number)=>{
-  const preorderDoctor=useHospitalHomePreorderDoctor()
-  console.log("选择医生：",id)
-  const res=await getDoctorDetail(id)
-  console.log("医生详情：",res.data)
-  preorderDoctor.setDoctor(res.data)
-  await router.push('/life/hospital_order_home/preorder_info')
-}
 </script>
 
 <style scoped lang="scss">
 @import 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css';
-.doctor-cards {
-  display: flex;
-  justify-content: center; // 中心展示三张卡片
-  gap: 24px;
-}
-
-.el-carousel__item {
-  display: flex;
-  justify-content: center;
-}
 
 .credit-life-index {
   padding: 0 20px 30px;
@@ -233,72 +73,13 @@ const goPreorderDoctor=async (id:number)=>{
   font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
   position: relative;
 }
-.search-bar {
-  margin: 20px auto;
-  max-width: 500px;
-  display: block;
-}
-
-.doctor-cards {
-  display: flex;
-  justify-content: space-around;
-  gap: 20px;
-}
-
-.doctor-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(13, 76, 211, 0.08);
-  padding: 16px;
-  width: 220px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  transition: 0.3s ease;
-
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 24px rgba(13, 76, 211, 0.15);
-  }
-
-  .doctor-avatar {
-    width: 100%;
-    height: 140px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-bottom: 12px;
-  }
-
-  .doctor-info {
-    text-align: center;
-
-    h3 {
-      font-size: 16px;
-      font-weight: bold;
-      margin-bottom: 4px;
-    }
-
-    p {
-      font-size: 13px;
-      color: #666;
-      margin: 2px 0;
-    }
-
-    .intro {
-      font-size: 12px;
-      color: #999;
-      margin-top: 6px;
-    }
-  }
-}
 
 .header-background {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 180px;
+  height: 210px;
   background: linear-gradient(135deg, #1a56db 0%, #0d4cd3 100%);
   z-index: 0;
   border-radius: 0 0 20px 20px;
@@ -420,7 +201,7 @@ const goPreorderDoctor=async (id:number)=>{
 .section-title {
   font-size: 24px;
   font-weight: 600;
-  color: #105e3f; /* 主绿色 */
+  color: #1a56db;
   margin-bottom: 24px;
   padding-bottom: 12px;
   border-bottom: 1px solid #eaeaea;
@@ -433,13 +214,10 @@ const goPreorderDoctor=async (id:number)=>{
     left: 0;
     width: 100px;
     height: 3px;
-
-    /* 绿色渐变装饰条 */
-    background: linear-gradient(90deg, #105e3f, #26d97a);
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
     border-radius: 2px;
   }
 }
-
 
 /* 主服务卡片区域 */
 .main-services {
@@ -836,12 +614,11 @@ const goPreorderDoctor=async (id:number)=>{
 .main-title {
   font-size: 50px;
   font-weight: 700;
-  color: #105e3f; /* 主标题绿色 */
+  color: #1a56db;
   position: relative;
   letter-spacing: 1px;
-  text-shadow: 0 2px 4px rgba(16, 94, 63, 0.2); /* 绿色阴影 */
+  text-shadow: 0 2px 4px rgba(26, 86, 219, 0.15);
 }
-
 
 .title-decoration {
   position: absolute;
@@ -850,11 +627,10 @@ const goPreorderDoctor=async (id:number)=>{
   transform: translateX(-50%);
   width: 60%;
   height: 3px;
-  background: linear-gradient(90deg, transparent, #36c08f, transparent);
+  background: linear-gradient(90deg, transparent, #3b82f6, transparent);
   border-radius: 2px;
-  opacity: 0.8;
+  opacity: 0.7;
 }
-
 
 .subtitle {
   font-size: 12px;
@@ -889,7 +665,7 @@ const goPreorderDoctor=async (id:number)=>{
 .header-title {
   font-size: 20px;
   font-weight: bold;
-  color: #105e3f;
+  color: #1a56db;
   flex-grow: 1;
   text-align: center;
   margin-left: -40px; /* 平衡左右图标宽度 */
@@ -900,8 +676,7 @@ const goPreorderDoctor=async (id:number)=>{
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 16px;
-  margin-top: 80px;
-  margin-bottom: 10px;
+  margin-bottom: 30px;
   position: relative;
   z-index: 1;
 
@@ -983,13 +758,12 @@ const goPreorderDoctor=async (id:number)=>{
 
   .progress-bar {
     height: 6px;
-    background: linear-gradient(90deg, #0f4d32 0%, #157f52 100%);
+    background: linear-gradient(90deg, #5e8fff 0%, #1a56db 100%);
     border-radius: 3px;
     position: absolute;
     bottom: 0;
     left: 0;
   }
-
 
   span {
     font-size: 12px;
@@ -1033,10 +807,10 @@ const goPreorderDoctor=async (id:number)=>{
   }
 }
 .parking-card {
-  border-left: 4px solid #105e3f;
+  border-left: 4px solid #3b82f6;
 
   .module-icon {
-    color: #105e3f;
+    color: #3b82f6;
   }
 
 
@@ -1062,7 +836,7 @@ const goPreorderDoctor=async (id:number)=>{
   .section-title {
     font-size: 24px;
     font-weight: 600;
-    color: #105e3f;
+    color: #1a56db;
     margin-bottom: 40px;
     position: relative;
 
@@ -1238,15 +1012,5 @@ const goPreorderDoctor=async (id:number)=>{
       font-size: 12px;
     }
   }
-}
-.main-content{
-  display: grid;
-  grid-template-rows: auto 1fr;
-}
-.main-top{
-  height: 250px;
-}
-.main-bottom{
-
 }
 </style>

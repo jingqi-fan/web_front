@@ -12,18 +12,19 @@
         </div>
 
         <div class="title-right">
-          <el-button @click="goToTraining" class="custom-button">信用商业</el-button>
-          <el-button @click="goToCreditLife" class="custom-button">信用生活</el-button>
-          <el-button @click="goToCreditMan" class="custom-button">信用管理</el-button>
-          <el-button
-              class="ai-button custom-button"
-              :class="{ 'pulse': hasNewMessage, 'active': isActive }"
-              @click="prosocialCenter"
-              plain
-              round
-          >
-            <span style="font-weight: bold; color: #409EFF;">亲社会活动</span>
-          </el-button>
+<!--          <el-button @click="goToTraining" class="custom-button">信用商业</el-button>-->
+<!--          <el-button @click="goToCreditLife" class="custom-button">信用生活</el-button>-->
+<!--          <el-button @click="goToCreditMan" class="custom-button">信用管理</el-button>-->
+              <el-button @click="goToHospital" class="custom-button">立刻预约</el-button>
+<!--          <el-button-->
+<!--              class="ai-button custom-button"-->
+<!--              :class="{ 'pulse': hasNewMessage, 'active': isActive }"-->
+<!--              @click="prosocialCenter"-->
+<!--              plain-->
+<!--              round-->
+<!--          >-->
+<!--            <span style="font-weight: bold; color: #409EFF;">亲社会活动</span>-->
+<!--          </el-button>-->
           <el-button class="custom-button" :icon="User" @click="goToUserCenter" plain round></el-button>
         </div>
       </el-header>
@@ -71,6 +72,10 @@ let intervalId: ReturnType<typeof setInterval> | null = null;
 
 const goToCreditMan=()=>{
   router.push('/manageHouse')
+}
+
+const goToHospital=()=>{
+  router.push('/life/hospital')
 }
 
 onBeforeUnmount(() => {

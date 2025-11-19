@@ -7,7 +7,7 @@
           <logo style="margin-left: 20px; cursor: pointer" @click="backHome" />
           <div class="credit-life-title">
             <div class="main-title">预约中心<div class="title-decoration"></div></div>
-            <div class="subtitle">就医便捷预约、一站式服务中心</div>
+<!--            <div class="subtitle">就医便捷预约、一站式服务中心</div>-->
           </div>
           <el-dropdown trigger="hover">
         <span class="el-dropdown-link">
@@ -41,6 +41,10 @@
             <el-menu-item index="/life/hospital_order_home/preorder">
               <el-icon><Calendar /></el-icon>
               <span>快速预约</span>
+            </el-menu-item>
+            <el-menu-item index="/life/hospital_order_home/aiorder">
+              <el-icon><Calendar /></el-icon>
+              <span>AI协助预约</span>
             </el-menu-item>
             <el-menu-item index="/life/hospital_order_home/myorder">
               <el-icon><List /></el-icon>
@@ -114,8 +118,21 @@ avatarUrl.value=userInfoStore.user.profilePicture
 }
 /* 悬停动画效果 */
 .main-title {
-  transition: all 0.3s ease;
+  font-size: 42px;
+  font-weight: 700;
+  color: #105e3f;   /* 主体绿色 */
+  position: relative;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(16, 94, 63, 0.20); /* 绿色阴影 */
+  transition: all 0.3s ease; /* 悬停动画 */
 }
+
+/* 悬停动画效果 */
+.main-title:hover {
+  transform: scale(1.03);
+  text-shadow: 0 4px 8px rgba(16, 94, 63, 0.25);
+}
+
 .title-decoration {
   position: absolute;
   bottom: -6px;
@@ -123,25 +140,28 @@ avatarUrl.value=userInfoStore.user.profilePicture
   transform: translateX(-50%);
   width: 60%;
   height: 3px;
-  background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+
+  /* 绿色渐变透明线 */
+  background: linear-gradient(
+      90deg,
+      transparent,
+      #26d97a,   /* 明亮绿 */
+      transparent
+  );
+
   border-radius: 2px;
   opacity: 0.7;
 }
-.subtitle {
-  font-size: 16px;
-}
+
 .subtitle {
   font-size: 12px;
-  color: #6b7280;
+  color: #4b6356; /* 柔和深绿灰 */
   margin-top: 4px;
   letter-spacing: 1.5px;
   font-weight: 500;
   opacity: 0.9;
 }
-.main-title:hover {
-  transform: scale(1.03);
-  text-shadow: 0 4px 8px rgba(26, 86, 219, 0.2);
-}
+
 
 /* 响应式调整 */
 @media (max-width: 768px) {
