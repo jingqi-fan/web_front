@@ -1,4 +1,4 @@
-# CreditLife Hub Frontend
+# CreditLife Frontend
 
 A **Vue 3 + TypeScript** frontend for a credit-based lifestyle platform covering rental, hospital, parking, shopping, user credit, and public-good activity scenarios.
 
